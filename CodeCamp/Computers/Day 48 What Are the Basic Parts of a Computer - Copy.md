@@ -214,7 +214,7 @@ In web applications, there is usually a file called README that contains useful 
 ## Web browsers
 Web browsers are software applications that allow users to access and navigate the World Wide Web. They inrepret and display web content, including text, images, videos, and interactive elements.
 
-## Websits
+## Websites
 Websites are a collection of web pages and related content  that are indetified by a common domain name and published on at least one web server. They are destinations you visit using your web browser
 
 ## Search Engines
