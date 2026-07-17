@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <title>Day 48 Project Page</title>
+
+        <style>
+            p {
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Day 48 Project Page: Basic CSS, Inline CSS, Internal CSS, External CSS</h1>
+            <p>This project page is about basic CSS, such as the standard syntax/hierarchy to CSS, and the different types of CSS as well.</p>
+        </header>
+        <main>
+            <section>
+                <h2>Basic CSS</h2>
+                <p>First let's start with the basic anatomy behind CSS. CSS has selectors, and within selectors there are declarations. Within those declarations, there are properties, and each property has a corresponding value. The selectors are made to select the HTML element that will be stylized, while the declaration is the container for the actual style declaration. Within the declaration, there is a specific property you are aiming to alter, and that property has a value that you can change about it.</p>
+                <h3 id="colors-header">My favorite colors</h3>
+                <ul id="color-list">
+                    <li><p id="red">Red</p></li>
+                    <li><p id="blue">Blue</p></li>
+                    <li><p id="pink">Pink</p></li>
+                    <li><p id="green">Green</p></li>
+                </ul>
+            </section>
+            <section>
+                <h2>Inline CSS</h2>
+                <p style="color: purple;">Inline CSS is used within the style attribute on an HTMl element to stylize
+                    that specific element. For example I used inline CSS to make this purple
+                </p>
+            </section>
+            <section>
+                <h2>Internal CSS</h2>
+                <p>Internal CSS on the other hand, is used to stylize an entire page of elements. However, the
+                    stylization is limited to one page. Which is why internal CSS is usually only used on singular page projects.
+                    For example, I used internal CSS to make it to where every single paragraph element on this page has a font size
+                    of 18 pixels.
+                </p>
+            </section>
+            <section>
+                <h2>External CSS</h2>
+                <p>External CSS is when an external CSS file is linked to an HTML file, in which that file (often referred to as a stylesheet)
+                    contains all the relevant styles for that webpage. This is the most commonly used form of CSS as it allows for multiple pages
+                    to be styles at once. 
+                </p>
+            </section>
+        </main>
+    </body>
+</html>

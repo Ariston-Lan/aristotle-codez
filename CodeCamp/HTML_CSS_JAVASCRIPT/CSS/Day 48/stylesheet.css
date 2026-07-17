@@ -1,0 +1,32 @@
+#red {
+    color: red;
+}
+
+#blue {
+    color: blue;
+}
+
+#green {
+    color: green;
+}
+
+#pink {
+    color: pink;
+}
+
+#color-list {
+    color: gold;
+}
+
+#colors-header {
+    color: rgb(3, 35, 106);
+}
+
+header h1 {
+    color: red;
+}
+
+header p {
+    color: darkcyan;
+}
+
