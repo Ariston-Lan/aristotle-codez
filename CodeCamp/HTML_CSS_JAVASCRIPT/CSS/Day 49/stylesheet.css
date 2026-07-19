@@ -1,0 +1,59 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+#content-box .example-container {
+    background-color: rgb(36, 36, 36);
+    margin-top: 40px;
+    margin-bottom: 40px;
+    color: gold;
+}
+
+#content-box .example {
+    border: 3px solid white;
+}
+
+
+#content-box .title {
+    background-color: rgb(1, 1, 58);
+    border: 2px solid  rgb(1, 32, 10);
+    color: silver;
+    text-align: center;
+    margin: auto;
+    width: 300px;
+
+}
+
+
+
+#content-box .description {
+    color: silver;
+    display: inline-block;
+    border: 2px solid rgb(1, 32, 10);
+    background-color: rgb(1, 1, 58);
+}
+
+#content-box #height-example {
+    height: 300px;
+}
+
+#content-box #width-example {
+    width: 65px;
+}
+
+#content-box #height-width-example {
+    height: 300px;
+    width: 75px;
+}
+
+#content-box #inline-example {
+    height: 300px;
+    width: 300px;
+}
+
+#content-box #inline-block-example {
+    height: 300px;
+    width: 100px;
+    display: inline-block
+}

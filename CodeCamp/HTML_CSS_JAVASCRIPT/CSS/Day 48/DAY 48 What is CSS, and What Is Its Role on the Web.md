@@ -13,7 +13,7 @@ A CSS rule is made up of two main parts: a selector and decoration block.
 
 - Selector
 - - A selector is a pattern used in CSS to identify and target specific HTML elements for styling. Examples of selectors include type selectors, class selectors, and ID selectors.
-
+~
 ```css
 selector {
     property: value;

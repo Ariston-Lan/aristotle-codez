@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="device-width initial-scale=1.0">
+
+        <title>Day 49 Project Page</title>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="test.html">Test Page</a>
+            </nav>
+            <h1>Project Page day 49: Width and Height, CSS Comibinators, Block-level elements, Inline elements, inline-block elements, Margins, & Padding</h1>
+            <p>
+                It looks like I learned a lot but a lot of this stuff is overlapping (or rather compounding knowledge rather than an entirely new topic.)
+                For one, the width and height are self explanatory, they allow you to alter the width and height of the content box that naturally surrounds
+                HTML elements. I bet you're wondering then, <em>what exactly is the content box?</em> Well, that's defined through block-level elements, inline-elements,
+                 and inline-block elements. Then margin and padding work based on those things too! Margin adds spacing outside of the content box, while padding adds space in it.
+                 The CSS combinators on the other hand are just ways to reference html elements in CSS based on relative info, like siblings and parents for instance.
+
+            </p>
+        </header>
+        <main>
+            <section id="content-box">
+                <h2 class="title">Content Box</h2>
+                <p class="description">Since I keep referencing this word, I will just give a quick section demonstrating it.
+                    The content box is the borders surrounding an element, and there are two types. The block-level
+                    elements and the inline-elements. The block-level elements take up an entire line of space, no matter
+                    the inner content.
+                </p>
+
+                <h3 class="title">Block-level vs inline element</h3>
+                <div class="example-container">
+                    <span class="example">This is an example of a content border of an inline element</span>
+                    <p class="example">This is an example of a content border of a block-level element</p>
+                </div>
+                <p class="description">As you can see, the difference between an inline element and a block-level element,
+                     is that the block level element's border extends to the entire page (creating a new line), whereas the
+                    inline element only takes the space it needs.
+                 </p>
+                 <h3 class="title">Height, Width, and inline-block elements</h3>
+                 <p class="description">Height and width alter the width and height of the context box.
+                     However, inline elements cannot have their content box altered by this way.
+                 </p>
+                 <div class="example-container">
+                    <p class="example" id="height-example">This paragraph element has its height set to 300px</p>
+                    <p class="example" id="width-example">This paragraph element has its width set to 65px</p>
+                    <p class="example" id="height-width-example">This paragraph element has its width and height set to 75px and 300px respectively</p>
+                    <span class="example" id="inline-example">This span element has its height and width set to 300px, but since it is an inline element, its content border is not altered</span>
+                </div>
+                <div class="example-container">
+                    <span class="example" id="inline-block-example">This span element has its height and with set to 300px and 100px respectively, and since it is now an inline-block element after setting 
+                        <code>display: inline-block;</code>
+                         its height and width are able to be altered.
+                    </span>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
