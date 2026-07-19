@@ -57,6 +57,42 @@
                          its height and width are able to be altered.
                     </span>
                 </div>
+                <h3 class="title">Margins and Padding</h3>
+                <p class="description">Margin and padding are simple. Margin increases the space outside of your context box,
+                     while padding increases the space inside your content box.
+                </p>
+                <div class="example-container">
+                    <p class="example">This paragraph does not have margin applied</p>
+                    <p class="example" id="margin-example">This paragraph element has margin applied (All 40px for top left bottom & right)</p>
+                    <p class="example">This paragraph does not have margin applied</p>
+                    <p class="example" id="padding-example">This paragrpah element has padding applied (All 40px for top left bottom & right)</p>
+                </div>
+                <h3 class="title">CSS Combinators</h3>
+                <p class="description">CSS combinators are a way to select HTML elements based on relative siblings and parents</p>
+                <div class="example-container">
+                    <pre><code>/* Descendant */
+.parent .child {
+}
+
+/* Child */
+.parent > .child {
+}
+
+/* Adjacent Sibling */
+.first + .second {
+}
+
+/* General Sibling */
+.first ~ .second {
+}</code></pre>
+                    <p class="description">Child is different from descendant since it only gets the immediate child.
+                         Meaning that it will get the first child and no others (specifically children that are nested within another parent, such as a div).
+                    </p>
+
+                    <p class="description">In the same way, general sibling is different than adjacent sibling. General sibling gets every matching sibling after the first element,
+                         whereas adjacent sibling only gets the first.
+                    </p>
+                </div>
             </section>
         </main>
     </body>

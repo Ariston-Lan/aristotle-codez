@@ -57,3 +57,11 @@ body {
     width: 100px;
     display: inline-block
 }
+
+#content-box #margin-example {
+    margin: 40px 40px 40px 40px;
+}
+
+#content-box #padding-example {
+    padding: 40px 40px 40px 40px;
+}
