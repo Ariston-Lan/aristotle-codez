@@ -718,4 +718,320 @@ system.run()
 -----------
 Then obviously there is a LOT more code within those things (Actually only 295 lines roughly).
 
+---
+# Day 48
+
+Did not too much work today, I took notes on foundational parts of a computer (as per the codecamp course), and then I also did a codecamp workshop on inheritance in order to make a media catalogue.
+```python
+class Movie:
+    def __init__(self, title, year, director, duration):
+        if not title.strip():
+            raise ValueError('Title cannot be empty')
+        if year < 1895:
+            raise ValueError('Year must be 1895 or later')
+        if not director.strip():
+            raise ValueError('Director cannot be empty')
+        if duration <= 0:
+            raise ValueError('Duration must be positive')
+        self.title = title
+        self.year = year
+        self.director = director
+        self.duration = duration
+
+    def __str__(self):
+        return f'{self.title} ({self.year}) - {self.duration} min, {self.director}'
+
+class MediaCatalogue:
+    def __init__(self):
+        self.items = []
+
+    def add(self, media_item):
+        self.items.append(media_item)
+    def __str__(self):
+        if not self.items:
+            return 'Media Catalogue (empty)'
+        result = f'Media Catalogue ({len(self.items)} items):\n\n'
+        for index, movie in enumerate(self.items):
+            result += f'{index}. {str(movie)}\n'
+        return result
+try:
+    movie1 = Movie('The Matrix', 1999, 'The Wachowskis', 136)
+except ValueError as e:
+    print(f'Validation Error: {e}')
+
+Med = MediaCatalogue()
+Med.add(movie1)
+print(Med)
+```
+I also did some CSS and learned the basic anatomy of it.
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <title>Day 48 Project Page</title>
+
+        <style>
+            p {
+                font-size: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Day 48 Project Page: Basic CSS, Inline CSS, Internal CSS, External CSS</h1>
+            <p>This project page is about basic CSS, such as the standard syntax/hierarchy to CSS, and the different types of CSS as well.</p>
+        </header>
+        <main>
+            <section>
+                <h2>Basic CSS</h2>
+                <p>First let's start with the basic anatomy behind CSS. CSS has selectors, and within selectors there are declarations. Within those declarations, there are properties, and each property has a corresponding value. The selectors are made to select the HTML element that will be stylized, while the declaration is the container for the actual style declaration. Within the declaration, there is a specific property you are aiming to alter, and that property has a value that you can change about it.</p>
+                <h3 id="colors-header">My favorite colors</h3>
+                <ul id="color-list">
+                    <li><p id="red">Red</p></li>
+                    <li><p id="blue">Blue</p></li>
+                    <li><p id="pink">Pink</p></li>
+                    <li><p id="green">Green</p></li>
+                </ul>
+            </section>
+            <section>
+                <h2>Inline CSS</h2>
+                <p style="color: purple;">Inline CSS is used within the style attribute on an HTMl element to stylize
+                    that specific element. For example I used inline CSS to make this purple
+                </p>
+            </section>
+            <section>
+                <h2>Internal CSS</h2>
+                <p>Internal CSS on the other hand, is used to stylize an entire page of elements. However, the
+                    stylization is limited to one page. Which is why internal CSS is usually only used on singular page projects.
+                    For example, I used internal CSS to make it to where every single paragraph element on this page has a font size
+                    of 18 pixels.
+                </p>
+            </section>
+            <section>
+                <h2>External CSS</h2>
+                <p>External CSS is when an external CSS file is linked to an HTML file, in which that file (often referred to as a stylesheet)
+                    contains all the relevant styles for that webpage. This is the most commonly used form of CSS as it allows for multiple pages
+                    to be styles at once. 
+                </p>
+            </section>
+        </main>
+    </body>
+</html>
+```
+
+```CSS
+#red {
+    color: red;
+}
+
+#blue {
+    color: blue;
+}
+
+#green {
+    color: green;
+}
+
+#pink {
+    color: pink;
+}
+
+#color-list {
+    color: gold;
+}
+
+#colors-header {
+    color: rgb(3, 35, 106);
+}
+
+header h1 {
+    color: red;
+}
+
+header p {
+    color: darkcyan;
+}
+
+```
+
+---
+# Day 49
+
+Today I did some CSS, learned how to style pages, use IDs and classes more effectively than I had been before. I also did another codecamp workshop, this one was about abstraction where I learned about abstraction methods/overriding certain methods. Even sometimes creating an entire base class where the methods are meant to be overridden (which seems like overkill now but I am sure the usage will become clear later.)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="device-width initial-scale=1.0">
+
+        <title>Day 49 Project Page</title>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="test.html">Test Page</a>
+            </nav>
+            <h1>Project Page day 49: Width and Height, CSS Comibinators, Block-level elements, Inline elements, inline-block elements, Margins, & Padding</h1>
+            <p>
+                It looks like I learned a lot but a lot of this stuff is overlapping (or rather compounding knowledge rather than an entirely new topic.)
+                For one, the width and height are self explanatory, they allow you to alter the width and height of the content box that naturally surrounds
+                HTML elements. I bet you're wondering then, <em>what exactly is the content box?</em> Well, that's defined through block-level elements, inline-elements,
+                 and inline-block elements. Then margin and padding work based on those things too! Margin adds spacing outside of the content box, while padding adds space in it.
+                 The CSS combinators on the other hand are just ways to reference html elements in CSS based on relative info, like siblings and parents for instance.
+
+            </p>
+        </header>
+        <main>
+            <section id="content-box">
+                <h2 class="title">Content Box</h2>
+                <p class="description">Since I keep referencing this word, I will just give a quick section demonstrating it.
+                    The content box is the borders surrounding an element, and there are two types. The block-level
+                    elements and the inline-elements. The block-level elements take up an entire line of space, no matter
+                    the inner content.
+                </p>
+
+                <h3 class="title">Block-level vs inline element</h3>
+                <div class="example-container">
+                    <span class="example">This is an example of a content border of an inline element</span>
+                    <p class="example">This is an example of a content border of a block-level element</p>
+                </div>
+                <p class="description">As you can see, the difference between an inline element and a block-level element,
+                     is that the block level element's border extends to the entire page (creating a new line), whereas the
+                    inline element only takes the space it needs.
+                 </p>
+                 <h3 class="title">Height, Width, and inline-block elements</h3>
+                 <p class="description">Height and width alter the width and height of the context box.
+                     However, inline elements cannot have their content box altered by this way.
+                 </p>
+                 <div class="example-container">
+                    <p class="example" id="height-example">This paragraph element has its height set to 300px</p>
+                    <p class="example" id="width-example">This paragraph element has its width set to 65px</p>
+                    <p class="example" id="height-width-example">This paragraph element has its width and height set to 75px and 300px respectively</p>
+                    <span class="example" id="inline-example">This span element has its height and width set to 300px, but since it is an inline element, its content border is not altered</span>
+                </div>
+                <div class="example-container">
+                    <span class="example" id="inline-block-example">This span element has its height and with set to 300px and 100px respectively, and since it is now an inline-block element after setting 
+                        <code>display: inline-block;</code>
+                         its height and width are able to be altered.
+                    </span>
+                </div>
+                <h3 class="title">Margins and Padding</h3>
+                <p class="description">Margin and padding are simple. Margin increases the space outside of your context box,
+                     while padding increases the space inside your content box.
+                </p>
+                <div class="example-container">
+                    <p class="example">This paragraph does not have margin applied</p>
+                    <p class="example" id="margin-example">This paragraph element has margin applied (All 40px for top left bottom & right)</p>
+                    <p class="example">This paragraph does not have margin applied</p>
+                    <p class="example" id="padding-example">This paragrpah element has padding applied (All 40px for top left bottom & right)</p>
+                </div>
+                <h3 class="title">CSS Combinators</h3>
+                <p class="description">CSS combinators are a way to select HTML elements based on relative siblings and parents</p>
+                <div class="example-container">
+                    <pre><code>/* Descendant */
+.parent .child {
+}
+
+/* Child */
+.parent > .child {
+}
+
+/* Adjacent Sibling */
+.first + .second {
+}
+
+/* General Sibling */
+.first ~ .second {
+}</code></pre>
+                    <p class="description">Child is different from descendant since it only gets the immediate child.
+                         Meaning that it will get the first child and no others (specifically children that are nested within another parent, such as a div).
+                    </p>
+
+                    <p class="description">In the same way, general sibling is different than adjacent sibling. General sibling gets every matching sibling after the first element,
+                         whereas adjacent sibling only gets the first.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </body>
+</html>
+```
+
+```CSS
+body {
+    background-color: black;
+    color: white;
+}
+
+#content-box .example-container {
+    background-color: rgb(36, 36, 36);
+    margin-top: 40px;
+    margin-bottom: 40px;
+    color: gold;
+}
+
+#content-box .example {
+    border: 3px solid white;
+}
+
+
+#content-box .title {
+    background-color: rgb(1, 1, 58);
+    border: 2px solid  rgb(1, 32, 10);
+    color: silver;
+    text-align: center;
+    margin: auto;
+    width: 300px;
+
+}
+
+
+
+#content-box .description {
+    color: silver;
+    display: inline-block;
+    border: 2px solid rgb(1, 32, 10);
+    background-color: rgb(1, 1, 58);
+}
+
+#content-box #height-example {
+    height: 300px;
+}
+
+#content-box #width-example {
+    width: 65px;
+}
+
+#content-box #height-width-example {
+    height: 300px;
+    width: 75px;
+}
+
+#content-box #inline-example {
+    height: 300px;
+    width: 300px;
+}
+
+#content-box #inline-block-example {
+    height: 300px;
+    width: 100px;
+    display: inline-block
+}
+
+#content-box #margin-example {
+    margin: 40px 40px 40px 40px;
+}
+
+#content-box #padding-example {
+    padding: 40px 40px 40px 40px;
+}
+```
 
