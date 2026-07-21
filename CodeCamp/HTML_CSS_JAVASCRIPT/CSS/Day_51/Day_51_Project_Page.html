@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+
+        <title>Day 51 Proejct Page</title>
+    </head>
+    <body>
+        <header>
+            <h1 id="page-title">Day 51 Project Page: Inheritance, Specificity, List styles, & Link states</h1>
+            <p id="page-description">Today I took a brief look on overlapping specificity, how child elements inherit property values from their parents, 
+                some different list styles and what they do, and lastly different link states and what they represent respectively.
+            </p>
+        </header>
+        <main>
+            <section class="topic-container">
+            <h2 class="topic-title">Inheritance</h2>
+                <p class="topic-description">Inheritance is (I'd imagine) for allowing programmers not to have to rewrite their CSS every single time for every single element.
+                    Essentially, it allows for certain CSS declerations to be inherited from parent element to child element. However, some properties are not inheritable unless
+                    specified thorugh the "inherit" value with the specified property. Here's an example
+                </p>
+                <article class="example-container">
+                    <h3 class="example-title">Ancestry</h3>
+                    <div id="inheritance-example-color">I am the parent. My color is blue
+                        <p>I am the child, I inherited the color!</p>
+                    </div>
+                    <div id="inheritance-example-padding">I am the parent. My padding is 20px
+                        <p id="non-padding-child">I am child A. My padding is NOT 20px because that is not a naturally inheritable property,
+                            and I have nothing altering that.
+                        </p>
+                        <p id="padding-child">I am child B. My padding IS 20px because I have altered the inheritability of padding by using
+                            <code>padding: inherit;</code>
+                        </p>
+                    </div>
+                </article>
+            </section>
+            <section class="topic-container">
+                <h2 class="topic-title">Specificity</h2>
+                <p class="topic-description">Specificity is how CSS decides which declerations matter more than others. It's apart of a much
+                 larger algorithm (the cascade algorithm) which is a combination of a lot of different things to determine which CSS is displayed
+                 on a webpage. (Since remember, there can be user inputted CSS, your CSS, the browser's CSS, there is a LOT of CSS).
+                </p>
+                <article class="example-container">
+                    <h3 class="example-title">Authority chain</h3>
+                    <div id="specificity-example-container">I am the div containing ALL of these paragraph elements. According to me,
+                        each paragraph element should be the color white.
+<pre id="specificity-code"><code> div p {
+    color: blue;
+} </code></pre>
+                        <p style="color: green;">I am a p element, however, I deny the declerataion since my inline style is green! </p>
+                        <p id="pink-example">I am a p element, however, I deny the declerataion since my id states I should be pink!</p>
+                        <p class="purple-example">I am a p element, however, I deny the decleration because my class says I should be purple!</p>
+                        <p class="purple-example">Yea I am with the dude above me we are siblings (both semantically and biologically)</p>
+                        <p>Well I don't got shit so I am white</p>
+                    </div>
+                </article>
+            </section>
+            <section class="topic-container">
+                <h2 class="topic-title">List styles</h2>
+                <p class="topic-description">List styles are a way of customizing the attributes of lists. There are 3 list styles I'll be demonstrating.
+                </p>
+                <article class="example-container">
+                    <h3 class="example-title">list-style-type</h3>
+                    <p class="example-description">This allows you to change the bullet point, or remove it entirely.</p>
+                    <ul id="type-example-square">
+                        <li>We all have squares instead of circles!</li>
+                        <li>Yea thats cool ig??</li>
+                        <li>Stop being a fuckin hater</li>
+                    </ul>
+                    <ul id="type-example-none">
+                        <li>We don't even have circles</li>
+                        <li>Yea it feels weird</li>
+                    </ul>
+                </article>
+                <article class="example-container">
+                    <h3 class="example-title">list-style-image</h3>
+                    <p class="example-description">This allows you to change the bullet point to an image, and use that as a bullet point. Which is cool for custom made icons.</p>
+                    <ul id="list-image-example">
+                        <li>We have a crying emoji as our bullet point!</li>
+                        <li>Wow we are soooo special</li>
+                    </ul>
+                </article>
+                <article class="example-container">
+                    <h3 class="example-title">list-style-position</h3>
+                    <p class="example-description">This is the last list-style type. It controls whether the marker is inside or outside of the content box</p>
+                    <ul id="list-inside-example">
+                        <li>My list-style-position is set to inside</li>
+                    </ul>
+                    <ul id="list-outside-example">
+                        <li>My list-style-position is set to outside</li>
+                    </ul>
+                </article>
+                <article class="example-container">
+                    <h3 class="example-title">list-style (shorthand notation)</h3>
+                    <p class="example-description">You can also use the shorthand notation to use mutliple list-styles at once. The order dosen't matter since they all have distinct values.</p>
+                    <ul id="list-shorthand-example">
+                        <li>We have ALL 3 list-styes applied!</li>
+                        <li>Yea I noticed.</li>
+                        <li>Even though we have all 3 applied, the image style is superceding the type style...incase that wasn't obvious</li>
+                    </ul>
+                </article>
+            </section>
+            <section class="topic-container">
+                <h2 class="topic-title">Link States</h2>
+                <p class="topic-description">Link states are the different states a link has. There are 5 different states (that you'll use the most.)
+                </p>
+                <dl id="link-state-list">
+                    <dt>a:link</dt>
+                    <dd>An unvisited link</dd>
+                    <dt>a:visited</dt>
+                    <dd>A visited link</dd>
+                    <dt>a:hover</dt>
+                    <dd>When the mouse is over the link</dd>
+                    <dt>a:focus</dt>
+                    <dd>When the element has keyboard focus (like pressing tab)</dd>
+                    <dt>a:active</dt>
+                    <dd>While you're actively clicking/holding the mouse button on it</dd>
+                </dl>
+                <article class="example-container">
+                    <h3 class="example-title">Pretty Link</h3>
+                    <p class="example-description">Here is an example link that you can use, that shows customization on all of its states</p>
+                    <a id="example-link" href="https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world" target="_blank">
+                        Flask Mega Tutorial
+                    </a>
+                </article>
+            </section>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,166 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+#page-title {
+    border: solid white 2px;
+    text-align: center;
+    background-color: rgb(11, 0, 73);
+    font-family: 'Times New Roman';
+    width: fit-content;
+    margin: auto;
+}
+
+#page-description {
+    text-align: center;
+    border: solid white;
+    background-color: rgb(2, 34, 121);
+    color: white;
+    width: 50%;
+    margin: auto;
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: Georgia;
+    margin-bottom: 10px;
+}
+
+
+.topic-container {
+    border: solid white;
+    background-color:rgb(1, 15, 55);
+    margin-bottom: 20px;
+}
+
+
+.example-title {
+    color: black;
+    font-weight: bold;
+    font-style: italic;
+    font-family: 'Courier New';
+}
+
+.topic-title {
+    color: white;
+    font-style: italic;
+    font-weight: bold;
+    font-size: 20;
+    font-family: 'Courier New';
+}
+
+.topic-description {
+    color: lightgrey;
+    font-size: 15;
+
+}
+
+.example-container {
+    font-family: Arial;
+    color: gold;
+    text-align: center;
+    border: 2px solid white;
+    background-color: grey;
+    width: fit-content;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+#link-state-list {
+    width: fit-content;
+    margin-left: 10px;
+
+
+}
+
+dt {
+    font-style: italic;
+}
+
+dd {
+    margin-left: 5px;
+    margin-bottom: 10px;
+}
+
+#inheritance-example-color {
+    color: blue;
+}
+
+#inheritance-example-padding {
+    padding: 20px;
+    border: 2px solid white;
+    margin: 10px 5px;
+}
+
+#padding-child {
+    padding: inherit;
+    border: 2px solid white;
+}
+
+#non-padding-child {
+    border: 2px solid white;
+}
+
+#specificity-code {
+    background-color: black;
+    border: solid white 1px;
+    padding: 3px;
+    width: fit-content;
+    margin: auto;
+}
+
+#pink-example {
+    color: pink;
+}
+
+.purple-example {
+    color: purple;
+}
+
+#specificity-example-container {
+    color: white;
+}
+
+#type-example-square {
+    list-style-type: square;
+}
+
+#type-example-none {
+    list-style-type: none;
+}
+
+#list-image-example {
+    list-style-image: url(image.png);
+}
+
+#list-inside-example {
+    list-style-position: inside;
+}
+
+#list-outside-example {
+    list-style-position: outside;
+}
+
+#list-shorthand-example {
+    list-style: square url(image.png) inside;
+}
+
+#example-link:link {
+    color: gold;
+}
+
+#example-link:visited {
+    color:rgb(209, 161, 255);
+}
+
+#example-link:hover {
+    color:rgb(6, 163, 163)
+}
+
+#example-link:active {
+    color:rgb(0, 0, 0)
+}
+
+#example-link:focus {
+    color: rgb(255, 0, 0);
+}
