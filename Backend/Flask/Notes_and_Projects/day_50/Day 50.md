@@ -53,4 +53,3 @@ import flask
 
 - Note that when the specific version of Flask isnt specified, the latest version of Flask will be downloaded
 
-# Flask Introduction
