@@ -1043,3 +1043,11 @@ As for the flask part, I did make some progress, but overall I think itd be bett
 # Day 51
 Okay so I did CSS, did an entire project page, took notes on Python data structures (stacks, queues, Big O notation, time complexity and storage complexity) AND I set up my flask...set up? I am not sure what to call it, but the web interface I set up using flask. I learned what packages and modules are formally, and what flask is doing, why I should use virtual environments, and things like that. I sent my first real HTTP request and received it too. It's a little fuzzy since I am writing this after about 7 hours of work (cumulative across all 3 activites), but a lot of progress was made.
 
+# Day 52
+Today I spent a solid hour on every topic. I didn't do too much project work, I did however do an hour of CSS notes, basic things like gradients and allat. 
+
+Then I did an hour of Python, right now its very theory heavy with data structures. I made a project creating my own single link list using classes, it was cool. Than I brushed up on big O notaion, time complexities, algorithms all that stuff.
+
+Then I did an hour of flask, I learned about templates and connected my URL routes to my html files, and used flask to do template inheritance and use python variables and transfer them into the HTML files which was cool to see because I originally thought you needed javascript to do that.
+
+Overall good day, I will try to do an hour of Javascript but if I don't, signing off here!
