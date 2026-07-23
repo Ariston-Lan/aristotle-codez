@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang ="en">
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% if title %}
+        <title>{{ title }} - Microblog</title>
+        {% else %}
+        <title>Welcome to Microblog!</title>
+        {% endif %}
+    </head>
+    <body>
+        <nav class="nav-bar"><a href="/index">Home</a></nav>
+        <hr id="nav-line">
+        {% block content %}{% endblock %}
+    </body>
+</html>
