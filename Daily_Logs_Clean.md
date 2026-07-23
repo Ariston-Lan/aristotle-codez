@@ -1035,3 +1035,11 @@ body {
 }
 ```
 
+# Day 50
+Today, I didn't actually do that much. I took notes on CSS, and I thne did a codecamp workshop for python and went to flask afterwards. However, I failed to set up flask because I messed up the file structure, and I just got SO frustrated I quit for the day. In CSS I learned specificity, things like that, and in python I was learning about abstraction and the abstraction base class, and also how to build a polygon calculator and other codecamp labs/workshops that are for maintaining my OOP, and brushing on abstraction/abstraction classes, concrete classes and abstraction methods/concrete methods.
+
+As for the flask part, I did make some progress, but overall I think itd be better to just start fresh with it tomorrow.
+
+# Day 51
+Okay so I did CSS, did an entire project page, took notes on Python data structures (stacks, queues, Big O notation, time complexity and storage complexity) AND I set up my flask...set up? I am not sure what to call it, but the web interface I set up using flask. I learned what packages and modules are formally, and what flask is doing, why I should use virtual environments, and things like that. I sent my first real HTTP request and received it too. It's a little fuzzy since I am writing this after about 7 hours of work (cumulative across all 3 activites), but a lot of progress was made.
+
