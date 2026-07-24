@@ -92,7 +92,7 @@ The worst case time complexity of hash maps is Linear time 0(n) for inserting, r
 
 The space complexity of inserting into a has map is constant 0(1) on the average case, however in the worst case it can have linear space complexity 0(n).
 
-This turns the has table into something similar to a linear data structure where n elements have to be scanned to find the target key. However, this is relatively rare if the has map is implemented properly. 
+This turns the hash table into something similar to a linear data structure where n elements have to be scanned to find the target key. However, this is relatively rare if the has map is implemented properly. 
 
 ##### Dictionaries
 Python's dictionaries are implemented as hash maps behind the scenes. I am not gonna write how to make them and what you can do with them because I already know but just to be brief you can add keys assign keys different values, check if a key is in a dictionary and remove key value pairs. You can also call methods to see all the keys, values, or key-value pairs.

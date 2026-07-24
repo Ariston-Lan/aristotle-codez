@@ -1051,3 +1051,7 @@ Then I did an hour of Python, right now its very theory heavy with data structur
 Then I did an hour of flask, I learned about templates and connected my URL routes to my html files, and used flask to do template inheritance and use python variables and transfer them into the HTML files which was cool to see because I originally thought you needed javascript to do that.
 
 Overall good day, I will try to do an hour of Javascript but if I don't, signing off here!
+
+I did end up doing 10 minutes of Javascript, just to get the ball rolling.
+
+# Day 53
