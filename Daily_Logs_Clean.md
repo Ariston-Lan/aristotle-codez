@@ -1055,3 +1055,14 @@ Overall good day, I will try to do an hour of Javascript but if I don't, signing
 I did end up doing 10 minutes of Javascript, just to get the ball rolling.
 
 # Day 53
+Today I made a CSS page and did a little bit of backend with flask, making templates and what not. Today was really frustrating in the flask category and so I didn't finish the chapter. Honestly today as a whole was slow and frustrating, and I didn't do Javascript.
+
+What I did do however, was in CSS, learn a bunch of design topics and keywords. And with that, dedided to build a page dictating my favorite memories. The page is simple, it shows a title, a picture, and a story behind it. Eventually I want it to be a digital scrapbook, in which my friends can enter their own memories as life goes by. You can check in and see all these different things. Itd be nice. 
+
+For Python, which I forgot to mention i did do, I really didn't do too much. I learned about hash maps and hash tables, and then built one. No notes because that was the entire Python session. I learned that dictionaries are hash tables, and tash tables "hash" their keys into numbers that computers can easily trace and grab rather than looping through the entire database to look for a match, which lowers time complexity (and probably space id imagine too?)
+
+As for flask, I made a LoginPage template by using the Flask-WTF extention. I also added the SECRET_KEY config through...well just a config module. I learned that apparently in terms of getting and requesting and sending data, people try to tamper with the system by sending data that allows them to have say 10000 robux for example. SECRET_KEYs are one potential answer to that. There are obviously other configs, but I didn't learn them. Today though, I JUST made the Login Page form (in the form of a class), I didn't implement it yet. 
+
+And that's all for today!
+
+# Day 54
