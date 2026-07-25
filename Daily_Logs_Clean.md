@@ -1066,3 +1066,8 @@ As for flask, I made a LoginPage template by using the Flask-WTF extention. I al
 And that's all for today!
 
 # Day 54
+Today I only did CSS and Flask. Within flask, I set up a form through the Flask-WTF extention, I made the form, made variables I could put into my templates (the html part), and made it to where the variable data (things like the password and username) could be received by the server.
+
+In CSS, I continued to work on my memory page and I took a shit ton of notes on the various design techniques. Things like modals, CTAs, Contrast, how to implement dark mode correctly, those subtle things and the vocabulary and things of that nature.
+
+# Day 55
