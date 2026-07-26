@@ -1071,3 +1071,10 @@ Today I only did CSS and Flask. Within flask, I set up a form through the Flask-
 In CSS, I continued to work on my memory page and I took a shit ton of notes on the various design techniques. Things like modals, CTAs, Contrast, how to implement dark mode correctly, those subtle things and the vocabulary and things of that nature.
 
 # Day 55
+Today I did Flask, CSS, and Python
+
+For flask it was a lot. I cant even remember all the different terms I learned but essentially, I learned about models which is how a package references its databases. I used flask-sqlalchemy to make a sqlite database, and make a database model through flask. Using the database model I was able to simulate users, and users creating posts. I also learned that creating the model isn't enough, you need to have the ability to update it, which is called migration (I think). Because of that, I also got flask-migrate, which allows me to easily update the database with new features and such. Additionally, I also learned the general shape of a model, how they have tables, primary keys, and indexes. It was a lot though I am telling you.
+
+And as for CSS, literally nothing. I mean yea I took notes for an hour but on basic topics like design principles things like that. I also learned some design tools I could use.
+
+And then for Python I learned Binary vs linear search, why linear search is usually ass, and I built my own binary search. Pretty straightfoward day there.
