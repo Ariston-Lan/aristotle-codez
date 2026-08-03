@@ -99,3 +99,102 @@ here is an example:
 ```
 
 By setting the font-size to 1.2 rem, the font size of the paragraph wlement will be 1.2 times the font size of the root element. if the user hasn't changed the default font size, the font size will be 19.2px because it is 1.2 times 16px.
+
+# What Are vh and vw Units, and When Should You Use Them?
+In CSS vh and ww are viewport-relative units that allow you to size elements based on the dimensions of the browser window. These units are particularly useful for creating responsive designs that adapt to different screen sizes.
+
+## vh and vw
+vh stands for "viewport hiehgt", and 1vh is equal to 1% of the viewport's height.
+
+Similar vw stands for "viewport width" and 1vw is equal to 1% of the viewport's width.
+
+This means if you set an element's height to 100% vh, it will occupy the full height of the viewport.
+
+These units are handy for full screen layouts, you might want to use them to create a hero section that always fills the entire screen.
+
+vh and vw can also be used for typography to create responsive text sizes. 
+
+Beware that they can cause layout shifts when the mobile address bar appears and dissapears. 
+
+# What Is the calc() Function, and How Does It Work?
+
+## calc()
+
+With the calc function, you can perform calculations directly within your stylesheets to determine property values dynamically. This emans that you can create flexible and responsive user interfaces by caluclating dimensions based on the viewports size or otehr elements.
+
+You can perform calculations on values that represent length, angle, time, percentages, numbers, and colors. You can also combine different units like pixels, percentages, and ems.
+
+With numbers, all the values in the expiression must have their correspanding units.
+
+You can use addition, subtraction, muliplcation, and divison operators in the expression.
+
+# What Are Pseudo-classes, and How Do They Work?
+
+## Pseudo-classes
+Pseudo-classes are special CSS keywords that allow you to select an element based on its specific state or position. The element's state or position could include:
+
+- active
+- hovered
+- focused
+- first child of a parent
+- last child of a parent
+- link has been visited
+- When it's disabled
+
+And other things too.
+
+To use a psuedo-class you add it to the selector by using a colon : followed by the name of the pseudo-class.
+
+I am not gonna go over all of them but there are some pretty useful ones to know.
+
+:first-child pseudo-class sselects an element that is the first child of its parent element.
+
+for instance:
+```html
+<style>
+    div:first-child {
+        color: red;
+    }
+</style>
+<div>
+    <p>I am red</p>
+    <p>I am not</p>
+    <p>I am also not red</p>
+</div>
+```
+
+
+The :last-child pseudo-class targets the last element that is the child of the parent. I won't show an example because I am lazy but it's fairly obvious
+
+The :disabled pseudo-class lets you style an interactive element in disabled mode (so while it's disabled it looks different, which is great for users).
+
+# What Are Examples of Element User Action Pseudo-classes?
+User feedback is a crucial element of web design. It's important for users to receive visual cues when they interact with elements on a website.
+
+## User Action Pseudo-classes
+User action pseudo-classes in CSS are special keywords that allow you to provide user feedback without needing Javascript.
+
+Basically, psuedo-classes like :hover, :active, :focus, :visited, and many more enable you to change the appearance of elements based on the state they are in. This is useful for changing the state of links after they've been visited, giving important user feedback.
+
+:checked is another psuedo-class in CSS that allows you to style form elements such as checkboxes and radio buttons when they are selected
+
+# What Are Examples of Input Pseudo-classes?
+
+## Input Pseudo-Classes
+input-psuedo-classes can make your forms feel more intuitive and user-friendly. Let's look at some examples.
+
+:focus allows you to target an input element when a user selects or clicks on it.
+
+:hover does the same, but when a user hovers over it
+
+:required targets input elements that have the required attribute. Signlaing to users they must fillout those forms first.
+
+:valid psuedo-class styles the input fields that meet the validation critera. Similarly, :invalid styles the input fields that do not meet the criteria.
+
+### cursor: not-allowed
+cursor: not-allowed isnt a pseudo-class, but it is a property value that changes the appearance of the cursor to indicate that an action is not permitted.
+
+Some other examples are
+- :autofill
+- :optional
+- :in-range and :out-of-range (style elements based on whether their values are within or outside range constraints)

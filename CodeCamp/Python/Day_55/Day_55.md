@@ -89,6 +89,7 @@ Then we follow the same process for the right side of the original list
 Now that both halves of the original list are sorted, we merge those two halves together and sort the elements.
 
 - 17 37 42 53
+## Merge Sort
 
 Here is what the algorithm looks like in code:
 ```python
