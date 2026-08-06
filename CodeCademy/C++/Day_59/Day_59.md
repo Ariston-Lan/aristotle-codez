@@ -124,4 +124,90 @@ vector[10] = vector[10] + 10;
 
 # Arrays
 
-Like vectors, the array is a data structure used in C++ to store a squential collection of elements. However unlike vectors, its size cannot be cahgned.
+Like vectors, the array is a data structure used in C++ to store a squential collection of elements. However unlike vectors, its size cannot be chagned.
+
+Being able to store multiple pieces of related information in the same structure is very useful in programming. One way we do that is vectors.
+
+Arrays are similar to vectors in that they allow us to store groups of information. However, arrays are ultimately lower-level constructs and require some more work on the part of the user.
+
+## Arrays vs Vectors
+
+With arrays you cannot add or remove elements, you can only modify EXISITNG elements.
+
+Vectors originated from arrays, so back in the day devs took these basic arrays and enhanced them to make them more flexible and powerful.
+
+
+## Creating arrays
+
+When creating an array you give its type, the name of it, and its size.
+
+For example:
+```C++
+int coolarray[4];
+```
+
+In the above code we create an array of only integers of size 4. So it can ONLY hold four integers.
+
+## Array indices
+
+Each element in an array is assigned a specific index starting at 0, and they are accessed via indices the same way vectors are.
+
+# Functions
+
+Functions (also known as a method or procedure) is a named group of code statements that accomplish something together, a bit like a factory machine.
+
+## Built in functions
+
+C++ comes with some built in functions that are apart of the standard library.
+
+For instance, if you do #include <cmath> as a preprocessor you gain access to math functions such as sqrt().
+
+rand() is also a simple random number generator that creates a number between whatever range you dictate, given that you seed the random number generator
+
+```C++
+//This seeds the random number generator:
+srand (time(NULL));
+
+//This is rand, that generates the random number.
+rand() % 29
+//outputs a random number between 0 and 29
+```
+
+## Declare and Define
+
+The structure for functions is you declare the function, what its return type is, and any parameters(if the function will need to accept any arguments)
+
+Then the definition is the function body, which is a group of code statements used to accomplish the task.
+
+## Void
+
+A void funciton, also known as a subroutine, has no return value, making it ideally suited for situations where you just want to print stuff to the terminal.
+
+For instance:
+```C++
+void gay_chat() {
+    std::string name;
+    char choice;
+
+    std::cout << "whats your name?\n";
+    std::cin >> name;
+
+    std::cout << "Are you gay? y/n \n";
+    std::cin >> choice;
+    choice = std::tolower(choice)
+    if (choice == 'y'){
+        std::cout << "cool, have fun being gay"
+    }
+    else if (choice == 'n'){
+        std::cout << "cool, have fun not being gay"
+    }
+    
+}
+```
+
+## Return Types
+
+When you want your functions to return something and pass information back to the rest of your program, you can use different return types.
+
+A function can return most data types. The return statement itself is the last line of code that will execute.
+

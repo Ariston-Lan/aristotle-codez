@@ -63,7 +63,7 @@ class User:
         self.username = username
     
     
-    def dispaly_habits(self):
+    def display_habits(self):
         final = ''
         for animal in self.habits:
             final += f'[{animal.name},{animal.habit_name}]'
@@ -74,7 +74,7 @@ class User:
             final += f'{habitat.name}'
         return final
     def __str__(self):
-        return f'Username: {self.username} | Habits: {self.dispaly_habits()} | Habitats: {self.display_habitats()}'
+        return f'Username: {self.username} | Habits: {self.display_habits()} | Habitats: {self.display_habitats()}'
 
     def remove_habitat(self, habitat):
         for hab in self.habitats:
@@ -151,7 +151,7 @@ class HabitHabitatSystem:
     def run(self):
         running = True
         while running:
-            print('Join\nCreate\nQuit\nNew User\nLeave Habitat\nWilderness')
+            print('=======\n\n\nJoin\nCreate\nQuit\nNew User\nLeave Habitat\nWilderness\nDisplay User')
             choice = input().lower()
             if choice == 'join':
                 self.join_habitat()
@@ -168,6 +168,8 @@ class HabitHabitatSystem:
                 self.leave_habitat()
             elif choice == 'wilderness':
                 self.display_wild_animals()
+            elif choice == 'display':
+                self.display_user()
             else:
                 print('Choice not found')
 
@@ -291,6 +293,14 @@ class HabitHabitatSystem:
             HabitHabitatSystem.wilderness.append(habit)
             user.remove_habitat(habitat)
             habitat.remove_user(user)
+        except ValueError as e:
+            print(e)
+
+    def display_user(self):
+        try:
+            user = self.get_user()
+            print(user.display_habitats())
+            print(user.display_habits())
         except ValueError as e:
             print(e)
 

@@ -1078,3 +1078,9 @@ For flask it was a lot. I cant even remember all the different terms I learned b
 And as for CSS, literally nothing. I mean yea I took notes for an hour but on basic topics like design principles things like that. I also learned some design tools I could use.
 
 And then for Python I learned Binary vs linear search, why linear search is usually ass, and I built my own binary search. Pretty straightfoward day there.
+
+# Day 56 - 58
+
+I won't lie, I haven't been coding daily for like the last give or take 4-5 days? But that's because I went to my college orientation!! Everyone was so fun met some cool people signed up for 17 units (not too worried about it but the stories scare me), and yea! So anyways, my summer schedule has officially come to an end. I did a solid 50+ days of consistent coding, creating projects, and that is AWESOME and I am so proud of myself for doing that. Now I gotta be realistic, and confine my coding sessions to the time that college gives me ESPECIALLY while taking 17 units. AGain, I am not worried (not too much at least), but that means some days I might just not log or do anything. Which is fine.
+
+As for what I did? Honestly I can say flask or python but I don't remember, at the time I am writing this log day 56 is much farther than 2 days ago. However, I know I DID get flask to function more, I did work on some more python syntax, algorithm logic, AND I did also start C++, and am currently working on some pretty basic syntax. Hopefully, my next log in will be more fruitful, but until then yea.
