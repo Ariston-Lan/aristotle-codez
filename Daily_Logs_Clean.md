@@ -1092,3 +1092,10 @@ Today I just did some C++ notes, learned about arrays, vectors, how to assign va
 Then in CSS I learned about a bunch of pseudo classes, and that was basically it. Then I built a tiny greeting card website using some of them.
 
 # Day 60
+Today I did both C++ and CSS. But I also found that I sort of miss learning 4 different langauges (technically CSS isnt really a langauge and neither is flask but still) at once. Anyways, first lets start with what I learned in C++
+
+So the CodeCademy course I took was VERY introductory, and honestly I shouldnt be surprised because the course itself was only 11 hours long? But still I think iw anted something more substantial. I finished it off learning about pointers, references, passer by references, memory addresses and how pointers access that, I also learned how to create classes and attributes and methods. I don't really document my knowledge of what I learned very well because since I learned python first everything in C++ I look at as "a C++ version of python thing" which I know is ironic since C++ was made BEFORE python and python was built FROM C++ but still. 
+
+As for CSS, I did no extra learning, I just spent the entire day making rather rudimentary designs, like a job application form and a parent-teacher conference sheet. I would say I learned a bunch but it was an annoying codecamp lab/workshop so, not really. I will though, try to make a substantial website for each section of the codecamp CSS topics since I feel like becoming a good frontend designer could be a valuable skill regardless, and especailly for being able to create unique designs for the things I want.
+
+Other than that, not too much done today. I posted a video to my youtube channel and posted to my tiktok too. I'll post a reel to my instagram later hopefully tomorrow, and itll be a LOT of days too, but I'll most likely split them up.
