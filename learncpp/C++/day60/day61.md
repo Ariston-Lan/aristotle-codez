@@ -202,7 +202,7 @@ When no initializer is provided, this is called default initialization. In many 
 ### Copy-initialization
 When an initial value is provided after an equals sign, this is called copy-initialization.
 
-This method copies the value on the rigth hand sign of the equals into thev ariable being created on the left hand side. 
+This method copies the value on the right hand sign of the equals into the variable being created on the left hand side. 
 
 Copy initilization had fallen out of favor in modern C++ due to being less efficient than other forms of initilization for some complex types. But some people still use it as C++17 remedied the bulk of these issues.
 
@@ -445,3 +445,596 @@ Generally you want to avoid implentation defined behavior and unspecified behavi
 C++ reserves a set of 92 words for its own use. These words are called keywords (or reserved words), and each of these keywords has a special meaning within the C++ language.
 
 ![table of C++ keywords](keywords.png)
+
+## Identifier naming rules
+
+The name of a variable (or function, type, or other kind of item) is called an identifier. C++ gives you a lot of flexibility to name identifiers as you wish, however there are some rules:
+
+- The identifier cannot be a keyword
+- The identifier can only be composed of letters (lower or upper case), numbers, and the underscore character.
+- The identifier must begin with a letter or an underscore. It can not start with a number
+- C++ is case sensitive
+
+## Identifier naming best practices
+
+Usually its best to just make them all lowercase (though some disagree), and name it things that make sense. Like dont name an important variable (variable_one)
+
+For having variables that are multiple words, separate them via underscore.
+
+# Whitespace and basic formatting
+
+## Some language elements must be whitespace-separated
+
+This topic is fairly straightfoward.
+
+The key thing is, sometimes you have to space code out for the compiler to properly understand whatever you're typing.
+
+For instance:
+```C++
+intx; // This is not the same as...
+
+int x;
+```
+
+Outside of that, whitespace is generally ignored
+
+## Using whitespace to format code
+
+Even though whitespace is generally ignored, its still better to format your code using whitespace.
+
+Example:
+```C++
+#include <iostream>
+
+//This code works, but it's hard to read
+int main(){std::cout<<"Hello world!";return 0;}
+
+```
+
+Instead you use whitespace to separate each line of code.
+
+C++ does not enforce any sort of formatting restrictions, so it is a whitespace-independent langauge.
+
+In professional programming, you'll most likely use a style guide so that all developers on the team program in a consistent manner.
+
+# Introduction to literals and operators
+
+## Literals
+
+A literal is a fixed value that has been inserted directly into the source code.
+
+Literals and variables both have a value (and a type). 
+
+Unlike a variable (whose value can be set and changed through initialization), the value of a literal is fixed and cannot be changed. The literal 5 will always have the value 5. This is why literals are called constants.
+
+## Operators
+
+Operators are processes involving zero or more input values called operands, that produce a new value, called an output value.
+
+For instnace, 1 + 2 = 3. This is '+' is an operator, and the output value is 3. The literals 1 and 2 are the operands.
+
+### Unary operators
+
+Unary operators act on one operand. For instance, given -5, operator - takes literal operand 5 and flips its sign to produce a new output value -5.
+
+### Binary operators
+
+Binary operators act on two operands. An example of a binary operator is '+' since it needs operand1 + operand2
+
+### Ternary
+
+Ternary operators act on 3 operands (conditional operator)
+
+### Nullary
+
+Nullary operators act on zero operands. (the throw operator)
+
+# Introduction to expressions
+
+## Expressions
+
+Expression is a non-empty sequences of literals, variables, operators, and function calls that calculates a value. The process of executing an expression is called na evaluation, and the resulting value produced is called the result.
+
+For instance:
+```C++
+2 //evaluates to 2
+"Hi" //evaluates to hi
+x //evaluates to whatever value variable x holds
+2 + 3 //evaluates to 5
+five() //evaluates to the return value of function five
+```
+
+### Useless expression statements
+
+These are expressions that exist but are never used, such as
+
+2 * 3;
+
+this results in 6 but its never used, or stored, so its just discarded.
+
+### Subexpressions, full expressions, and compound expressions
+
+subexpressions is an expression used as an operand. Like the subexpressions of x = 4 + 5 are x and "4 + 5"
+
+A full expression is an expression that is not a subexpression. Like 2 is a full expression, or 2 + 3 (while not being used as an operand)
+
+and a compound expression is an expression that contains two or muse of operators.
+
+# Introduction to functions
+
+
+## Functions
+A function is a reusable sequence of statemens designed to do a particular job.
+
+Every executeable program must have a function named main(), as aforementioned. However, as programs start to get longer and longer, putting all the code inside the main() function becomes increasingly hard to manage. So functions allow a way to separate different code into small, modular chunks that are easier to organize, test, and use.
+
+A funciton you write yourself is called *user-defined functions*
+
+For instance:
+```C++
+int add()
+{
+    int num1 {}, num2 {};
+    std::cout << "Enter first number";
+    std::cin >> num1;
+
+    std::cout <<"Enter second number";
+    std::cin >> num2;
+
+    std::cout << num1 << " + " << num2 << " is " << num1 + num2;
+
+}
+```
+
+When I call this function, add, it will run this sequence of code.
+
+
+The first line is informally called the function header, and it tells the compiler about the existence of a function, the function's name, and some other information (such as the return type or possible parameters a.k.a arguments)
+
+## Calling functions more than once
+You can call functions more than once. In fact you can call them as much as you like
+
+## Functions call call other functions
+Functions cal call OTHER functions. So you can make a function thats designed to only be used WITHIN a function.
+
+However, nested functions are not supported. Meaning you cant create a function within a function.
+
+# Function return values (value-returning functions)
+
+## Return values
+
+When you write a user-defined function, you get to determine whether your function will return a value back to the caller or not. To return a value back, two things are needed.
+
+First your function must indicate the type of value it is meant to return (remember how we always did int in front of main()?)
+
+If your function returns no value, then you can use void (meaning no value will be returned to the caller).
+
+Secondly, inside the function you must add a return statement to indicate the specific value being returned to the caller.
+
+## Status codes
+
+The return value from main() is sometimes called a status code (or an exist code/return code). The status code is used to signal whether your program was successful or not.
+
+A non-zero status code is often used to indicate some kind of failure (and while this works fine on most operating sysems, it's not guaranteed to be portable)
+
+- C++ only defines the emaning of 3 status codes: 0, EXIT_SUCCESS, and EXIT_FAILURE. 0 and EXIT_SUCCESS both mean the program executed successfully. EXIT_FAILURE means the program did not execute successfully.
+
+# Void functions (non-value returning functions)
+
+## Void return values
+
+Functions are not required to return a value back to the caller. To tell the compiler that a function does not return a value, a return type of void is used. For instance:
+
+```C++
+#include <iostream>
+
+void printHi()
+{
+    std::cout << "Hi\n";
+}
+
+int main()
+{
+    printHi();
+
+    return 0;
+}
+```
+
+Notice how while main() returns an integer, 0 as the status code for EXIT_SUCCESS, printHi() does not need to return anything.
+
+You can use void functions for general printing purposes, but if you try to return something within a void function, it won't work.
+
+Void functions also can't be used in expressions that require a value. You can't print or assign something the value of a void function since there is nothing to execute nor assign.
+
+# Introduction to function parameters and arguments
+
+## Function parameters and arguments
+
+It can be useful to pass information to function beign called, so that the function has data to work with. For instance, if we wanted to write a function to add two numbers, we need some way to tell the function which two numbers to add when we call it. Otherwise, how would the function know what to add? We do that via function parameters and arguments
+
+
+### Func parameter
+
+A function parameter is a variable used in the header of a function. Function parameters work almost identically to variables defined inside the function, but with one difference, they are initialized with a value provided by the caller of the function.
+
+
+For instance:
+```C++
+#include <iostream>
+
+void print(int x)
+{
+    std::cout << x 
+}
+
+int main()
+{
+    print(4) //this is a function that takes the parameter, x, as any number for it to print. The ARGUMENT is the number 4 itself, since that is value actually being passed.
+}
+
+```
+
+### Func argument
+
+An argument is a value that is passed from the caller to the function when a function call is made.
+
+### Argument and Parameter relationship
+
+When a function is called, all of the parameters of the function are created as variables, and the value of each argument is copied into the matching parameter (using copy initialization). This process is called pass by value.
+
+Function parameters that utilize pass by value are called value parameters.
+
+
+## Using return values as arguments
+
+This is pretty simple. No matter what a function does, if you specify it to have a return value, it will (assuming youve structured it correctly), return a value. What you do with that value can be used as an argument for another funciton.
+
+Imagine this, you have a function used to get a number, and then another function called that function's output to print the number.
+
+```C++
+#include <iostream>
+
+int getnum()
+{
+    int input {};
+    std::cout << "Enter number: \n"
+    std::cin >> input;
+    return input
+}
+
+void printnum(number)
+{
+    std::cout << number << "\n"
+}
+
+int main()
+{
+    printnum(getnum())
+    return 0;
+}
+
+```
+As you can see here, print num uses getnum AS the argument, because getnum will return a number for it to print.
+
+### Parameters and return values relationship
+
+By using both parameters and a return value, we can create functions that take data as input, do some calculation with it, and return the value to the caller.
+
+Here is an instance of that exact thing:
+```C++
+//add() takes two integers as parameters, and returns the result of their sum
+
+// The values of x and y are determined by the function that calls add
+
+int add(int x, int y)
+{
+    return x + y
+}
+
+//main takes no parameters (duh)
+int main()
+{
+    std::cout << add(4, 5) << '\n' //Arguments 4 and 5 are passed to function add()
+    
+    return 0;
+}
+```
+
+## Unreferenced parameters and unnamed parameters
+
+In some cases, you will encounter functions that have parameters that are not used in the body of the function. These are called unreferenced parameters.
+
+For instance:
+```C++
+void dowhatever(int count) //warning: unreferenced parameter count
+{
+    //This function used to do something with count but it is not used any longer
+}
+
+int main()
+{
+    doSomething(4);
+
+    return 0;
+}
+```
+
+Just like with unused local variables, your compiler will probably warn that variable count has been defined but not used.
+
+In a function definition, the name of a funciton parameter is optional. Therefore, in cases where a function parameter needs to exist but is not used in the body of a function, you can simply omit the name. A parameter without a name is called an unnamed parameter.
+
+# Introduction to local scope
+
+## Local variables
+
+Local variables are variables defined inside the body of a function.
+
+For example:
+```C++
+int (add int x, int y)
+{
+    int z{ x + y}; //z is a local variable
+
+    return z;
+}
+```
+
+### Local variable lifetime
+
+Function parameters are created and initialized when the function is entered, and variables within the function body are created and initialized at the point of definition
+
+For example:
+```C++
+int add(int x, int y) // x and y created and initialized here
+{
+    int z{ x + y };   // z created and initialized here
+
+    return z;
+}
+```
+
+Much like a person's lfietime is defined to be the time between their birth and death, an object's lfietime is defined between the time of its creation and destruction.
+- Note that variable creation and destruction happen when program is running (called runtime), not at compile time. Therefore, lifetime is a runtime property.
+
+#### What happens when an object is destroyed?
+In most cases, nothing. The destroyed object simply becomes invalid
+
+
+Any use of an object after it has been destroyed will result in undefined behavior. At some point after desctruction, the memory used the object will be deallocated (freed up for reuse.)
+
+## Local scope (block scope)
+
+An identifier's scope determines where the identifier can be seen and used within the source code. When an identifier can be seen and used, we say it is "in scope". When an identifier can not be seen, we can not use it, and we say it is "out of scope". Scope is a compile-time property, and trying to use an identifier when it is not in scope will result in a compile error.
+
+The identifier of a local variable has a local scope. An identifier with local scope (technically called block scope) is usable from the point of its definition to the end of the innermost pair of curly braces containing the identifier (or for function parameters, at the end of the function). 
+
+This ensures local variables cannot be used before the point of definition (even if the compiler opts to create them before then) or after they are destryed. Local variables defined in one function are also not in scope in other functions that are called.
+
+For example
+```C++
+#include <iostream>
+
+// x is not in scope anywhere in this function
+void doSomething()
+{
+    std::cout << "Hello!\n";
+}
+
+int main()
+{
+    // x can not be used here because it's not in scope yet
+
+    int x{ 0 }; // x enters scope here and can now be used within this function
+
+    doSomething();
+
+    return 0;
+} // x goes out of scope here and can no longer be used
+```
+
+### "Out of scope" vs "going out of scope"
+
+An identifier is out of scope anywhere it cannot be accessed within the code. Like in the example above, x is in scope from its point of definition to the end of the main function.
+
+"Going out of scope" is typically applied to objects rather than identifiers. We say an object goes out of scope at the end of the scope (the end curly brace) in which the object was instantiated. Like the object named x goes out of scope at the end of the function main
+
+A local variable's lifetime ends at the point where it goes out of scope, so local variables are destroyed at this point. Not all types of variables are destroyed when they go out of scope however.
+
+## Intro to temp objects
+
+A temporary object (also sometimes called an anonymous object) is an unnamed object that is used to hold a value only for a short period of time. Temporary objects are generated by the compiler when they are needed.
+
+For example:
+```C++
+#include <iostream>
+
+int getValueFromUser()
+{
+ 	std::cout << "Enter an integer: ";
+	int input{};
+	std::cin >> input;
+
+	return input; // return the value of input back to the caller
+}
+
+int main()
+{
+	std::cout << getValueFromUser() << '\n'; // where does the returned value get stored?
+
+	return 0;
+}
+```
+
+In the above program, the function getValueFromUser() returns the value stored in local variable input back to the caller. Because input will be destroyed at the end of the function, the caller receives a copy of the value so that it has a value it can use even after input is destroyed.
+
+Temp objects have both no scope nor identifier.
+
+# Foward declarations and definitions
+
+## Foward declaration
+
+A foward declaration allows us tot ell the compiler about the existence of an identifier before actually defining the identifier.
+
+In the case of functions, this allows us to tell the compiler about the existence of a function before we define the function's bodyd. This way, then the compiler encounters a call to the function, it'll understand that we're making a function call, and can check to ensure we're calling the function correctly, even if it dosen't yet know how or where the function is defined.
+
+To write a foward declaration for a function, we use a function declaration statement (also called a function protoype). The function declaration consits of the function's return type, name, and parameter types, terminated with a semicolon. The names of the parameters can be optionally included. The function body is not included in this declaration.
+
+For example:
+```C++
+int add(int x, int y); // function declaration includes return type, function name, parameters, and a semicolon.
+
+```
+
+And in action it would look like this:
+
+```C++
+#include <iostream>
+
+int add(int x, int y); // forward declaration of add() (using a function declaration)
+
+int main()
+{
+    std::cout << "The sum of 3 and 4 is: " << add(3, 4) << '\n'; // this works because we forward declared add() above
+    return 0;
+}
+
+int add(int x, int y) // even though the body of add() isn't defined until here
+{
+    return x + y;
+}
+```
+
+## Why foward declarations?
+
+Why use a foward declaration if we could just reorder the functions to make our programs work?
+
+Most often, foward declarations are used to tell the compiler about the existence of some function that has been defined in a different code file. Reordering isn't possible in this scenario because the caller and the callee are in completely different files!
+
+## Errors
+
+If you declare a function but do not define it, there is no one specific error that might happen. 
+
+If a foward declaration is made, but the function is never called, the program will compile and run fine. howveer, if a foward declaration is made and the function is called, but the program never defines the function, the program will compile okay, but the linker will complain that it can't resolve the function call.
+
+For instance:
+```C++
+#include <iostream>
+
+int add(int x, int y); // forward declaration of add()
+
+int main()
+{
+    std::cout << "The sum of 3 and 4 is: " << add(3, 4) << '\n';
+    return 0;
+}
+
+// note: No definition for function add
+```
+
+## Other types of foward declarations
+
+Foward declarations can also be used with other identifiers in C++, such as variables and types. Variables and types have a different syntax for declarations.
+
+## Declarations vs. definitions
+
+A declaration tells the *compiler* about the *existence* of an identifier and its associated type infomration.
+
+A definition is a declaration that actually implements (for functions or types) or instantiates (for variables) the identifier.
+
+## The one definition rule (ODR)
+
+The ODR has three parts:
+
+1. Within a file, each function, variable, type, or template in a given scope can only have one definition. Definitions occurring in different scopes do not violate this rule.
+
+2. Within a program, each function or variable in a given space can only have one definition. This rule exists because programs can have more than one file .
+
+3. Types, tempaltes, inline functions, and inline variables are allows to have duplicate definitions in different files, so long as each definition is identical.
+
+Violating part 1 of the ODR will cause the compiler to issue a redefinition error. Violating part 2 will cause the linker to issue a redefinition error. And then violating ODR part 3 will cause undefined behavior.
+
+# Programs with multiple code files
+
+## A multi-file example
+
+Let's take a look at a multi-file program:
+
+add.cpp:
+```C++
+int add(int x, int y)
+{
+    return x + y;
+}
+```
+
+main.cpp:
+```C++
+#include <iostream>
+
+int main()
+{
+    std::cout << "The sum of 3 and 4 is: " << add(3, 4) << '\n'; // compile error
+    return 0;
+}
+```
+
+Your compile may compile whichever program first, but regardles, main.cpp will fail to compile since the "add" identifier will not be found, since the identifier for said function is within another file.
+
+The compiler compiles each file individually, it dosent know about the content of any other code files, or rememebr anything it has seen from previously compiled code files. So even though the compiler may have seen the definition of functiona dd previously, it dosen't remember.
+
+Our options for a solution are either to place the defintion of the function "add" before function main OR use a foward declaration for "add". Since add is in another file, we are going to do the latter.
+
+
+main.cpp (updated)
+```C++
+#include <iostream>
+
+int add(int x, int y); //needed so man.cpp knows that add() is a function defined somewhere else
+
+int main()
+{
+    std::cout << "The sum of 3 and 4 is: " << add(3,4) << "\n"
+    return 0;
+}
+```
+
+# Naming collisions and an introduction to namespaces
+
+
+## Naming collision (or naming conflict)
+
+
+If two identical identifiers are introduced into the same program in a way that the compiler or linker can't tell them apart, the compiler or linker will produce an error. This error is generally referred to as a naming collision (or naming conflict).
+
+Here's an example:
+a.cpp
+```C++
+#include <iostream>
+
+void myFcn(int x)
+{
+    std::cout << x;
+}
+
+```
+
+main.cpp
+```C++
+#include <iostream>
+
+void myFcn(int x);
+{
+    std::cout << 2 * x;
+}
+
+int main()
+{
+    return 0;
+}
+```
+
+Here we have TWO files, main.cpp and a.cpp. However BOTH files have functions with the same identifiers: "myFcn". There is no distinguishing feature between either. So when the compiler compiles the program, it will function since it compiles them seperately.
+
+However...when the linker executes, it will link all the definitions in a.cpp and main.cpp together, and discover conflicting definitions for function myFcn(). The linker will then abort with an error.
+- This error occurs even though myFcn() is never called!

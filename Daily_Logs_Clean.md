@@ -1099,3 +1099,9 @@ So the CodeCademy course I took was VERY introductory, and honestly I shouldnt b
 As for CSS, I did no extra learning, I just spent the entire day making rather rudimentary designs, like a job application form and a parent-teacher conference sheet. I would say I learned a bunch but it was an annoying codecamp lab/workshop so, not really. I will though, try to make a substantial website for each section of the codecamp CSS topics since I feel like becoming a good frontend designer could be a valuable skill regardless, and especailly for being able to create unique designs for the things I want.
 
 Other than that, not too much done today. I posted a video to my youtube channel and posted to my tiktok too. I'll post a reel to my instagram later hopefully tomorrow, and itll be a LOT of days too, but I'll most likely split them up.
+
+# Day 61
+
+Logging now incase I forget or get too lazy to log the later hours but just spent 3 hours going through units on C++ average about 9 minutes per sub unit. There is SO much theory to where if we are being honest it is a lot of stuff I already know or things that are rather intuitive but they give it a specific vocabulary name. There are some things that I wasn't aware of link buffers and link initialization, but overall I did not learn too much, just fundamentals. I did do some tiny projects however, nothing too crazy just programs that can add numbers and shit like that
+
+I will try to do a 2 hour sprint of CSS then I will probably just go to sleep, but I am documenting what I did now so I dont forget for later.
