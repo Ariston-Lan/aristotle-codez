@@ -61,4 +61,6 @@ A single bit can hold 2 possible values, a 0, or a 1.
 |===
 |bit 0
 
+| 0
+| 1
 |===
