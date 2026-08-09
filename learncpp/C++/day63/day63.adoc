@@ -1,0 +1,64 @@
+= Fundamental Data Types
+
+== Void
+
+=== Void and Incomplete types
+
+Void means having "no type".
+
+It is our first example of an incomplete type.
+
+An incomplete type is a type that has been declared but not yet defined. The compiller knows about the existence of such types, but does not have enough information to determine how much memory to allocate for objects of that type.
+
+Void is intentionally incomplete since it represents the lack of a type, and thus, cannot be efined.
+
+Void is typically used in several different contexts
+
+=== Functions that do not return a value
+
+Void is commonly used to indicate that a function does not return a value. For example:
+
+[status, cpp]
+--
+void print_name(name)
+{
+    std::cout << name << '\n';
+}
+--
+
+=== Functions that do not take parameters (Depracted)
+
+In C, void is used as a way to indicate that function does not take any parameters:
+
+[status, cpp]
+--
+int getValue(void) //void here means no parameters
+{
+    int x {};
+    std::cin >> x
+    
+    return x;
+}
+--
+
+This use of void is considered deprecated in C__. It is preferred you just don't use void as a parameter at all.
+
+== Object sizes and the sizeof operator
+
+=== Memory
+
+Just to clarify, most objects actually take up more than 1 byte of memory. A single object may use 1, 2, 4, 8, or even more consecutive memory addresses. The amount of memory than an object uses is based on its data type.
+
+The compiler is able to hide the details of how many bytes a given object uses from us since we access objects through variable names and not directly via memory addressess. 
+
+Even so, there are several reasons it is useful to know how much memory an object uses
+
+First, the more memory an object uses, the more information it can hold.
+
+A single bit can hold 2 possible values, a 0, or a 1.
+
+[cols="1", options="header"]
+|===
+|bit 0
+
+|===
