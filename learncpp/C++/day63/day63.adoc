@@ -55,7 +55,7 @@ Even so, there are several reasons it is useful to know how much memory an objec
 
 First, the more memory an object uses, the more information it can hold.
 
-A single bit can hold 2 possible values, a 0, or a 1.
+A single bit can hold 2 possible values, a 0, or a 1:
 
 [cols="1", options="header"]
 |===
@@ -63,4 +63,20 @@ A single bit can hold 2 possible values, a 0, or a 1.
 
 | 0
 | 1
+|===
+
+2 bits can hold 4 possible values:
+[cols='1,1' options='header']
+|===
+|bit 0 | bit 1
+
+|0
+|1
+|1
+|1
+
+|0
+|1
+|0
+|1
 |===
