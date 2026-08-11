@@ -1,1 +1,287 @@
+= Fundamental Data types
 
+== Unsigned integers, and why to avoid them
+
+=== Unsigned integers
+
+Unsigned integers are integers that can only hold non-negative whole numbers. To define an unsigned integer, we use the unsigned keyword. By convention, this is placed before the type:
+
+`unsigned short us;`
+
+=== Unsigned integer range
+
+A 1-byte unsigned integer has a range of 0 to 255. 
+
+=== Remembering the terms signed and unsigned
+
+Recall that signed numbers are ones that include both positive and negative outputs whereas positive numbers are ones that only include positive numbers.
+
+=== Unsigned integer overflow
+
+If we were to store 280 (something that needs 9-bits) in a system that stores only 8-bits (1-byte), the value is divided by one greater than the largest number of the type, and only the remainder is kept.
+
+So for 280, it is too big to fit in our 1-byte range of 255. 1 greater than the largest number of the type is 256. Therefore we divide 280 by 256, getting 1 remainder 24. The remainder of 24 is what is stored.
+
+Let's take a look at this usign 2-byte shorts:
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    unsigned short x{ 65535 }; // largest 16-bit unsigned value possible
+    std::cout << "x was: " << x << '\n';
+
+    x = 65536; // 65536 is out of our range, so we get modulo wrap-around
+    std::cout << "x is now: " << x << '\n';
+
+    x = 65537; // 65537 is out of our range, so we get modulo wrap-around
+    std::cout << "x is now: " << x << '\n';
+
+    return 0;
+}
+--
+
+If you compile this it should show this:
+
+*x was: 0*
+*x is now: 65535*
+*x is now: 65534*
+
+=== The controversy over unsigned numbers
+
+Many devs believe that devs should generally avoid unsigned integers.
+
+This is largely because of two behaviors that can cause problems
+
+* First, with signed values it takes little work to accidently overflow the top or bottom of the range because those values are from from 0. With unsigned numbers, it is much easier to overflow the bottom of the range since the bottom of the range is 0, which is close to what the majority of our values are.
+
+* Second, unexpected behavior can result when you mix signed and unsigned integers. In C++ if a methmatical operation has one signed integer and one unsigned integer, the signed integer will usually be converted to an unsigned integer. and then the result will thus be unsigned.
+
+== Fixed-width integers and size_t
+
+=== Fixed width integers
+
+There is an alternate set of intger types that are guaranteed to be the same size on any architecture, hence the name fixed-width integers.
+
+They are defined in the (<cstdint>/header) as follows:
+
+[cols="1,1,2,3", options="header"]
+|===
+| Name | Fixed Size | Fixed Range | Notes
+
+| `std::int8_t`
+| 1 byte signed
+| -128 to 127
+| Treated like a signed char on many systems. See note below.
+
+| `std::uint8_t`
+| 1 byte unsigned
+| 0 to 255
+| Treated like an unsigned char on many systems. See note below.
+
+| `std::int16_t`
+| 2 bytes signed
+| -32,768 to 32,767
+|
+
+| `std::uint16_t`
+| 2 bytes unsigned
+| 0 to 65,535
+|
+
+| `std::int32_t`
+| 4 bytes signed
+| -2,147,483,648 to 2,147,483,647
+|
+
+| `std::uint32_t`
+| 4 bytes unsigned
+| 0 to 4,294,967,295
+|
+
+| `std::int64_t`
+| 8 bytes signed
+| -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+|
+
+| `std::uint64_t`
+| 8 bytes unsigned
+| 0 to 18,446,744,073,709,551,615
+|
+|===
+
+There are some downsides to this, as fixed-width integers are not guaranteed to be defined on all architectures. They only exist on systems where there are fundamental integral types that match their widths and follow a certain binary representation.
+
+=== Best practices for integral types
+
+Its better to be correct than fast, and better to fail at compile than runtime. Therefore, if you need an integral type with a guaranteed range, we recommend avoiding the fast/least types in favor of the fixed-width types. If you later discover you need to support an esoteric platform for which a specific fixed-width integral type won't compile, then you can decide how to migrate your program at that point.
+
+=== std::size_t
+
+Look at this code:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    std::cout << sizeof(int) << '\n';
+
+    return 0;
+}
+--
+
+this returns "4"
+
+well, sizeof returns an intger value, and also sizeof returns a value of type std::size_t. std::size_t is an alias for an implenetation defined unsigned integral type.
+
+Basically, the compiler decides if std::size_t is an unsigned int, an unsigned long, an unsigned long long, etc.
+
+== Floating point numbers
+
+A floating point type variable is a variable that can hold a number with a fractional componenet, such as 3.13 or 0.0134. 
+
+There are three fundamental floating point data types: float, double, and long double. You define floats the same way you define other variables. Always include a decimal for floating point nummbers (even if the value is 0 or some whole number like 40)
+
+=== Numbers going to infnity
+1/3 is 0.3333 going to infinity, since you can't split up all 3 sides perfectly.
+
+So if your program uses a number like that, you would simply set a precision (meaning how many significant digits before you no longer care.)
+
+We can override the default precision that std::cout shows by using an output manipulator function named std::setprecision()
+
+For example:
+[source, cpp]
+--
+#include <iomanip> // for output manipulator std::setprecision()
+#include <iostream>
+
+int main()
+{
+    std::cout << std::setprecision(17); // show 17 digits of precision
+    std::cout << 3.33333333333333333333333333333333333333f <<'\n'; // f suffix means float
+    std::cout << 3.33333333333333333333333333333333333333 << '\n'; // no suffix means double
+
+    return 0;
+}
+--
+
+=== Floats vs Double
+
+Floats hold less bits than doubles. So doubles are the longer version of floats.
+
+
+== Boolaen values
+
+=== Boolean variables
+
+Boolean variables are variables that cna holder either true or false. To declare them we use a keyword, bool.
+
+=== Use std:boolalpha to print true or false
+
+If you want std::cout to print true or false instead of 0 or 1, you can output std::bootalpha instead. This dosen't print anything itself, but manipulates the way std::cout outputs bool values.
+
+=== Integer to Boolean conversion
+
+You can initialize a variable using integer literals 0(for false) and 1 (for true). There is literally no reason to do this but its good to know.
+
+=== Boolean return values
+
+Boolean values are often used as the return values to check if something is true or not.
+
+== Char
+
+A char data type was designed to hold a single character. A character can be a single letter, number, symbol, or whitespace.
+
+You initialize char variables using character literals:
+
+`char ch2{ 'a' }`
+
+=== Escape sequences
+
+There are some sequences of characters in C++ that have special meaning. These characters are called escape sequences. An escape sequences starts with a backslash character, then a following letter o number.
+
+For instance \n means newline, as we've been using.
+
+== Introduction to type conversion and static_cast
+
+=== Implicit type conversion
+
+[source, cpp]
+--
+#include <iostream>
+
+void print(double x) // print takes a double parameter
+{
+	std::cout << x << '\n';
+}
+
+int main()
+{
+	print(5); // what happens when we pass an int value?
+
+	return 0;
+}
+--
+
+In the above example, print() function has a parameter of type double, but the caller is passing the value 5, which is of type int. 
+
+When something like this happens, C++ will allow us to convert values of one fundamental type to another fundamaental type. The process of converting data from one type to another type is called type conversion.
+
+When thet compiler does type conversion on our behalf without us explicitly asking, we call this implicit type conversion. The above example illustrates this, nowhere do we explicitly tell the compiler to convert integer 5 to double value 5.0, rather the function is expceting a double value, andw e pass in an integer argument. The compiler will notice the mismatch and implicity convert the integer to a double.
+
+Type convrersion of a value produces a new value, by the way. It does not modify the existing one.
+
+=== Implicit type conversion warnings
+
+[source, cpp]
+``
+#include <iostream>
+
+void print(int x) // print now takes an int parameter
+{
+	std::cout << x << '\n';
+}
+
+int main()
+{
+	print(5.5); // warning: we're passing in a double value
+
+	return 0;
+}
+--
+
+In this program, we've changed print() to take an int parameter, and the function call to print() is now passing in double value 5.5. When the program is compiled and ran, itll print 5 instead of 5.5. This obviously could cause some errors, and deletion of certain data (such as 0.5)
+--
+
+=== Explicity type conversion via the static_cast operator.
+
+C++ supports a second method of type conversion,c alled explicity type conversion. Explicity type conversion allows the programmer to explicitly tell the compiler to convert a value from one type to another type, and we take full responsibility for the result of that conversion.
+
+To perform an explicity type conversion, in most cases we'll use the static_cast operator.
+
+`static_cast<new_type> (expression)`
+
+Here is an example of using it in action.
+[source, cpp]
+--
+#include <iostream>
+
+void print(int x)
+{
+	std::cout << x << '\n';
+}
+
+int main()
+{
+	print( static_cast<int>(5.5) ); // explicitly convert double value 5.5 to an int
+
+	return 0;
+}
+--
+
+* You can also use static_cast to convert char to int, since each character has an ASCII code (a numerical reference).
+
+* You can also use static_cast to conver unsigned integral valuess, and vice-versa, using a static cast.

@@ -1105,3 +1105,26 @@ Other than that, not too much done today. I posted a video to my youtube channel
 Logging now incase I forget or get too lazy to log the later hours but just spent 3 hours going through units on C++ average about 9 minutes per sub unit. There is SO much theory to where if we are being honest it is a lot of stuff I already know or things that are rather intuitive but they give it a specific vocabulary name. There are some things that I wasn't aware of link buffers and link initialization, but overall I did not learn too much, just fundamentals. I did do some tiny projects however, nothing too crazy just programs that can add numbers and shit like that
 
 I will try to do a 2 hour sprint of CSS then I will probably just go to sleep, but I am documenting what I did now so I dont forget for later.
+
+# Day 62
+Okay did another 2 hours of C++, however I am going to only push through the learn CPP book, then after learning the rough fundamentals of C++ I am gonna go straight to learning C. This is a pretty I guess round about approach, but I hope it will pay off well for knowing C, python, and then a little bit of C++ for projects since that should give me a pretty good amount of flexibility. (This in addition to having some frontend)
+
+No major projects except for a program that calculates celsius to farenheit and kelvin and yea.
+
+No CSS today, too tired and I know that's a terrible excuse. Tomorrow I will try to do it all. but its 9:02pm right now and I want to try and somewhat fix my sleep schedule and just chill a little bit for tonight.
+
+# Day 63
+
+Did a little bit of C++ today but no CSS, was too tired. Learned difference between integers and integrals in coding, and how bits affect memory. Things like that.
+
+# Day 64
+
+Did C++ and made two programs. Today was ALL about data types, so boolean values, chars, all that good stuff. The programs I made were two basic practice programs.
+
+The first one was a simple program that, upon you selecting a character, gives you returns the character, the ASCII value OF that character, and a conversion of that character to upper case/lowercase
+
+The second program just takes the temperature in farenheit, shows it in celsius, and then says whether or not the temperature is freezing or not, boiling or not, and gives the temperature category for the specified temp.
+
+No CSS today, but tomorrow, we are gonna try the trifecta (Engine I, II, and III!)
+
+# Day 65

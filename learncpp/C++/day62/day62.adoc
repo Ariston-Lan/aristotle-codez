@@ -1,1 +1,973 @@
+= C++ notes
 
+== Naming collisions and an introduction to namespaces
+
+=== Scope regions
+
+Imagine you had to deliver mail to two addresses, one at 245 Front Street in Mill City, and another at 245 Front Street in Jonesville, there would be no confusion about where to go. Put another way, cities provide groupings that allow us to disambiguate addresses that might otherwise conflict with each other.
+
+A scopre region is an area of source code where all declared identifiers are considered distinct from names declared in other scopes. Two identifiers with the same name can be declared in separate scope regions without causing a naming conflict. However, within a given scope region, all identifiers must be unique otherwise a naming collision will result.
+
+=== Namespaces
+
+A namepsace provides another type of scope region (called a namespace scope) thaat allows you to declare or define names inside of it for the purpose of disambiguation. The names declared in a namespaces are isolated from names declared in other scopes, allowing such names to exist without conflict.
+
+=== The global namespace
+
+Any name that is not defined inside of a class, fucntion, or namespace is considered to be part of an implicitly defined namespace called the global namespace (or the global scope)
+
+For example:
+
+[source, cpp]
+----
+#include <iostream> // imports the declaration of std::cout into the global scope
+
+// All of the following statements are part of the global namespace
+
+void foo();    // okay: function forward declaration
+int x;         // compiles but strongly discouraged: non-const global variable definition (without initializer)
+int y { 5 };   // compiles but strongly discouraged: non-const global variable definition (with initializer)
+x = 5;         // compile error: executable statements are not allowed in namespaces
+
+int main()     // okay: function definition
+{
+    return 0;
+}
+
+void goo();    // okay: A function forward declaration
+----
+
+=== sThe std namespace
+
+the `std::cout` itself is a namespace. Or more specifically the ``std::`` prefix as a whole is a namespace. This was because naming collisions made it hard to update the C++ library without the use of namespaces.
+
+===  Explicit namespace std::
+
+The most straightfowawrd way to tell the compiler we want to use cout from the std namespace is by explicitly using the `std::` prefix. The :: symvol is called the scope resolution operator. The identifier to the left of the :: symbol identifies the namespace that the name of the right of the :: symbol is contained within. If no identifier to the left of the :: symbol is provided, the global namespace is assumed.
+
+So when we say `std::cout` we're saying "the cout that is declared in the namespace std"
+
+===  Using namespace std (and why to avoid it)
+
+A using directive allows us to access the names in a namespace without using a namespace prefix (::). For example:
+
+[source, cpp]
+----
+#include <iostream>
+
+using namespace std; // this is a using-directive that allows us to access names in the std namespace with no namespace prefix
+
+int main()
+{
+    cout << "Hello world!";
+    return 0;
+}
+----
+
+However, you should avoid using-directives at the top of your program or in header files. They violate the reason why namespaces were added in the first place.
+
+=== Curly Braces and indented code
+
+In C++, curly braces are often used to delineate a scope region that is nested wtihin another scope region. For example, a function defined inside the global scope region uses curly braces to separate the scope region of the function from the global scope.
+
+In certain cases, identifiers defined outside the curly braces may still be part of the scope defined by the curly braces rather than the surrounding scope, function parameters are a good example of this
+
+For example:
+[source, cpp]
+----
+#include <iostream> // imports the declaration of std::cout into the global scope
+
+void foo(int x) // foo is defined in the global scope, x is defined within scope of foo()
+{ // braces used to delineate nested scope region for function foo()
+    std::cout << x << '\n';
+} // x goes out of scope here
+
+int main()
+{ // braces used to delineate nested scope region for function main()
+    foo(5);
+
+    int x { 6 }; // x is defined within the scope of main()
+    std::cout << x << '\n';
+
+    return 0;
+} // x goes out of scope here
+// foo and main (and std::cout) go out of scope here (the end of the file)
+----
+
+== Introduction to the preprocessor
+
+=== Proprocessing and Proprocessor
+Prior to compilation, each code(.cpp) file goes through a preprocessing phase. In this phase, a program called the preprocessor makes various changes to the text of the code file. 
+
+=== Preprocessor directives
+Preprocessor directives (often just called directives) are instructions that start with a # symbol and end with a newline (NOT a semicolon). These directives tell the preprocessor to perform certain text manipulation tasks
+
+==== #Include
+
+#include is a directive for instance, that includes a file. When you #include a file, the preprocessor replaces the #include directive with the contents of the included file. The incldued contents are then preprocessed, then the rest of the file is preprocessed.
+
+==== Macro defines
+#define can be used to create a macro
+
+*A macro is a rule that defines how input text is converted into replacement output text.* There are two basic types of macros: object-like macros and function-like macros.
+
+* Function-like macros act like functions, serve a similar purpose. Their use is generally considered unsafe, and almost anything they can do can be done by a normal funciton.
+
+* Object-like macros can be defined one of two ways
+[source, cpp]
+----
+#define IDENTIFIER
+#define IDENTIFIER sub_text
+----
+
+The top definition has no sub (substitution) text, whereas the bottom one does. 
+
+The identifier for a macro uses the same naming rules as noraml identifiers.
+
+===== Object like macros with sub text
+
+When the preprocessor encounters this directive, an association is made between the macro identifier and the sub text. All further occurrences of the amcro identifier (outside of use in other preprocessor commands) are replaced by sub text.
+
+For instance:
+[source, cpp]
+----
+#include <iostream>
+
+#define MY_NAME "Alex"
+
+int main()
+{
+    std::cout << "My name is: " << MY_NAME << '\n';
+
+    return 0;
+}
+----
+
+The preprocessor converts the above into the following:
+[source, cpp]
+----
+// The contents of iostream are inserted here
+
+int main()
+{
+    std::cout << "My name is: " << "Alex" << '\n';
+
+    return 0;
+}
+----
+Which, when run, prints the output "My name is: Alex".
+
+Object-like macros with sub text were used as a way to assign names to literals. This is no longer necessary. Object-like macros with sub text are mostly used in legacy code now.
+
+===== Object like amcros without sub text
+
+Macros of this form work like you might expect: most further occurrences of the identifier is removed and replaced by nothing!
+
+This might seem useless, and it is for text replacement, but it has other uses (which will be discussed later)
+
+==== Conditional compilation
+
+The conditional compilation preprocessor directives allow you to specify under what conditions something will or won't compile. There are quite a few different conditional compilation directives, but we'll cover the most common.
+
+The #ifdef preprocessor directive allows the preprocessor to check whether an identifier has been previously defined via #define. If so, the code between #ifdef and matching #endif is compiled. If not, the code is ignored. For example:
+
+[source, cpp]
+----
+#include <iostream>
+
+#define PRINT_JOE
+
+int main()
+{
+#ifdef PRINT_JOE
+    std::cout << "Joe\n"; // will be compiled since PRINT_JOE is defined
+#endif
+
+#ifdef PRINT_BOB
+    std::cout << "Bob\n"; // will be excluded since PRINT_BOB is not defined
+#endif
+
+   return 0;
+}
+----
+
+Since #PRINT_JOE is defined, the code in the conditional #ifdef PRINT_JOE is ran, and similarly the code in the other conditional is ignroed since PRINT_BOB is not defined.
+
+ifndef is the opposite of ifdef, in that it allows you to check whether something has NOT been defined yet
+
+For example:
+[source, cpp]
+----
+#include <iostream>
+
+int main()
+{
+#ifndef PRINT_BOB
+    std::cout << "Bob\n";
+#endif
+
+    return 0;
+}
+----
+
+This would run the code in the conditional since PRINT_BOB is NOT defined.
+
+===== #if 0
+
+Another common use of conditional compilation involves using #if 0 to exclude a block of code from being compiled, as if it were inside a comment block.
+
+For example:
+[source, cpp]
+----
+#include <iostream>
+
+int main()
+{
+    std::cout << "Joe\n";
+
+#if 0 // Don't compile anything starting here
+    std::cout << "Bob\n";
+    std::cout << "Steve\n";
+#endif // until this point
+
+    return 0;
+}
+----
+
+Everything inside the conditional is ignored.
+==== Macro sub with other preprocessor commands
+
+In most cases, macro sub does not occur when a macro identifier is used within another preprocessor command.
+
+For example:
+[source, cpp]
+----
+#define FOO 9 // Here's a macro substitution
+
+#ifdef FOO // This FOO does not get replaced with 9 because it’s part of another preprocessor directive
+    std::cout << FOO << '\n'; // This FOO gets replaced with 9 because it's part of the normal code
+#endif
+----
+
+=== The scope of #defines
+
+Directives are resolved before compilation, from top to bottom on a file-by-file basis
+
+For instance:
+[source, cpp]
+----
+#include <iostream>
+
+void foo()
+{
+#define MY_NAME "Alex"
+}
+
+int main()
+{
+	std::cout << "My name is: " << MY_NAME << '\n';
+
+	return 0;
+}
+----
+
+Even though the preprocessor is inside the function, the preprocessor dosent understand nor give a fuck about functions. Therefore, this program behaves identically to one where #define MY_NAME "Alex" was defined either before or immediately after function foo. So generally, you'll want to use #define outside of functions.
+
+Because an #include directive replaces the #directive of thee content of the included file, an #include can copy directives from the incldued file into the current file. These directives will then be processed in order. Fore xample:
+
+
+Alex.h
+[source, cpp]
+----
+#define MY_NAME "Alex"
+----
+
+main.cpp
+[source, cpp]
+----
+#include "Alex.h" //copies body of Alex.h here
+#include <iostream>
+
+int main()
+{
+    std::cout << "My name is: " << MY_NAME << '\n'; //preprocessor replaces MY_NAME with "Alex"
+
+    return 0;
+}
+----
+
+Once the preprocessor has finished, all defined identifiers from that file are discared. That means directives are only valid from the point of definition to the end of the file in which they are defined. Directives defined in one file do not have ay impact on other files (unless they are #included into another file). 
+
+For example:
+
+function.cpp
+[source, cpp]
+----
+#include <iostream>
+
+void doSomething()
+{
+#ifdef PRINT
+    std::cout << "Printing!\n";
+#endif
+#ifndef PRINT
+    std::cout << "Not printing!\n";
+#endif
+}
+----
+
+main.cpp
+[source, cpp]
+----
+void doSomething(); // forward declaration for function doSomething()
+
+#define PRINT
+
+int main()
+{
+    doSomething();
+
+    return 0;
+}
+----
+
+The above program will print: Not printing!
+
+Even though PRINT was defined in main.cpp, that dosen't have any impact on any of the code in function.cpp (PRINT is only #defined from the point of definition to the end of main.cpp). 
+
+== Header files
+
+=== Header file
+Header files usually have a .h extention, but you'll occasionally see them with a .hpp extention or no extension at all.
+
+Conventionally, header files are used to propogate a bunch of related foward declarations into a code file.
+
+=== Using standard library header files
+
+Look at this program:
+[source, cpp]
+----
+#include <iostream>
+
+int main()
+{
+    std::cout << "Hello, world!";
+    return 0;
+}
+----
+
+This program prints "Hello, world!" to the console using `std::cout`. However, this program never provided a function or declaration for `std::cout`, so how does the compiler know what std::cout is?
+
+The answer is that `std::cout` has been foward declared in the "iostream" header file. When we #include <iostream>, we're requesting that the preprocessor copy all of the content (including foward declarations for std::cout) from the file named "iostream" into the file doing include.
+
+==== Using header files to propogate foward declarations
+
+You can put your foward declarations within a header file and then just use the preprocessor #include to actually add them into your header.
+
+For instance:
+
+add.h
+[source, cpp]
+--
+int add(int x, int y);
+--
+
+main.cpp
+[source, cpp]
+--
+#include "add.h"
+#include <iostream>
+
+int main()
+{
+    std::cout << "The sum of 3 and 4 is " << add(3, 4) << '\n'
+    
+    return 0;
+}
+--
+
+add.cpp
+[source, cpp]
+--
+#include "add.h"
+
+int add(int x, int y)
+{
+    return x + y;
+}
+--
+
+===== Why you shouldnt include definitions in a header file
+
+If we added a defintion for add() in the header file itself (not add.h), here's what it would look like:
+
+add.h
+[source, cpp]
+--
+int add(int x, int y)
+{
+    return x + y;
+}
+--
+
+main.cpp
+[source, cpp]
+--
+#include "add.h"
+#include <iostream>
+int main()
+{
+    std::cout << "The sum of 3 and 4 is " << add(3, 4) << '\n'
+
+    return 0;
+}
+--
+
+add.cpp
+[source, cpp]
+--
+#include add.h
+--
+
+Okay so when main.cpp is compiled, itll include everything from the add header file (add.h), which now includes the entire function (both definition and declaration). So now the add.h function is essentially right on top of the <iostream>. 
+
+This will compile just fine.
+
+when the compiler compiles add.cpp, the #include will be replaced again, with the contents of the header file add
+
+This will also compile just fine.
+
+
+However...now the linker comes in. The linker will se ethat there are two definitions of add(), which is a violation of ODR part 2, which states, "Within a given program, a variable or normal function can only have one definition."
+
+=== Source files should include their own paired header
+
+Code fileks should #include their paired header file (if one exists). This allows the compiler to catch certain kinds of errors.
+
+This is why we #include add.h into add.cpp. Technically, we don't need to, but it can catch certain errors through the compiling process to make sure that the foward declaration matches with the actual function.
+
+One last thing, DO NOT include .cpp files.
+
+=== Angle brackets vs double quotes
+
+Why does iostream have angle brackets (<iostream>) and add.h have double quotes "add.h" if both use #include?
+
+Well angled brakcets is telling the preproccesor this is a header file we didn't write our selves. The preprocessor will search for the header only in the directories specified by the include directories. The include directories are configured as part of your project/IDE settings/compiler settings/ and typically default to the directories containing the header files that come wiht your compiler and/or OS.
+
+Then double quotes is saying the header file is one that we wrote, meaning it'll only look through the directories in the current directories, and if not found, look through the include directories.
+
+=== Including header files from other directories
+For VS Code users:
+
+In your tasks.json configuration file, add a new line in the “Args” section:
+"-I./source/includes",
+
+There is no space after the -I. For a full path (rather than a relative path), remove the . after -I.
+
+
+=== Transitive includes
+
+When your source (.cpp) file #includes a header file, you'll also get any other header files that are incldued by that header (and any header files those include, and so on). These additional header files are sometimes called transitive includes.
+
+=== Order of inclusion for header files
+Usually this dosent matter, but consider the following scenario: say header A needs declarations from header B, but forgets to include it. In our code file, if we include header B before A, our code will still compile! Because the compiler will compile all declarations from B before it compiles code from A.
+
+== Header guards
+
+First let's recall a simple rule, duplicate definitions result in compiler errors:
+
+[source, cpp]
+--
+int main()
+{
+    int x;
+    int x; //duplicate definition, compiler error
+
+    return 0;
+}
+--
+
+This also appplies to programs that define a function more than once.
+
+This leads us to situations in which a header file gets included more than once, resulting in a compiler error. 
+
+For example:
+
+square.h
+[source, cpp]
+--
+int getSquareSides()
+{
+    return 4;
+}
+--
+
+wave.h
+[source, cpp]
+--
+#include "square.h"
+--
+
+main.cpp
+[source, cpp]
+--
+#include "square.h"
+#include "wave.h"
+
+int main()
+{
+    return 0;
+}
+--
+
+First, main.cpp includes square.h, which fonctians the function getSquareSides(). Then main.cpp #includes wave.h, which #includes sqaure.h (already causing the program to have two duplicate sets of the same function). 
+
+This is where Header guards come in.
+=== Header guards: definition and inclusion
+
+A header guard(also called an include guard) prevents this from occurring.
+
+For example:
+[source, cpp]
+--
+#ifndef SOME_UNIQUE_NAME
+#define SOME_UNIQUE_NAME
+
+//your declarations
+
+#endif
+--
+
+When this header is #included, the preprocessor will check whetehr SOME_UNIQUE_NAME has been previously defined. If this is the first time we're including the header, SOME_UNIQUE_NAME will not have been defined. So then because of that, it defines SOME_UNIQUE_NAME and incldues the contents of the file. 
+
+If the header is incldued AGAIN into the same file, SOME_UNIQUE_NAME will already have been defined from the first time the contents of the header were included, and the contents of the header will be ignored
+
+So in action header guards look like this:
+
+square.h
+[source, cpp]
+--
+#ifndef SQUARE_H
+#define SQUARE_H
+
+int getSquareSides()
+{
+    return 4;
+}
+
+#endif
+--
+
+So now our previous example would go like this:
+
+square.h
+[source, cpp]
+--
+#ifndef SQUARE_H
+#define SQUARE_H
+
+int getSquareSides()
+{
+    return 4;
+}
+#endif
+--
+
+wave.h
+[source, cpp]
+--
+#ifndef WAVE_H
+#define WAVE_H
+
+#include "square.h"
+
+#endif
+--
+
+main.cpp:
+[source, cpp]
+--
+#include square.h
+#include "wave.h"
+
+int main()
+{
+    return 0;
+}
+--
+
+So here's what now happens:
+
+main.cpp:
+[source, cpp]
+--
+// Square.h included from main.cpp
+#ifndef SQUARE_H // square.h included from main.cpp
+#define SQUARE_H // SQUARE_H gets defined here
+
+// and all this content gets included
+int getSquareSides()
+{
+    return 4;
+}
+
+#endif // SQUARE_H
+
+#ifndef WAVE_H // wave.h included from main.cpp
+#define WAVE_H
+#ifndef SQUARE_H // square.h included from wave.h, SQUARE_H is already defined from above
+#define SQUARE_H // so none of this content gets included
+
+int getSquareSides()
+{
+    return 4;
+}
+
+#endif // SQUARE_H
+#endif // WAVE_H
+
+int main()
+{
+    return 0;
+}
+--
+
+=== Header guards do not prevent a header from being included into different code files
+
+The goal of header guards is to prevent a code file from receiving more than one copy of a guarded header. By design, gauards do not prevent a given header file from being included (once) into separate code files.
+
+For instance:
+
+square.h
+[source, cpp]
+--
+#ifndef SQUARE_H
+#define SQUARE_H
+
+int getSquareSides()
+{
+    return 4;
+}
+
+int getSquarePerimeter(int sideLength); // forward declaration for getSquarePerimeter
+
+#endif
+--
+
+This is defining the getSquareSides() function and doing a foward declaration for getSquarePerimeter
+
+square.cpp:
+[source, cpp]
+--
+#include "square.h"  // square.h is included once here
+
+int getSquarePerimeter(int sideLength)
+{
+    return sideLength * getSquareSides();
+}
+--
+Here this includes square.h ONCE, meaning the body of getSquareSides() will be copied into square.cpp.
+
+main.cpp
+[source, cpp]
+--
+#include "square.h" // square.h is also included once here
+#include <iostream>
+
+int main()
+{
+    std::cout << "a square has " << getSquareSides() << " sides\n";
+    std::cout << "a square of length 5 has perimeter length " << getSquarePerimeter(5) << '\n';
+
+    return 0;
+}
+--
+
+Now, square.h is included AGAIN, which causes a duplicate definition. It is defined both in square.cpp AND in main.cpp. The best work around for this is simply to put the function definition in one of the .cpp files so the header just contains a foward declaration.
+
+=== #pragma once
+
+Modern compilers support a simpler, alternate form of header guards using the #pragma preprocessor directe:
+
+[source, cpp]
+--
+#pragma once
+
+// your code here
+--
+
+#pragma once serves the same purpose as header guards: to avoid a header file from being included multiple times.
+* Note, some compilers may not support #pragma once. It is via compiler, not in the C++ standard, that this is done. So some compilers may just not support it.
+
+=== Chapter Review
+
+* DRY programming (don't repeat yourself)
+
+* Function types, function needs return types
+
+* Local variables defined within functions, they have a given lifetime, they are created and destroyed at runtime, which is when the program is running.
+
+* Foward declaration allows us to tell the compiler about the existence of an identifier before actually defining the identifier.
+
+* Header files popogate the declaration to code files using #include.
+
+== Syntax and semantic errors
+
+=== Syntax errors
+
+These are errors that occur when you write a statement that is not the valid grammar of the C++ language. Like having a statement with no semicolon, or not adding a data type for your variable.
+
+=== Semantic errors
+A semantic error is an error in meanig. These occur when a statement runs, meaning it is syntactially valid, but either violates the rules of the language or does not do what the programmer inteneded.
+
+== The debugging process
+
+=== General approach
+
+Debugging usually consists of six steps
+
+. Find the root cause of the problem
+. Ensure you understand why
+. Detertime how to fix the issue
+. Fix the issue
+. Retest to ensure the problem has been fixed
+. Retest for any NEW problems
+
+== A strategy for debugging
+
+
+=== Find problems by running the program
+Even after you write your code, you might not be able to find the error until it runs. Which is why instead of writing a giant six block interacting progaram, sometimes its helpful to test your code in incremenets, and find problems by running the program itself.
+
+=== Reproducing the problem
+After you find a problem you should be able to reproduce the problem. Reproduceable problems means that it is consistent, and if it is consistent, it means you can actually start working on a solution. 
+
+In small programs this isnt difficult, but eventually, when making large-scale systems maybe you find that the program crashes only on a specific computer, or a specific operating system, these are the types of reproducition steps you need to enact to isolate the issue at hand.
+
+=== Honing in on issues
+After you reporduce the problem, hone in on the issue.
+
+This is easier said than done, or sometimes it is extemely easy. Regardless, if you can repeat the problem, you can slowly but surely isolate the issue.
+
+== Basic debugging tactics
+
+=== Commenting out your code
+
+Sometimes you write a LOT of code and find out there's an error in one section. Instead of running the entire program every single time to debug a specific section, just comment out the parts of the code that aren't causing any errors to focus on the snippet you're debugging.
+
+=== Validating your code flow
+
+Another common problem in more complex programs is the program is calling a function too many or too few times. So sometimes it can be helpful to place statements at the top of your function to print the function's name. Printing in general is very useful, because you can use it as a way to see your codeflow on your own terms
+
+=== Printing values
+
+As I just mentioned, even without validating your code flow, printing values can be incredibly useful. Sometimes things get the wrong value, and if you run a function that just returns the calculation but never lets you see it, then you won't know if the value is right or wrong till you get the error. And even with the error, the error in question might not show you the incorrect value or how it occurred. This is where printing values becomes a valuable tool for debugging programs.
+
+== More debugging tactics
+
+=== Conditionalizing your debugging code
+
+Usually when you debug code, you add prints, validations of code flow, and other tactics directly in your code snippet causing errors. When the debugging is done, logically, you should remove these things. but if another error occurrs, you'll have to input them back in. This is a very annoying process going back and forth.
+
+A solution to make it easier to disable and enable debugging throughout your program is to make your debugging statements conditional using preprocessor directives:
+
+[status, cpp]
+--
+#include <iostream>
+
+#define ENABLE_DEBUG // comment out to disable debugging
+
+int getUserInput()
+{
+#ifdef ENABLE_DEBUG
+std::cerr << "getUserInput() called\n";
+#endif
+	std::cout << "Enter a number: ";
+	int x{};
+	std::cin >> x;
+	return x;
+}
+
+int main()
+{
+#ifdef ENABLE_DEBUG
+std::cerr << "main() called\n";
+#endif
+    int x{ getUserInput() };
+    std::cout << "You entered: " << x << '\n';
+
+    return 0;
+}
+--
+
+With this, when you manually enable debugging, these debugging statements will print (or whatever else you use to debug).
+
+==== Using a logger
+
+An alternative approach to conditionalized debugging is to send your debugging information to a log. A log is just a recording of events that happened chronologically/sequentially, usually time-stamped. The process of generating a log is called logging. Typically, logs are written to a file on a disk (called a log file) so they can be reviewed later.
+
+C++ contains an output stream named std::clog that is inteneded to be used for writing logging information. However, by default, std::clog writes to the standard error stream (the same as std::cerr). And while you can redirect it to file instead, this is one area where you're generally better off using one of the many existing 3rd party logigng tools available.
+
+== Using an integrated debugger: Stepping
+
+=== Program State
+
+At any point in time while your program is running, the program i skeeping track of a lot of thigns: the value of the variables you're using, which funcitons have been called, and the current point of execution within the program.
+
+All of this tracked information is called your program state.
+
+=== The debugger
+A debugger is a computer program that allows the programmer to control how another program executes and examine the program state while that program is running. For instance, the programmer can use a debugger to execute a program line by line, examining the value of variables along the way.
+
+* For VS Code users: 
+To set up debugging, press Ctrl+Shift+P and select *“C/C++: Add Debug Configuration”, followed by “C/C++:* g++ build and debug active file”. This should create and open the launch.json configuration file. Change the “stopAtEntry” to true:
+"stopAtEntry": true,
+
+Then open main.cpp and start debugging by pressing F5 or by pressing Ctrl+Shift+P and selecting “Debug: Start Debugging and Stop on Entry”.
+
+
+=== Stepping
+Stepping is the name for a set of related debugger features that let us execute our code statement by statement
+
+==== Step into
+
+The step into command executes the next statement in the normal execution path of the program, and then puases execution of the program so we can examine the program's state using the debugger.
+
+If the statement being execute contains a function call, step into causes the program to jump to the top of the funciton being called, where it will pause.
+
+* For VS Code users: 
+In VS Code, the step into command can be accessed via Run > Step Into.
+
+==== Step over
+Step over command executes the next statement in normal execution path of the program. However, step over will execute an entire function without stopping and return control to you after the function has been executed.
+
+* For VS Code users:
+In VS Code, the step over command can be accessed via Run > Step Over, or by pressing the F10 shortcut key.
+
+== Using an integrated debugger: Running and breakpoitns
+
+=== Run to cursor
+
+The first useful command is commonly called Run to cursor. This "Run to cursor" command executes the program until executation reaches the statement selected by your cursor. Then it returns control to you so you can debug it starting at that point.
+
+* For VS Code users:
+In VS Code, the run to cursor command can be accessed while already debugging a program by right clicking a statement in your code and choosing Run to Cursor from the context menu.
+
+=== Continue
+Once you're in the middle of a debugging session, you may want to just run the program from that point foward. The easiest way to do this is to use the continue command. 
+
+The continue debug command simply continues running the program as per normal, either until the program terminates, or until something triggers control to return to you back again.
+
+* For VS code users:
+In VS Code, the continue command can be accessed while already debugging a program via Run menu > Continue, or by pressing the F5 shortcut key.
+
+=== Start
+The continue command has a twin brother names start. The start command performs the same action as continue, just starting from the beginning of the program. It can only be invoked when not already in a debug session.
+
+=== Set next statement
+The set next statement command allows us to cahnge the point of executiont o some otehr statement (sometimes called jumping). This can be used to jump the point of execution fowards and skip some code that would otherwise execute, or backwards and have something already executed run again.
+
+=== Step back
+Step back rewinds the state of everything, as if you'd never gone past that point in the first place. Any changes to variable values or other program state is undone. This is essentially an "undo" command for stepping.
+
+== Using an integrated debugger: Watching variables
+
+=== Watching variables
+Watching a variable is the process of inspecting the value of a variable while the program is executing in debug mode. Most debuggers provide several ways to do this.
+
+=== The watch window
+Using the mouse or QuickWatch methods to inspect variables is fine if youw ant to know the value of a variable at a particular moment in time, but it's not particularly suited to watching the value of a variable change as you run the code because continually have to rehover/reselect the variable.
+
+The watch window is a window where you can add variables you would like to conitually inspect, and these variables will be updated as you step through your program. The watch window may already be on your screen when you enter debug mode, but if it is not, you can bring it up through your IDE's window commands.
+
+* For VS code users:
+In VS code, the watch window appears in debug mode, docked on the left above the call stack.
+
+=== Setting a breakpoint on watched variables
+
+Some debuggers will allow you to set a breakpoint on watched variable rather than a line. This will cause the program to stop execution whenever the value of that variable changes.
+
+=== The watch window can evaluate expressions to
+
+The watch window will also allow you evaluate simple expresisons
+
+=== Local watches
+Because inspecting the value of locab variables inside a function is common while debugging, many debuggers will offer some way to quickly watch the value of all local variables in scope.
+
+* For VS code users:
+In VS code, thev alue of local variables can be found in the VARIABLES section that appears docked to the left in debug mode.
+
+== Using an integrated debugger: The call stack
+
+=== Call stack
+The call stack is a list of all the active functions that have been called to get the current point of execution. The call stack includes an entry for reach function called, as well as which line of code will be returned to when the function returns.
+
+Whenever a new funciton is called, that function is added to the top of the call stack. When the current function returns to caller, it is removed from the top of the call stack, and control returns the function just below it.
+
+==== Call stack window
+The call stack window is a debugger window that shows the current call stack. If you don't see the call stack window, you will need to tell the IDE to show it.
+
+* For VS Code users:
+In VS Code, the call stack window appears in debug mdoe, docked on the left
+
+
+== Shotgunning for general issues
+
+Programmers tend to make certain kinds of common mistakes. Some of those mistakes can be discovered by programs trained to look for them. These programs, generally known as static analysis tools, are porgrams that analyze your source code to identify specific semantic issues. The issues found by static analysis tools may or may not be the cause of any particular problem you are having, but may help point out fragile areas of code or issues that can be problematic.
+
+== Introduction to fundamental data types
+
+=== Bits, bytes, and memory addressing
+
+The smallest unit of memory is a binary digit(also called a bit), which can hold a value of 0 or 1. You can think of a bit being a traditional light switch, either the light is off (0) or on (1). There is no inbetween. If you were to look at a random segment of memory, all you would see is ...00101010100101...or some combination thereof.
+
+Memory is organized into squential units called memory addresses (or addresses for short). Similar to how a street address can be used ton find a given house on a street, the memory address allows us to find and access the contents of memory at a particular lcoation.
+
+In modern computer architectures, each bit does not get its own unqiue memory address. This is ebcause the number of memory addresses is limited, and the need to access data bit-by-bit is rare. Instead, each memory address holds 1 byte of data
+
+A byte is a group of bits that are operated on as a unit. The modern standard is that a byte is compirsed of 8 sequential bits.
+
+=== Data types
+Because all data on a computer is just a sequence of bits, we use a data type (often called type for short) to tell the compiler how to interpret the contents of a memory in some meaningful way.
+
+Some data types are
+* int
+* double
+* bool
+* void
+and more.
+
+=== Fundamental data types
+* Type | Category | Meaning | Example
+* float, double, long double | Floating point | number with a fractional part | 3.14
+
+* bool | integral (boolean) | True or false | true
+
+* char, wchar_t, char8_t, char16_t, char32_t | Char | A singular line of text | 'c'
+
+* short int, int, long int, long long int  |Integral(integer) | pos and neg whole numbers | 64
+
+* std::nullptr_t | Null Pointer | a null pointer | nullptr
+
+* void | Void | no type | n/a
+
+=== Integer vs integral types
+
+The term integral in C++ means "like an integer"
+
+The standard integer types are short, int, long, long long
+
+The integral types are bool, the various char types, and the standard integer types.
+
+=== Other sets of types
+
+There are three sets of type in C++
+
+The first two are built into the language:
+* fundamental data types: provide the most basic and essential data types
+
+* compound data types: provide more complex data types and allow for the creation of custom(user-defined) types.
+
+=== The _t suffix
+
+Many of the types defined in newer versions of C++ (e.g. std::nullptr_t) use a _t suffx. This suffix means "type" and it's a common nomenclature applied to modern types.okay

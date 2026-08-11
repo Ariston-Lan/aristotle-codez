@@ -19,22 +19,12 @@ float faren_to_cels(float farenheit)
 
 bool is_freezing(float farenheit)
 {
-    if(farenheit <= 32){
-        return true;
-    }
-    else{
-        return false;
-    }
+    return farenheit <= 32;
 }
 
 bool is_boiling(float farenheit)
 {
-    if(farenheit >= 212){
-        return true;
-    }
-    else{
-        return false;
-    }
+    return farenheit >= 212;
 }
 
 std::string get_temp_category(float F){
