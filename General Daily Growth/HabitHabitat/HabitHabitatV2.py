@@ -6,7 +6,7 @@ class Habit:
     
 class Habitat:
     def __init__(self, name, description):
-        self._name = name
+        self.name = name
         self.description = description
         self.members = []
     
@@ -17,12 +17,12 @@ class Habitat:
     @name.setter
     def name(self, name):
         invalid_characters = ['/',',',']','.',':',';','<','>','?','!','|']
-        if len(self.name) < 3:
+        if len(name) < 3:
             raise ValueError('Name must be more than 3 characters long')
         for character in invalid_characters:
-            if character in self.name:
+            if character in name:
                 raise ValueError('Name must have no special characters')
-        self.name = name
+        self._name = name
     def add_user(self, user):
         self.members.append(user)
 
@@ -38,7 +38,7 @@ class Habitat:
 
 class User:
     def __init__(self, username):
-        self._username = username
+        self.username = username
         self.habits = []
         self.habitats = []
     
@@ -60,7 +60,7 @@ class User:
         for character in invalid_characters:
             if character in self.username:
                 raise ValueError ('Username must have no special characters')
-        self.username = username
+        self._username = username
     
     
     def display_habits(self):
