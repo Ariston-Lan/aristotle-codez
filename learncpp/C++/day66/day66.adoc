@@ -1,1 +1,653 @@
+= Scope Duration and Linkage
+
+== Local variables
+
+Local variables are variables that are defined inside a function (including function parameters)
+
+It turns out that C++ actually dosen't have a single attribute that defines a variable as being a local variable. Instead local variables have several different properties that deifferentiate how these variables behave from other kinds of (non-local) variables. 
+
+=== Local variables have block scope
+
+Having block scope means they are in scope from their point of definition to the end of the block they are defined within.
+
+This means that **All variable names within a scope must be unique**
+
+=== local variables have automatic storage duration
+
+A variable's storage duration determines what rules govern when and how a variable will be created and destroyed. In most cases, a variable's storage duration directly determines its lifetime.
+
+=== Local variables in nested blocks
+
+Local variables can be defined inside nested blcoks,. This works identically to local variables in function body blocks.
+
+=== Local variables have no linkage
+
+Identifiers have another property named linkage. An identifier's linkage determine whether a declaration of that same identifier in a different scope refers to the same object (or function).
+
+Since local variables are defined within their blocks, they have no linkage. Each declaration of an identifier with no linkage refers to a unique object or function.
+
+=== Varibales should be defined in the most limited scope
+
+If a varibale is only used wtihin a nested block, it should be defined inside that nested block. So limit variables to only the scopes they are used in.
+
+== Intro to global variables
+In C++, variables can also be declared outside of a function. Such variables are called global variables.
+
+=== Declaring global variables
+By convention, global variables are declared at the top of a file, below the includes, in the global namespace. 
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+// Variables declared outside of a function are global variables
+int g_x {}; // global variable g_x
+
+void doSomething()
+{
+    // global variables can be seen and used everywhere in the file
+    g_x = 3;
+    std::cout << g_x << '\n';
+}
+
+int main()
+{
+    doSomething();
+    std::cout << g_x << '\n';
+
+    // global variables can be seen and used everywhere in the file
+    g_x = 5;
+    std::cout << g_x << '\n';
+
+    return 0;
+}
+// g_x goes out of scope here
+--
+
+=== The scope of global variables
+
+Identifiers decalared in the global namespace have global namespace scope, which means they are visible from the point of declaration until the end of the file in which they are declared.
+
+Once declared, a global variable can be used anywhere in the file from that point onward.
+
+=== Global variables have static duration
+
+Global variables are created when the program starts (before main() begins execution), and destroyed when it ends. This is called static duration. Variables with static duration are sometimes called static varibales
+
+=== Naming global variables
+
+By convention, some devs prefix global variable identifiers with g or g_ to indicate that they are global.
+
+=== Global variable initialization
+
+Unlike local variables, which uninitalized by default, variables with static duration are zero-initialized by default.
+
+Non-constant global variables can be optionally initialized
+
+For instance:
+[source, cpp]
+--
+int g_x;       // no explicit initializer (zero-initialized by default)
+int g_y {};    // value initialized (resulting in zero-initialization)
+int g_z { 1 }; // list initialized with specific value
+--
+
+=== Constant global variables
+
+Global variables can be constant, and must be initialized as a constant if that is the case.
+
+For instance:
+[source, cpp]
+--
+#include <iostream>
+
+const int g_x;     // error: constant variables must be initialized
+constexpr int g_w; // error: constexpr variables must be initialized
+
+const int g_y { 1 };     // const global variable g_y, initialized with a value
+constexpr int g_z { 2 }; // constexpr global variable g_z, initialized with a value
+
+void doSomething()
+{
+    // global variables can be seen and used everywhere in the file
+    std::cout << g_y << '\n';
+    std::cout << g_z << '\n';
+}
+
+int main()
+{
+    doSomething();
+
+    // global variables can be seen and used everywhere in the file
+    std::cout << g_y << '\n';
+    std::cout << g_z << '\n';
+
+    return 0;
+}
+// g_y and g_z goes out of scope here
+--
+
+== Variable shadowing (name hiding)
+
+Each block defines its own scope region. So what happens when we have a variable inside a nested block that has the same name as a variable in an outer block?
+
+ When this happens, the nested variable "hides" the outer variable in areas where they are both in scope. This is called name hiding or shadowing.
+
+=== Shadowing of local variabless
+
+Example:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{ // outer block
+    int apples { 5 }; // here's the outer block apples
+
+    { // nested block
+        // apples refers to outer block apples here
+        std::cout << apples << '\n'; // print value of outer block apples
+
+        int apples{ 0 }; // define apples in the scope of the nested block
+
+        // apples now refers to the nested block apples
+        // the outer block apples is temporarily hidden
+
+        apples = 10; // this assigns value 10 to nested block apples, not outer block apples
+
+        std::cout << apples << '\n'; // print value of nested block apples
+    } // nested block apples destroyed
+
+
+    std::cout << apples << '\n'; // prints value of outer block apples
+
+    return 0;
+} // outer block apples destroyed
+--
+
+Here, an apples integer variable is defined locally, once in the outer block and again in the inner block. The program will then print, 5, 10, 5, because of this.
+
+However, if apples was not defined in the inner block, the program would instead apply the modification of apples to the apples in the outer block.
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{ // outer block
+    int apples{5}; // here's the outer block apples
+
+    { // nested block
+        // apples refers to outer block apples here
+        std::cout << apples << '\n'; // print value of outer block apples
+
+        // no inner block apples defined in this example
+
+        apples = 10; // this applies to outer block apples
+
+        std::cout << apples << '\n'; // print value of outer block apples
+    } // outer block apples retains its value even after we leave the nested block
+
+    std::cout << apples << '\n'; // prints value of outer block apples
+
+    return 0;
+} // outer block apples destroyed
+--
+
+In this example, we first initialize the global int variable, value, with the value of 5.
+
+Then inside the function foo, we print the value variable, since value is not shadowed here this prints 5.
+
+Then inside of the function main, we initialize another value variable, and store 7 within that variable. Now for the rest of the main() function, value refers to the local variable we just initialized, NOT the global variable. After that we increment the local value, and print the local value, which prints 8. Then we call foo which prints the global variable.
+
+== Internal linkage
+
+Recall how we said "An identifiers linkage determine whether other declarations of that name refer to the same object or not", and we discussed how some objects have no linkage.
+
+Global variables and function identifiers can have either internal linkage or external linkage.
+
+An identifier with internal linkage can be seen and used within a single translation unit, but it is not accessible from other translation units. This means that if two source files have identically named identifiers with internal linkage, those identifiers will be trated as independent (and do not result in an ODR violation for having duplicate definitions).
+
+=== Global variables with internal linkage
+
+Global variables with internal linkage are sometimes called internal variables.
+
+To make a non-constant variable internal, we use the static keyword.
+
+Example:
+[source, cpp]
+--
+#include <iostream>
+
+static int g_x{}; // non-constant globals have external linkage by default, but can be given internal linkage via the static keyword
+
+const int g_y{ 1 }; // const globals have internal linkage by default
+constexpr int g_z{ 2 }; // constexpr globals have internal linkage by default
+
+int main()
+{
+    std::cout << g_x << ' ' << g_y << ' ' << g_z << '\n';
+    return 0;
+}
+--
+
+Here we are making the global variable g_x of type int internal via the static declaration specifier. Constant global variables have intenral linkage by default, and constexpr globals as well. 
+
+And moreover, multiple files can use internal variables, as mentioned before:
+
+a.cpp
+[source, cpp]
+--
+[[maybe_unused]] constexpr int g_x { 2 }; // this internal g_x is only accessible within a.cpp
+--
+
+main.cpp
+[source, cpp]
+--
+#include <iostream>
+
+static int g_x { 3 }; // this separate internal g_x is only accessible within main.cpp
+
+int main()
+{
+    std::cout << g_x << '\n'; // uses main.cpp's g_x, prints 3
+
+    return 0;
+}
+--
+
+=== Functions with internal linkage
+
+Function identifiers can also have linkage. Functions default to external linkage which means they can be used across multiple files. You can set them to internal linkage via the static keyword.
+
+add.cpp
+[source, cpp]
+--
+// This function is declared as static, and can now be used only within this file
+// Attempts to access it from another file via a function forward declaration will fail
+[[maybe_unused]] static int add(int x, int y)
+{
+    return x + y;
+}
+--
+
+=== The one-definition rule and internal linkage
+
+Recall the one-definition rule says that an object  or function can't have more than one definition, either within a file or program.
+
+However, its worth noting that internal objects and functions are defined in different files and thus are declared to be separate entities. Even if their names and types are identitical. So there is no violation of the ODR rule.
+
+=== statis vs unnamed namespaces
+
+
+The use of the static keyword for giving identifiers internal linkage is falling out of favor. Unnamed namespaces can give interal linkage to a wider range of identifiers, and they are better suited for giving many identifiers internal linkage.
+
+=== Why bother giving identifiers internal linkage?
+
+There are typically two reasons to give identifiers internal linkage:
+
+* There is an identifier we want to make sure isn't accessible ot other files.
+
+* To be pedantic about avoiding name collisions.
+
+== External linkage and variable foward declarations
+
+An identifier with external linkage can be seen and used from the file in which it is defined and from other code files (via a foward declaration). In this sense, identifiers with external linkage are truly "global" in that they can be used anywhere in your program.
+
+=== Functions have external linkage by default
+
+In order to call a function defined in another file, you must place a foward declaration for the function in any other files wishing to use the function. The foward declaration tells the compiler about the existence of the function, and the linker connects the function calls to the actual function definition.
+
+Here's an example:
+a.cpp
+[source, cpp]
+--
+#include <iostream>
+
+void sayHi() // this function has external linkage, and can be seen by other files
+{
+    std::cout << "Hi!\n";
+}
+--
+
+main.cpp
+[source, cpp]
+--
+void sayHi(); // forward declaration for function sayHi, makes sayHi accessible in this file
+
+int main()
+{
+    sayHi(); // call to function defined in another file, linker will connect this call to the function definition
+
+    return 0;
+}
+--
+
+In the above example, we define the function sayHi() in a separate file, and then in the file we want to use it in, we use a foward declaration to tell the compiler about the existence of the function so that it can actively recall it and we can therefore use it.
+
+=== Global variables with external linkage
+
+Global variables with external linkage are sometimes called external variables. To make a global variable external, you can use the extern keyword to do so:
+
+[source, cpp]
+--
+int g_x { 2 }; // non-constant globals are external by default (no need to use extern)
+
+extern const int g_y { 3 }; // const globals can be defined as extern, making them external
+extern constexpr int g_z { 3 }; // constexpr globals can be defined as extern, making them external (but this is pretty useless, see the warning in the next section)
+
+int main()
+{
+    return 0;
+}
+--
+
+It's important to note that non-constant global variables are external by default, but you can use extern to make const globals external.
+
+=== Variable foward declarations via the extern keyword
+
+To actually use an external global, similar to a function, you need to declare it via foward declaration for the global variable. 
+
+For variables, creating a declaration is also done via the extern keyword.
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+extern int g_x;       // this extern is a forward declaration of a variable named g_x that is defined somewhere else
+extern const int g_y; // this extern is a forward declaration of a const variable named g_y that is defined somewhere else
+
+int main()
+{
+    std::cout << g_x << ' ' << g_y << '\n'; // prints 2 3
+
+    return 0;
+}
+--
+
+Now both globals g_x and g_y can be used in main.cpp despite them being defined elsewhere.
+
+* Note: since globals are already external, avoid using extern on a non-const global variable with an initializer.
+
+== Why (non-const) global variables are evil
+
+Global variables are one of the most historically abused concepts in the language. Although they may seem harmless in small academic programs, they are often problematic in larger ones.
+
+New programmers are often tempted to use lots of global variables because they are easier to work with, especially when many calls to different functions are involved.
+
+However, this is generally a bad idea. Many decvs believe non-const global variables should be avoided completely.
+
+=== Why non-const global variables are evil
+
+The reason that they are evil is because if ANY function alters the global variable, ALL of them are affected. You can already see how terrible this is id imagine.
+
+=== The initialization order problem of global variables
+
+Initialization of static variables (which includes global variables) happens as part of program startup, before execution of the main function. This proceeds in two phases
+
+The first phase is called static initialization. Static initialization proceeds in two phases:
+
+* Global variables with constexpr initializers (including literals) are initialized to those values. This is called constant initialization.
+
+* Global variables without initializers are zero-initialized. Zero initilization is considered to be a form of static-initialization since 0 is a constexpr value.
+
+The sceond phase is called dynamic initilization. The gist of it is that global variables with non-constexpr initializers are initialized.
+
+Within a single file, for each phase, global variables are generally initialized in order of definition. Given this, you need to be careful not to have variables dependent on the initialization value of other variables that won't be initialized until later.
+
+For example:
+[source,cpp]
+--
+#include <iostream>
+
+int initX();  // forward declaration
+int initY();  // forward declaration
+
+int g_x{ initX() }; // g_x is initialized first
+int g_y{ initY() };
+
+int initX()
+{
+    return g_y; // g_y isn't initialized when this is called
+}
+
+int initY()
+{
+    return 5;
+}
+
+int main()
+{
+    std::cout << g_x << ' ' << g_y << '\n';
+}
+--
+
+Here we declare two functions with foward declarations, to let the program know they exist later in the file. Then we initialize g_x using the initX() function. So now the compiler goes to the initX() function, and in that function it returns g_y, however, we haven't finished initializing g_y yet, and so g_x instead does zero-initialization, which means its value is 0.
+
+* Note: if you do use global varibales, it is best do always prefix them with g_, encapsulate the variable (to make sure it is only accessible from the file it's declared in e.g. by making the variable static or constexpr), and don't use the variable directly in your function body. Pass it in as an argument instead (so instead of calling global variable youd call get_glob(), which returns the global variable.)
+
+== Inline functions and variables
+
+Consider the case where you need to write some code to perform some discrete task, like reading input from the user, our outputting something to a file, or calculating a particular value. When impleneting this code, youe ssentially have two options:
+
+. Write the code as part of an exisitng function (called writing code "in-place" or "inline")
+
+. Create a new function (and possibly sub-functions) to handle the tesk
+
+Putting the code in a new function provides many potential benefits, as small functions: 
+
+* Are easier to read and understand in the context of the overall program
+* Are easier to reuse, as functions are naturally modular
+* Are easier to update, as the code only needs to be modified in one place
+
+However, one downside of using a new function is that every time a function is called, there is a certain amount of performance overhead that occurs.
+
+For example
+
+[source, cpp]
+--
+#include <iostream>
+
+int min(int x, int y)
+{
+    return (x < y) ? x : y;
+}
+
+int main()
+{
+    std::cout << min(5, 6) << '\n';
+    std::cout << min(3, 2) << '\n';
+    return 0;
+}
+--
+
+When a call to min() is encountered, the CU must store the address of the current instruction it is executing (so it knows where to return to later) alone with the values of various CPU registers (so they can be restored upon returning). Then parameters of x and y must be instantiated and then initialized. Then the execution path has to jump to the code in the min() function. When the function ends, the program has to jump back to the location of the function call, and the reutrn value has to be copied so it can be output. This has to be done for each function call.
+
+All of the extra work that must happen tos etup faciliate, and/or cleanup after some task is called overhead.
+
+For functions that are large and/or perform complex tasks, the overhead of the functionc all is typically insiginificant compared to the amount of time the function takes to run. However, for small functions, the overhead costs can be larger than hte time needed to actually execute the functions code!
+
+=== Inline expansions
+
+To avoid such overhead cost: Inline expansion is  aprocess where a function call is replaced by the code from the function's definition
+
+For example, if the compiler exapnded the min() calls in the above example, the resulting code would look like this:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    std::cout << ((5 < 6) ? 5 : 6) << '\n';
+    std::cout << ((3 < 2) ? 3 : 2) << '\n';
+    return 0;
+}
+--
+
+Note that the two calls to the function min have been replaced by the code in the body of min().
+
+=== The performance of inline code
+
+Beyond removing the cost of function call, inline expansion can also allow the compiler to optomize the resulting code more efficiently.
+
+However, inline expansion has its own potential cost: If the body of the function being expanded takes more instructions than the function call being replaced, then each inline expansion will cause the executable to grow larger. Larger executables tend to be slower.
+
+Inline expansion is best suited to simple, short functions, especially cases where a single function call can be executed more than once.
+
+* Note: Functions typically fall into two categories, ones that may be expanded and ones that can't
+
+=== The inline keyword, historically
+
+Compilers either didn't have the capability to determine whether inline expansion would be beneficial, or were not very good at it. For this reason, C++ provided the keywrod inline, which originally was intended to be used as a hint to the compiler that a function would probably benefit from being expanded inline.
+
+A function that is declared using the inline keyword is called an inline function. However, in modern C++, the inline keyword is no longer used to request that a function can be expanded inline.
+
+=== The inline keyword, modernly
+
+In modern C++, the term inline has evolved to mean "multiple definitions are allowed". Thus an inline function is one that is allowed to be defined in multiple translation units (without violating ODR).
+
+
+Here's an example:
+main.cpp
+[source, cpp]
+--
+#include <iostream>
+
+double circumference(double radius); // forward declaration
+
+inline double pi() { return 3.14159; }
+
+int main()
+{
+    std::cout << pi() << '\n';
+    std::cout << circumference(2.0) << '\n';
+
+    return 0;
+}
+--
+
+math.cpp
+[source, cpp]
+--
+inline double pi() { return 3.14159; }
+
+double circumference(double radius)
+{
+    return 2.0 * pi() * radius;
+}
+--
+
+== Sharing global constants across multiple files (using inline variables)
+
+=== Global constants as inline variables
+
+By making our constexpr variables inline, we can define them in a header file and then #include them into any.cpp file that requires them. This avoid both ODR violations and the downside of duplicated variables.
+
+However, if you make any changes to the variable, everything will have to be recompiled (which might take a long time)
+
+== Static local variables
+
+The term static is one of the MOST confusing terms in the C++ language. However, I am fucking goated and understand the definition (sort of).
+
+Basically, it means that the variable after it is initialized, is retained for as long as the program runs. Even if it is only called locally (inside of a function for example.)
+
+=== Static local constants
+
+Static local varaibles can be made const or constexpr. One good use for a const static local variable is when you have a function that needs to use a const value, but creating or initializing the object is expensive. If you used a normal local variable, the variable would be created and initialzied every time the functionw as executed. With a const/constexpr static local variable, you can create and initialize the expensive object once.
+
+== Using declarations and using directives
+
+=== history lesson (bruh)
+
+Back before C++ had support for namespaces, all of the names that are now in the std namespace were in the global namespace. This caused naming collisions between program identifiers and standard library identifiers. 
+
+Programs that worked under one version of C++ might have a naming conflict with a new version.
+
+In 1995, namespaces were standardized, and all of the functionality from the standard library was moved out of the global namespace and into namespace std. This change broke older code that was still using names without std
+
+As anyone who has worked on large codebase knows, any change to a codebase risks breaking the program. updating every name that wa snow moved into the std namespace with the std::blah prefix was a massive risk. A solution was requested
+
+Fast foward to today, if you're using the standard library a lot, typing std before everything you use from the standard library can become repetitive, and in some cases, can make your code harder to read.
+
+C++ provides some solutions to both of these problems in the form of using-statements.
+
+=== Qualified and unqualifiied names
+
+A name can be either qualified or unqualified.
+
+A qualified name is a name that includes an associated scope. most often, names are qualified with a namepsace using scope resolution operator(::). For example:
+
+[source, cpp]
+--
+std::cout // identifier cout is qualified by namespace std
+::foo // identifier foo is qualified by the global namespace
+--
+
+=== Using-declations
+
+You can use a using declaration, which allows us to use an unqualified name (with no scope) as an alias for the qualified name.
+
+For instance:
+[source,cpp]
+--
+#include <iostream>
+
+int main()
+{
+   using std::cout; // this using declaration tells the compiler that cout should resolve to std::cout
+   cout << "Hello world!\n"; // so no std:: prefix is needed here!
+
+   return 0;
+} // the using declaration expires at the end of the current scope
+--
+
+=== Using-directives
+
+Another way to simplify things is to use a using-directive. A using directive allows all identifiers in a given namespace to be referenced without qualifiacationf rom the scope of the using-directive.
+
+The using-directive using namespace std; tells the compiler that all of the names in the std namespace should be accessible without qualification in the current scope. When we then use unqualified identifier cout, it will resolve to std::cout
+
+==== Problems with using-directives
+
+using-directives generally offer little benefit compared to the risk.
+
+. Using-directives allow unqualified access to all of the names from a namespace, including names you'll probably never use
+
+. Using directives do not prefer names from the namespace identified by using-directives or other names
+
+The end result is that possibility for naming collisions to occur increases significantly.
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+namespace A
+{
+	int x { 10 };
+}
+
+namespace B
+{
+	int x{ 20 };
+}
+
+int main()
+{
+	using namespace A;
+	using namespace B;
+
+	std::cout << x << '\n';
+
+	return 0;
+}
+--
+
+Here, when using both namepsaces in main() there is no way to know which x from which namespace we could be referring to.
+
+=== Using statements
+
+Using statements have block scopes. Since they cannot be cancelled, the best thing to do is to limit their scope by adding them in only specific blocks.
 

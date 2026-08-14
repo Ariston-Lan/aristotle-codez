@@ -1,1 +1,261 @@
 
+= Scope, Duration, Linkage
+
+== Compound statements
+
+A compound statement is a group of zero or more statements that is treated by the compiler as if it were a signle statement
+
+Blcoks begin with a { symbol and end with a } symbol, with the statements being executed being placed in between. No semicolon is needed at the end of a block.
+
+You have already seen an exmaple of blocks when writing functions, as the function body is a block:
+
+[source, cpp]
+--
+int add(int x, int y)
+{ // start block
+    return x + y;
+} // end block (no semicolon)
+
+int main()
+{ // start block
+
+    // multiple statements
+    int value {}; // this is initialization, not a block
+    add(3, 4);
+
+    return 0;
+
+} // end block (no semicolon)
+--
+
+There can also be blocks inside of other blocks.
+[source, cpp]
+--
+int add(int x, int y)
+{ // block
+    return x + y;
+} // end block
+
+int main()
+{ // outer block
+
+    // multiple statements
+    int value {};
+
+    { // inner/nested block
+        add(3, 4);
+    } // end inner/nested block
+
+    return 0;
+
+} // end outer block
+--
+
+These are called nested blocks.
+
+=== Using blocks to execute multiple statements coniditonally
+
+Example: 
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{ // start of outer block
+    std::cout << "Enter an integer: ";
+    int value {};
+    std::cin >> value;
+
+    if (value >= 0)
+    { // start of nested block
+        std::cout << value << " is a positive integer (or zero)\n";
+        std::cout << "Double this number is " << value * 2 << '\n';
+    } // end of nested block
+    else
+    { // start of another nested block
+        std::cout << value << " is a negative integer\n";
+        std::cout << "The positive of this number is " << -value << '\n';
+    } // end of another nested block
+
+    return 0;
+} // end of outer block
+--
+
+== User defined namespaces and the scope resolution operator
+
+As a reminder, a naming collision occurs when two identical identifiers are introduced into the same scope, and the compiler can't disambiguate which one to use. When this happens, the compiler or linker will produce an error.
+
+=== Defining your own namespaces
+
+C++ allows us to define our own namespaces via the namespace keyword. Namepsaces that you create in your own programs are casually called user-defined namepsaces
+
+The syntax for a namespace is as follows:
+[source, cpp]
+--
+namespace NamespaceIdentifier
+{
+    // content of namespace here
+}
+--
+
+We reccomend starting namespaces with a capital letter.
+
+=== Accessing a namespace
+
+After you define your namespace you access it via the scope resolution operator (::)
+
+here is an example of using the code resolution operator to tell the compiler that we explicitly want to use the version of doSomething() that lives in the Foo namespace:
+
+[source, cpp]
+--
+#include <iostream>
+
+namespace Foo // define a namespace named Foo
+{
+    // This doSomething() belongs to namespace Foo
+    int doSomething(int x, int y)
+    {
+        return x + y;
+    }
+}
+
+namespace Goo // define a namespace named Goo
+{
+    // This doSomething() belongs to namespace Goo
+    int doSomething(int x, int y)
+    {
+        return x - y;
+    }
+}
+
+int main()
+{
+    std::cout << Foo::doSomething(4, 3) << '\n'; // use the doSomething() that exists in namespace Foo
+    return 0;
+}
+--
+
+=== Using the scope resolution operator with no name prefix
+
+The scope resolution operator can also be used in front of an identifier without providing a namespace name (e.g. ::doSomething). In such a case, the identifier (e.g. doSomething) is looked for in the global namespace
+
+=== Idenifier resolution from within a namespace
+
+If an identifier inside a namespace is used and no scope resolution is provided, the compiler will first try to find a matching delcaration in that same namespace. If no matching identifier is found, the compiler will then check each containing namespace in sequence to see if a match is found, with global namespace being checked last. 
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+void print() // this print() lives in the global namespace
+{
+	std::cout << " there\n";
+}
+
+namespace Foo
+{
+	void print() // this print() lives in the Foo namespace
+	{
+		std::cout << "Hello";
+	}
+
+	void printHelloThere()
+	{
+		print();   // calls print() in Foo namespace
+		::print(); // calls print() in global namespace
+	}
+}
+
+int main()
+{
+	Foo::printHelloThere();
+
+	return 0;
+}
+--
+
+=== Foward declarations of content in namespaces
+
+When creating a foward declaration for your namespace function you include both the namespace and the function parameters (but still not the function body)
+
+Here is an example:
+[source, cpp]
+--
+#ifndef ADD_H
+#define ADD_H
+
+namespace BasicMath
+{
+    // function add() is part of namespace BasicMath
+    int add(int x, int y);
+}
+
+#endif
+--
+
+=== Multiple namespace blocks are allowed
+
+It's legal to declare namespace blocks in multiple locations (either across multiple files, or multiple places within the same files). All declarations within the namespace are considered part of the namespace.
+
+So that means you can declare something apart of a namespace initially, and then later in the program you realize you want to add another thing to the namespace. Rather than updating the original namespace initialization, you can simply just initialize whatever that variable may be by using the namespace block with the same identifier for said namespace.
+
+=== Nested namespaces
+
+Namepsaces can be nested inside other namepspaces, for example:
+[source, cpp]
+--
+#include <iostream>
+
+namespace Foo
+{
+    namespace Goo // Goo is a namespace inside the Foo namespace
+    {
+        int add(int x, int y)
+        {
+            return x + y;
+        }
+    }
+}
+
+int main()
+{
+    std::cout << Foo::Goo::add(1, 2) << '\n';
+    return 0;
+}
+--
+
+=== Namespace aliases
+
+Because typing the qualified name of a variable or function inside a nested namespace can be painful, C++ allows oyu to create namespaces aliases, which allow us to temporarily shorten a long sequence of namespaces into something shorter.
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+namespace Foo::Goo
+{
+    int add(int x, int y)
+    {
+        return x + y;
+    }
+}
+
+int main()
+{
+    namespace Active = Foo::Goo; // active now refers to Foo::Goo
+
+    std::cout << Active::add(1, 2) << '\n'; // This is really Foo::Goo::add()
+
+    return 0;
+} // The Active alias ends here
+--
+
+=== How to use namespaces
+
+* Small applications that are local and for your own use typically do not need a namespace
+
+* Any code that will be distributed to others should definitiely be namespaced to prevent conflicts with the code it is integrated into. Often a single top-level namespace will suffice (e.g. Foologger). 
+
+* In multi-team organizations, two-level or even three-level namespaces are often used to oprevent naming conflicts between code generated by different teams.

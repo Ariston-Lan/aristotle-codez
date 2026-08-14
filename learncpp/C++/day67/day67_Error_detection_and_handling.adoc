@@ -1,1 +1,682 @@
+= Error Detection and Handling
+
+== Introduction to testing your code
+
+=== Software testing
+
+Software testing or software validation is the process of deretmining whether or not the software actually works as expected.
+
+=== The testing challenge
+
+Before we talk about some practical ways to test your code, let's talk about why testing your program comprehensively is difficult.
+
+Consider this simple program:
+[source, cpp]
+--
+#include <iostream>
+
+void compare(int x, int y)
+{
+    if (x > y)
+        std::cout << x << " is greater than " << y << '\n'; // case 1
+    else if (x < y)
+        std::cout << x << " is less than " << y << '\n'; // case 2
+    else
+        std::cout << x << " is equal to " << y << '\n'; // case 3
+}
+
+int main()
+{
+    std::cout << "Enter a number: ";
+    int x{};
+    std::cin >> x;
+
+    std::cout << "Enter another number: ";
+    int y{};
+    std::cin >> y;
+
+    compare(x, y);
+
+    return 0;
+}
+--
+
+Every time we ask for user input, or have a conditional in our code, we increase the number of possible way our program can execute by some multiplicitave factor. For all but the simplest programs, explicitly testing every combination of inputs becomes impossible
+
+=== Preserving your tests
+
+Although writing temporary tests is a quick and easy way to test some code, it dosen't account for the fact that at some point, you may want to test that same code again later. For that reason, it can make more sense to preserve your tests so they can be ran again in the future. 
+
+=== Unit testing frameworks
+
+Because writing functions to excercise other functions is so common and useful, there are entire frameworks (called unit testing frameworks) that are designed to help simplify the process of writing, maintaining, and executing unit tests. Since these involve a third party software, we won't cover them here, but you should know they exist.
+
+== Code coverage
+
+The term code coverage is used to describe how much of the source code a program is executed while testing.
+
+There are different metrics used for code coverage.
+
+=== Statement coverage
+
+The term statement coverage refers to the precentage of statements in your code that have been exrcised by your testing routines.
+
+For example:
+[source, cpp]
+--
+inf foo(int x, int y)
+{
+    int z{y};
+    if (x>y)
+    {
+        z = x;
+    }
+    return z;
+}
+--
+
+Calling this function as foo(1,0) will give you complete statement coverage for this function, as every statement in the function will execute/
+
+For our isLowerVowel() function:
+
+[source,cpp]
+--
+bool isLowerVowel(char c)
+{
+    switch (c) // statement 1
+    {
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+        return true; // statement 2
+    default:
+        return false; // statement 3
+    }
+}
+--
+
+This function will require two calls to test all of the statements, as there is no way statement 2 and 3 are in the same function call.
+
+=== Branch coverage
+
+Branch coverage refers to the precentage of branches that have been executed, each possible branch counted separately. An if statement has two branches, a branch that executes the condition while true, and a branch that executes when the condition is false. A swithc statement can have many branches.
+
+[source, cpp]
+--
+int foo(int x, int y)
+{
+    int z{ y };
+    if (x > y)
+    {
+        z = x;
+    }
+    return z;
+}
+--
+
+The previous call to foo(1,0) gave us 100% statement coverage and excercised the use case where x>y, but that only gibes us 50% branch coverage. We need to one more call, to foo(0,1) to test the case where the if statement does not execute.
+
+=== Loop coverage
+
+Loop coverage says that if you have a loop in your code, you should ensure it works properly when it iterates 0 times, 1 times, and 2 times. If it works correctly for the 2-iteration case, it should work correctly for all iterations greater than 2. 
+
+=== Testing different categories of input
+
+When writing functions that accept parameters, or when accepting user input, consider what happens with different categories of input. In this context, we're using the term category to mean a set of inputs that have similar characteristics.
+
+For ex, if I wrote a func to produce the square root of an integer, that values would make sense to test it with?
+
+The same logic applies to functions youll eventually test as well.
+
+== Common semantic errors in C++
+
+=== Conditional logic errors
+
+A conditional logic error occurs when the programmer incorrectly codes the logic of a conditional statement or loop conditional. For instance:
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    std::cout << "Enter an integer: ";
+    int x{};
+    std::cin >> x;
+
+    if (x >= 5) // oops, we used operator>= instead of operator>
+        std::cout << x << " is greater than 5\n";
+
+    return 0;
+}
+--
+
+=== Infinite loops
+
+Infinite loops occur when any sort of conditional within the loop prevents the loop from stopping itself.
+
+So forgetting to increment, define certain variables, things like that.
+
+=== Off by one
+
+Off by one erro ris an error that occurs when a loop executes one too many or too few times.
+
+=== Incorrect operator precedence
+
+This occurrs when operators are structured in a way to where one operator takes precedence over another in a way the programmer did not intend.
+
+=== Precision issues with floating types
+
+Since floating types only store a certain amount of numbers, when you store a decimal into a floating type, make sure you are not exceeding the amount of decimal places the float type can take.
+
+=== Integer division
+
+When you divide integers, you get an integer, so division would have to be converted to floating point to get floating point division.
+
+=== Accidental null statements
+
+null statements, which are statements that do nothing, can accidentally mess up programs as well. It can cause certain aspects of code to be skipped or other errors
+
+=== Not using compound statements
+
+Don't leave dangling ifs, always group your statements together via blocks or otherwise.
+
+== Detecting and handling errors
+
+=== Handling errors in functions
+
+The best strategy is to recover from the error in the same function in which the error occured, so that the error can be contained and corrected without impacting any code outside of the function.
+
+If the error has occurred due to sometihing outside of the program's control, the program can retry until success is acheived.
+
+For example if the program requires an internet connection, and the user has lost their connection, the program may be able to display a warning and then use a loop to periodically check for internet.
+
+If the user has entered an invalid input, the program can ask for the user to input again too.
+
+=== passing errors back to the caller
+
+In many cases, the error can't reasonably be handled in the function that detects the error. So in this case, you would pass the error back to the caller.
+
+A sentinel value is a value that has some special meaning in the context of a function or algorithm. For example, 0 can be a sentinel value to indicate an error in your program
+
+=== Fatal errors
+
+If the error is so bad that the program can not continue to operare properly, this is called a non-recoverable error. In such cases, the best thing to do is terminate the progrma. If you code is in main() or a funciton called directly from main(), the best thing to do is let main() return a non-zero status code.
+
+=== Exceptions
+
+because returning an error from a function back to the caller is complicated, C++ offers an entirely seprate way to pass errors back to the caller: exceptions.
+
+The basic idea is that when an error occurs, an exception is "thrown". If the current function does not catch the error, the caller of the funciton has a chance to catch the error. If the caller does not catch the error, the caller's caller has a chance to catch the rror. The error progessively moves up the call stack until it is either caught and handled.
+
+=== When to use std::cout vs std::cerr vs logging
+
+By default, both std::cout and std::cerr print text to the console. However, modern OSes provide a way to redirect output streams to files, so that the output can be captured for review or automated processing later.
+
+For this discussion it is useful to differentiate two types of applications:
+
+* Interactive applications are those that the user will interact with after running.
+
+* Non-interactive applications are applications that do not require user interaction to operate.
+
+Within non-interactive applications there are two types
+
+* Tools are non-interactive applications that are typically launched in order to produce some immediate result, and then terminate after producing such a result
+
+* Services are non-interactive applications that typically run silently in the background to perform some ongoing function. An example of this would be a virus scanner.
+
+So here are some rules of thumb:
+
+* Use std::cout for all conventional, user-facing text
+
+* For an interactive program, use std::cout for normal user-facing error messages
+
+* Use std::cerr or a logifle for status and diagnositc information that may be helpful for diagnosing issues but proabably isn't intersting for normal users.
+
+* For a non-interactive program, use std::cerr for error output only.
+
+* For any application type that is transactional in nature,use a logfile to produce a transactional log of events that can be reviewed later. 
+
+=== std::cin and handling invalid input
+
+Before we talk about how std::cin can fail lets go over the operator>> and how they work (recap)
+
+=== "operator>>"
+
+. First, leading whitespace is discarded from the input buffer. This will discard any unextracted newline character remaining from a prior line of input
+
+. If the input buffer is now empty, operator>> will wait for the user to enter more data. Leading whitespace is again discarded
+
+. operator>> then extracts as many consecutive characters as it can, until it encounters either a newline character or a character that is not valid for the variable being extracted to.
+
+=== Validating input
+
+The process of checking whether the user input what the program is expecting is called input validation
+
+There are three basic ways to do input validation:
+
+==== Inline
+
+Inline is as the user types.
+
+. Prevent the user from typing invalid input in  the first place
+
+* post entry (after the user-types)
+    . Let the user enter whatever they want to into a string, then validate whether the string is correct, and if so, convert hte string to the final variable format.
+
+    . Let the user enter whatever they want, let std::cin and operator>> try to extract it, and handle the error cases
+
+    Some graphical user interfaces and advanced text interfaces will let you validate input as the user enters it (character by character). Generally speaking, the programmer provides a validation function that accepts the input the user has entered so far, and returns true if the input is valid, and false otherwise. This funciton is called every time the user presses a key. if the validation functionr eturns true, the key the user just pressed is accepted. If the validation function returns false, the character the user just input is discarded (and not shown on the screen). Using this method, you can ensure that any input the user enters is guaranteed to be valid, because any invalid keystrokes are discovered and discarded immediately. 
+
+    Unfortunately, std::cin does not support this style of validation.
+
+    Since strings do not have any restrictions on what characters can be entered, extraction is guaranteed to succeed. Once a string is entered, the program can then parse the string to see if it is valid or not. Howveer, parsing strings and converting strings input to other types can be challenging so this is only done in rare cases.
+
+    Most often, we let std::cin and the extraction operator do the hard work. Under this method, we let the user enter whatever they want, have std::cin and operator>> try to extract it, and deal with the fallout if it fails.
+
+=== A sample program
+[source,cpp]
+--
+#include <iostream>
+
+double getDouble()
+{
+    std::cout << "Enter a decimal number: ";
+    double x{};
+    std::cin >> x;
+    return x;
+}
+
+char getOperator()
+{
+    std::cout << "Enter one of the following: +, -, *, or /: ";
+    char op{};
+    std::cin >> op;
+    return op;
+}
+
+void printResult(double x, char operation, double y)
+{
+    std::cout << x << ' ' << operation << ' ' << y << " is ";
+
+    switch (operation)
+    {
+    case '+':
+        std::cout << x + y << '\n';
+        return;
+    case '-':
+        std::cout << x - y << '\n';
+        return;
+    case '*':
+        std::cout << x * y << '\n';
+        return;
+    case '/':
+        std::cout << x / y << '\n';
+        return;
+    }
+}
+
+int main()
+{
+    double x{ getDouble() };
+    char operation{ getOperator() };
+    double y{ getDouble() };
+
+    printResult(x, operation, y);
+
+    return 0;
+}
+--
+
+Here we have three functions ( not including main)
+
+The first one is get_Double(), which gets a double that the user enters.
+
+The next is getOperator, which gets a mathematical operator.
+
+Then print result takes two doubles (gathered inside of main using get_double()), and calculates a formula based on the operation chosen.
+
+Now there are plenty of invalid inputs that might break this program, such as an invalid operator, an letter instead of a number, things like that.
+
+=== Error case1: Extraction succeeds but input is meaningless
+
+The solution here is simple: do input validation. This usually consists of 3 steps:
+
+. Check whether the user's input was what you were expecting
+
+. If so, return the value to the caller,
+
+. If not, tell the user something that went wrong and have them try again.
+
+=== Error case 2: Extraction succeeds but with an extraneous input
+
+Here this is a case where the user would type not just one number, but multiple. Recall std::cin stops reading an input as "together" in the presence of a new line or white space. This means that a use could type future inputs in one input. This is obviously not something we would want in every single input for every single program.
+
+There is an easy way to ignore extraneous characteres entered via std::cin.ignore
+
+
+For instance:
+`std::cin.ignore(100, '\n')`
+
+This snippet of code would remove up to 100 characters, but if the user enetered more than 100 characters, we'll get messy output again. To ignore all the characters up to the next '\n', we can pass std::numeric_limits<std::streamsize>::max() to >std::cin.ignore(). 
+
+std::numeric_limits<std::streamsize>::max() returns the largest value that can be stored in a variable type of std::streamsize. Passing this value to std::cin.ignore() causes it to disable the count check.
+
+Because this line is quite long for what it does, its handy to wrap it in a function that can be called in place of std::cin.ignore()
+
+=== Error case 3: Extraction fails
+
+Extraction fails when no input can be extracted to the specified variable
+
+When this occurs, std::cin will silently fail, meaning the program will persist but no input will ever go into the given variables.
+
+
+In order to get std::cin working again we need to:
+* Detect that a prior extraction has failed
+* Put std::cin back in normal operation mode.
+* Remove the input that caused the failure
+
+Here's what that looks like:
+[source, cpp]
+--
+if (std::cin.fail()) // If the previous extraction failed
+{
+    // Let's handle the failure
+    std::cin.clear(); // Put us back in 'normal' operation mode
+    ignoreLine();     // And remove the bad input
+}
+--
+
+so in our getDouble() function this would look like:
+[source, cpp]
+--
+
+double getDouble()
+{
+    while (true) // Loop until user enters a valid input
+    {
+        std::cout << "Enter a decimal number: ";
+        double x{};
+        std::cin >> x;
+
+        if (!std::cin) // If the previous extraction failed
+        {
+            // Let's handle the failure
+            std::cin.clear(); // Put us back in 'normal' operation mode
+            ignoreLine();     // And remove the bad input
+            continue;
+        }
+
+        // Our extraction succeeded
+        ignoreLine(); // Ignore any additional input on this line
+        return x;     // Return the value we extracted
+    }
+}
+--
+
+=== Checking for EOF
+
+An end-of-file (EOF) is a special error state that means "No more data available". This is normally generated after an input operation fails due to no data being available. For example, if you were reading the contents of a file on a disk, and then try to read in more data after you've already reached the end of the file, an EOF will be generated to tell you that no more data is available. In the case of the file input, this is no problem, we can just close the file and move on.
+
+When extracting data to std::cin and the user enters an EOF chracter, heres what happens:
+
+* If the EOF is not the first character of the input, all input prior to the EOF will be flushed, and the EOF character is ignored.
+
+* if the EOF is the first character entered: The EOF error will be set.
+
+std::cin.clear() would clear an EOF error, but if the input stream is disconnected, the ebst thing to do is detect the EOF via std::cin.eof and then terminate the progrma
+
+Because clearing a failed input stream is something were likely to be checking for a lot, this is a good candidiate for a reusable function:
+
+[source,cpp]
+--
+#include <limits> // for std::numeric_limits
+
+void ignoreLine()
+{
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+// returns true if extraction failed, false otherwise
+bool clearFailedExtraction()
+{
+    // Check for failed extraction
+    if (!std::cin) // If the previous extraction failed
+    {
+        if (std::cin.eof()) // If the user entered an EOF
+        {
+            std::exit(0); // Shut down the program now
+        }
+
+        // Let's handle the failure
+        std::cin.clear(); // Put us back in 'normal' operation mode
+        ignoreLine();     // And remove the bad input
+
+        return true;
+    }
+
+    return false;
+}
+--
+
+Here this checks if the previous extraction failed, and if it did, check if the user entered an eof, and if thats true, then shut down the program. But if not, and the previous extraction just failed for some other reason, then it clears the error flags for std::cin, allowing it to function again, and ignores the last line.
+
+=== Error case 4: extraction succeeds but user overflows a numeric value
+
+Remeber that there is a numeric limit to certain numbers based on their bytes and thus bits, so what if a user enters a number that is beyond the bit limit of the number in question?
+
+Well first, std::cin goes immediately into failure mode, but also assigns the closest in range value to the variable. When the entered value is larger than the largest possible value for the type, the closest in range value is the largets possible value for the type. 
+
+=== Putting it ALL together
+
+Let's look at our example calculator:
+[source, cpp]
+--
+#include <cstdlib> // for std::exit
+#include <iostream>
+#include <limits> // for std::numeric_limits
+
+void ignoreLine()
+{
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+// returns true if extraction failed, false otherwise
+bool clearFailedExtraction()
+{
+    // Check for failed extraction
+    if (!std::cin) // If the previous extraction failed
+    {
+        if (std::cin.eof()) // If the stream was closed
+        {
+            std::exit(0); // Shut down the program now
+        }
+
+        // Let's handle the failure
+        std::cin.clear(); // Put us back in 'normal' operation mode
+        ignoreLine();     // And remove the bad input
+
+        return true;
+    }
+
+    return false;
+}
+
+double getDouble()
+{
+    while (true) // Loop until user enters a valid input
+    {
+        std::cout << "Enter a decimal number: ";
+        double x{};
+        std::cin >> x;
+
+        if (clearFailedExtraction())
+        {
+            std::cout << "Oops, that input is invalid.  Please try again.\n";
+            continue;
+        }
+
+        ignoreLine(); // Remove any extraneous input
+        return x;     // Return the value we extracted
+    }
+}
+
+char getOperator()
+{
+    while (true) // Loop until user enters a valid input
+    {
+        std::cout << "Enter one of the following: +, -, *, or /: ";
+        char operation{};
+        std::cin >> operation;
+
+        if (!clearFailedExtraction()) // we'll handle error messaging if extraction failed below
+             ignoreLine(); // remove any extraneous input (only if extraction succeded)
+
+        // Check whether the user entered meaningful input
+        switch (operation)
+        {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+            return operation; // Return the entered char to the caller
+        default: // Otherwise tell the user what went wrong
+            std::cout << "Oops, that input is invalid.  Please try again.\n";
+        }
+    }
+}
+
+void printResult(double x, char operation, double y)
+{
+    std::cout << x << ' ' << operation << ' ' << y << " is ";
+
+    switch (operation)
+    {
+    case '+':
+        std::cout << x + y << '\n';
+        return;
+    case '-':
+        std::cout << x - y << '\n';
+        return;
+    case '*':
+        std::cout << x * y << '\n';
+        return;
+    case '/':
+        if (y == 0.0)
+            break;
+
+        std::cout << x / y << '\n';
+        return;
+    }
+
+    std::cout << "???";  // Being robust means handling unexpected parameters as well, even though getOperator() guarantees operation is valid in this particular program
+}
+
+int main()
+{
+    double x{ getDouble() };
+    char operation{ getOperator() };
+    double y{ getDouble() };
+
+    // Handle division by 0
+    while (operation == '/' && y == 0.0)
+    {
+        std::cout << "The denominator cannot be zero.  Try again.\n";
+        y = getDouble();
+    }
+
+    printResult(x, operation, y);
+
+    return 0;
+}
+--
+
+First we define some validation functions, such as the ability to ignore a line in std::cin, and a way to clear the failed extraction of a std::cin to clear the error flags.
+
+Then we gave the getDouble and the getOperator, for a function to preoperly calculate decimal numbers.
+
+For getDouble, we call clearFailedExtraction() which checks if std::cin has failed or not. If it has failed, it clears the error flags and ignores the last line, and then returns true. The reason it returns true here is because we both call the function to clear the last input but also to check if the input was false to print the message to the user that the input is invalid
+
+After we check that, we also do another ignore line which removes any extraneous input. (anything on the same line that isnt the number)
+
+For getOperator, we do the same loop but this time we check if the std::cin is valid, and if it is valid, we remove any extraneous input again.
+
+== Assert and static_assert
+
+=== Preconditions, invariants, postconditions
+
+These are just names for when a condition is supposed to be true.
+
+Precondition: must be true before some code executes
+
+For instance:
+[source,cpp]
+--
+double divide(double x, double y)
+{
+    // precondition: y != 0
+    return x / y;
+}
+--
+
+Here y cannot be 0, since you cannot divide by 0
+
+Invaraint: must remain true while some section of the code is executing
+
+Postcondition: must be true after some code executes
+
+=== assert()
+
+An assertions means: I believe this condition MUST be true. If it isn't something is wrong with my program
+
+For instance:
+[source, cpp]
+--
+#include <cassert>
+
+assert(gravity > 0.0);
+--
+
+No matter what the gravity must be greaty than 0, assuming that we are running calculations soley on earth or something.
+
+==== Assertions can document assumptions
+
+Instead of merely writing 
+// gravity should always be positive
+
+You can write:
+`asset(gravity > 0);`
+
+The second one bothd couments and enforces your assumption during development
+
+==== NDEBUG
+
+Regualar asset() is primarily a dev/debugging tool
+
+if #define NDEBUG is defined before <cassert>, assertions are disbaled
+
+Release configurations commonly define NDEBUG, meaning your production program may effectively have its noraml assets() removed. 
+
+Meaning you cannot rely on assert(userEnteredCorrectPassword); since assert is not meant to be permanent
+
+=== static_assert
+
+Here's the syntax
+`static_assert(condition, "message")`
+
+Unlike regular assert, static assert checks while the program compiles, not while it is ran. If it is false, your program does not compile.
+* Note: static_assert is a C++ keyword, so it dosen't require <casserts>
+
+=== assert vs error handling
+
+Assertion: Something that should never happen if the progammer wrote the program correctly. If an assertion failed, a bug has occurred.
+
+Error handling: Something that can legitimately happen during normal use. Like a user entering an incorrect input.
+
+
+=== Two warnings
+
+Don't put important side effects inside an assertion, such as incrementals or anything that alters the variables in question. Beacuse if assertions are disabled, the side effect dosent occur either.
 

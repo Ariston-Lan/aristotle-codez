@@ -1128,3 +1128,10 @@ The second program just takes the temperature in farenheit, shows it in celsius,
 No CSS today, but tomorrow, we are gonna try the trifecta (Engine I, II, and III!)
 
 # Day 65
+
+Only C++ again today. Took notes and finished a chapter, made two programs that both analyze numbers. The first one just analyzes the number and returns it in different forms, such as octave and hexadecimal.
+
+The other number analyzer just makes use of conditionals to compare and analyze two integers in a variety of ways, such as their difference, which one is bigger, which one is odd, even, all that good stuff
+
+The chapter was based on operators so that's why most of my programs focused on operator usage. 
+

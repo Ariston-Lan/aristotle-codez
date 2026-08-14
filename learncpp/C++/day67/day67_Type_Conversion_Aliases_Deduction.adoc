@@ -1,0 +1,54 @@
+= Type Conversion, Type Aliases, and Type Deduciton
+
+== The core idea
+
+Type conversion means taking a value of one type and producing an equivalent value of another type.
+
+For instance, say we instantiate a double x variable with the integer, 3. This dosent store 3, but instead converts the integer 3 to double 3.0.
+
+Crucially, C++ dosent just copy the bits from the int into the double. Different types represent values differently at the bit level. Instead, conversion uses the original value to produce a new temporary value of the target type. THe original value isn't modified.
+
+=== Implicit vs explicit
+
+Implicit is when the compiler decides when a conversion is need, whereas explicit conversion is when you explicitly request a type conversion.
+
+==== Where implicit converisons happen
+
+Any time C++ expects type A but receives type B, it may try to convert B to A automatically.
+
+This includes variable initialization/assignment:
+
+[source,cpp]
+--
+double d{ 3 }; // int → double
+d = 6;         // int → double
+--
+
+Mixed type operations:
+`4.0/3`
+
+Conditionals:
+
+`if(5)`
+
+and function arguments:
+[source,cpp]
+--
+void foo(long x) {}
+
+foo(3); // int → long
+--
+
+The general pattern is, context is looking for x but we provide y so the compiler looks for a legitimate way to convert y to x, and if there is, a temporary x value is produced.
+
+=== Conversion isn't guaranteed
+
+C++ tries to find an acceptable conversion. Sometimes, there isn't one.
+
+And someitmes C++ knows how to perform a conversion generally, but the particular context forbids it.
+
+For instnace:
+
+`int x {3.5};`
+
+C++ knows how to convert a double to an int, but brace initialization rejects this because its a narrowing conversion that could lose data.

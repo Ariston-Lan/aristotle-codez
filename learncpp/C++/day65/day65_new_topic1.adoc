@@ -1,1 +1,514 @@
+= Operators
 
+== Operator precedence and associiativity
+
+=== Operation
+
+An operation is  amethematical process involving zero or more input values, called operands, that produce a new value, called an output value. The specific operation to be performed is denoted by a construct (typically a symbol or pair of symbols) called an operator.
+
+
+For example, as children we all elarn that 2 + 3 equals 5. In this case, the literals 2 and 3 are the operants and the symbol + is the operator that tells us to add, and produce the output 5.
+
+=== Evaluation of compound expression
+
+Let's consider a compound expression, such as 4 + 2 * 3. Using PEMDAS (or math precedence rules), we now that we should do 4 + (2*3) instead of (4+2)*3. buw how does the compiler know?
+
+In order to evaluate an expression, the compiler must to two things:
+
+* At compile time, the compiler must parse the expression and determine how operands are grouped with operators.
+
+* At compile time or runtime, the operands are evaluated and operations are executed as a result
+
+=== Operator precedence
+
+To assist with parsing a compound expression, all operators are assigned a level of precedence. Operators with higher precedence level are grouped with operands first.
+
+=== Operator associativity
+
+Consider a compound expression like 7 - 4 - 1.
+
+All of these operators are the same precedence level since they are all subtraction signs.
+
+So if two operators have the same precedence level, the operator's associativity tells the compiler whether to evaluate the operators (not the operands!) from left to right or from right to left
+
+=== Parnthesization
+
+Due to precedence rules, we know how expressions will be grouped up. Just like in normal math you can change this by adding paranthesis to determine what you want evaluated first.
+
+=== use parenthesis to make compound expressions easier to understand
+
+Yes you canr ely on precendence. OR you could be a normal human being and use paranthesis regardless of precendence to make your functions more readable.
+
+=== Value of computation of operations
+
+The C++ standard uses the term value computation to mean the execution of operators in an expression to produce a value. The precedence and association rules determine the order in which value computation happens.
+
+=== Evaluations of oeprands
+
+The C++ standard (mostly) uses the term evaluation to refer to the evaluations of operands (not the evaluation of operators or expressions). Like for example, the expression a + b, a will be evaluated to produce some value, and b will be evalueted to produce some value.
+
+*Note: Order of evaluation DOES matter. If you are multiplying different return values, be aware of what gets evaluated and where.
+
+== Arithmetic operators
+
+=== Unary airthmetic operators
+
+There are two unary arithmetic operators, plus and minus. As a reminder, unary operators are operators that only take one operand
+
+The unary plus operator returns the value of the operand. In other words +5 is 5 and +x is x. Generally you won't need to use this operator since its redundant.
+
+Do not confuse the unary minus operator with the binary subtraction operator, which uses the same symbol.
+
+=== Binary arithmetic operators
+There are 5 binary arithmetic operators. Binary operators are operators that take a left and right operand.
+
+Addition, subtraction, multiplcation, division, and remainder are all binary arithmetic operators.
+
+=== Integer and floating point division.
+
+Divison generally has two different "modes".
+
+If either (or both) of the operands are floating point values, the division operator performs floating point divison. Floating point division returns a floating point value.
+
+IF both operands are integers, the division operator performs divison instead. integer divsion drops any fractions and returrns an integer value.
+
+==== Using static_cast to do floating point divison with integers
+
+Say you're dividing integers but you still wan't a floating answer? You can use staic_cast and apply it to your expression.
+
+For example:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    constexpr int x{ 7 };
+    constexpr int y{ 4 };
+
+    std::cout << "int / int = " << x / y << '\n';
+    std::cout << "double / int = " << static_cast<double>(x) / y << '\n';
+    std::cout << "int / double = " << x / static_cast<double>(y) << '\n';
+    std::cout << "double / double = " << static_cast<double>(x) / static_cast<double>(y) << '\n';
+
+    return 0;
+}
+--
+
+==== Diving by 0 and 0.0
+
+If you divide by 0, undefined behavior will occur.
+
+The result of dividing by a floating point value is implementation-defined (meaning behavior is determined by compiler/architecture). On architectures that support IEEE754 the result will be NaN or Inf.
+
+=== Arithmetic assignment operators
+
+These are operators that calculate an expression and immediately apply it to a variable/identifier.
+
++=, -=, *=, /=, and %= are all arithmetic assignment operators.
+
+== Remainder and Exponentiation
+
+=== The remainder operator (operator%)
+
+The remainder operator (also commonly called the module oeprator or modulus operator) is an operator that returns the remainder after doing an integer division.
+
+For example 7/4 = 1 remainnder 3 so the modulo returns 3
+
+==== Remainder with negative numbers
+
+The remmainder operator cana lso work with negative operands.
+
+==== Where's the exponent operator?
+
+To do exponents in C++, you must include the cmath header and use the pow() function.
+
+Note that the parameters and return value of function pow are of type double. Due to rounding errors in floating point numbers, the results of pow() may not be precise (even if you pass it integers or whole numbers)
+
+If you want to do integer exponentiation, you're best off using your own function to do so.
+
+== Increment/decerement opereators, and side effects
+
+=== Incrementing and decrementing variabels
+
+Incrementing (adding 1 to) and decrementing (subtracting 1 from) a variable are boths o common they have their own operators.
+
+* ++ is for incrementing
+* -- is for decrementing
+
+Both have their prefix and postfix form (so pre-increment and post increment)
+
+=== Prefix increment and decrement
+
+The prefix increment/decrement are very straightfoward. first, the operant is incremented or decremented, and then expression evaluates to the value of the operand. 
+
+For instance:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    int x { 5 };
+    int y { ++x }; // x is incremented to 6, x is evaluated to the value 6, and 6 is assigned to y
+
+    std::cout << x << ' ' << y << '\n';
+    return 0;
+}
+--
+
+=== Postfix increment and decrement
+
+The postfix increment/decrement operators are trickier. First, a copy of the operand is made. Then the operand (not the copy) is incremented or decremented. Finally, the copy (not the original) is evaluated.
+
+For example:
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    int x { 5 };
+    int y { x++ }; // x is incremented to 6, copy of original x is evaluated to the value 5, and 5 is assigned to y
+
+    std::cout << x << ' ' << y << '\n';
+    return 0;
+}
+--
+
+Basically what happens here is x gets incremented after the fact. Here we are initializing y with x, and THEN we increment it. So y actually gets the value 5, then x gets incremented by 1.
+
+=== When to use prefix vs postfix
+
+In many cases, prefix and postfix produce the same behavior. In cases where code can be written by either, prefix is generally better and more perfomant. 
+
+Use postfix when doing so produces significantly more concise or understandable code.
+
+=== Side effects
+
+A function or expression is said to have a side effect if it has some observable effect beyond producing a return value.
+
+Common examples of side effects including changing the value of objects, doing input or output, or updating a graphical user interface.
+
+Most of the time, side effects are useful.
+
+==== Side effects can cause order of evaluation issues
+
+In coms ecases, side effects can lead to order of evaluation problems
+
+[source, cpp]
+--
+#include <iostream>
+
+int add(int x, int y)
+{
+    return x + y;
+}
+
+int main()
+{
+    int x { 5 };
+    int value{ add(x, ++x) }; // undefined behavior: is this 5 + 6, or 6 + 6?
+    // It depends on what order your compiler evaluates the function arguments in
+
+    std::cout << value << '\n'; // value could be 11 or 12, depending on how the above line evaluates!
+
+    return 0;
+}
+--
+
+* Note: in most cases C++ does not specify when the side effects of operators must be applied. This can lead to undefined behavior in cases where an object with a side effect applied is used more than once in the statement.
+
+== The commma operator
+
+=== Comma
+
+The comma operator allows you to evaluate multiple expressions wherever a single expression is allowed. The comma operator evalutes the left operand, then the right operand, then returns the result of the greater operand.
+
+For instance:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    int x{ 1 };
+    int y{ 2 };
+
+    std::cout << (++x, ++y) << '\n'; // increment x and y, evaluates to the right operand
+
+    return 0;
+}
+--
+
+Usually commas are not used because they make things more confusing, however, they are used for loops.
+
+=== Comma as a separator
+
+The comma symbol is also often used as a separator and these do not invoke the comma operator. Just know these are different things.
+
+== The conidtional operator
+
+=== Conditional operator
+
+The conditional operator (?:) (also sometimes called the arithmetic if operator) is a ternary oeprator (an operator that takes 3 operands). Because it has historically been C++'s only ternary oeprator, it's also sometimes referred to as the ternary operator.
+
+Basically, the ?: operator provides a shorthand method for doing a particular type of conditional (if-statement)
+
+The ?: operator takes the following form:
+
+condition ? expression1 : expression2;
+
+If condition evalutes to true, then expression1 is evaluated, otherwise expression 2 is evaluted. The: and expression2 are not optional.
+
+An example of this is:
+[source, cpp]
+--
+#include <iostream>
+
+int getValue()
+{
+    std::cout << "Enter a number: ";
+    int x{};
+    std::cin >> x;
+    return x;
+}
+
+int main()
+{
+    int x { getValue() };
+    int y { getValue() };
+    int max { (x > y) ? x : y };
+    std::cout << "The max of " << x <<" and " << y << " is " << max << ".\n";
+
+    return 0;
+}
+--
+
+This is basically saying, is x > y, then evaluate x (which will give the value at x) otherwise, evaluate y (which will just give the value at y).
+
+Its the same as saying if x is greater than y, return x, else, return y.
+
+=== The conditional operator evaluates as part of an expression
+
+Since the conditional operator is ecaluated as part of an expression, it can be used anywhere where an expression is accepted. Inc ases where the oeprands of the conditional oeprator are constant expressions, the conditional operator can be used in a constant expression.
+
+This allows the conditional operator to be used in places where statements cannot be used.
+
+For example, when initializing a variable:
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    constexpr bool inBigClassroom { false };
+    constexpr int classSize { inBigClassroom ? 30 : 20 };
+    std::cout << "The class size is: " << classSize << '\n';
+
+    return 0;
+}
+--
+
+=== Parenthesizing the conditional operator
+
+Because C++ prioritizes the evaluation of most operators above the evaluation of the conditional operator, its quite easy to write expressions using the conidtional operator that dont evaluate as expected.
+
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    int x { 2 };
+    int y { 1 };
+    int z { 10 - x > y ? x : y };
+    std::cout << z;
+
+    return 0;
+}
+--
+
+This evaluates as (10 - x) > y ? x : y
+
+Which might not be what you want, but if it is, just be explicit and put parantheses.
+
+=== The type of the expressions must match or be convertable.
+
+This means the type of the second and third operand MUST match and the compiler must be able to find a way to convert one or both of the second and third operands to matching types.
+
+== Relational operators and floating point comparisons
+
+=== Relational operators 
+
+Relational operators are operators that allow you to compare two values.
+
+These are operators such as greater than, less than, greather than or equals, equality, and inequeality.
+
+=== Boolean conidtional values
+
+You can simplify a lot of conditionals by just using boolean coniditonal values. For example
+
+
+if(b1 == true) is the same as if(b1)
+
+and if(b1 == false) is the same thing as (if !b1)
+
+=== Comparison of calculated floating point values can be problematic
+
+Inspect the following code:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    constexpr double d1{ 100.0 - 99.99 }; // should equal 0.01 mathematically
+    constexpr double d2{ 10.0 - 9.99 }; // should equal 0.01 mathematically
+
+    if (d1 == d2)
+        std::cout << "d1 == d2" << '\n';
+    else if (d1 > d2)
+        std::cout << "d1 > d2" << '\n';
+    else if (d1 < d2)
+        std::cout << "d1 < d2" << '\n';
+
+    return 0;
+}
+--
+
+Logically, youd expect these to be equal. However, d1 actually = 0.0100000000000005116 and d2 = 0.0099999999999997868.
+
+Both numbers are close to 0.01 but d1 is greather than and d2 is less than.
+
+So because of this, if the operands are too close to one another, the greater than and less than operators should be considered unreliable.
+
+Moreover, on floating point equality and inequality, the same is true. Tiny rounding errors can throw off the entire program.
+
+== Logical operators
+Logical operators provide us wiith the capabiltiy to test multiple conditions
+
+C++ has 3 logical operators
+
+* Logical NOT, !
+* Logical AND, &&
+* Logical OR ||
+
+
+=== Logical NOT
+
+if logical NOT's oeprand evalutes to true, logical NOT evalutes to false. And if logical NOT's operand evaluates to false, logical NOT evalutes to true.
+
+Here is an example:
+[source, cpp]
+--
+bool tooLarge { x > 100 }; // tooLarge is true if x > 100
+if (!tooLarge)
+    // do something with x
+else
+    // print an error
+--
+
+Make sure to use parnantheses when using logical NOT operators.
+
+=== Logical OR
+
+The logical OR oeprator is used to test whether either of the two conditions is true. If the left or right operand evalutes to true, or both are true, then the logical OR operator returns true. Otherwise it returns false.
+
+
+Here's an example:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    std::cout << "Enter a number: ";
+    int value {};
+    std::cin >> value;
+
+    if (value == 0 || value == 1)
+        std::cout << "You picked 0 or 1\n";
+    else
+        std::cout << "You did not pick 0 or 1\n";
+    return 0;
+}
+--
+
+=== Logical AND
+
+The logical AND operator is used to test whether both operands are true. If both operands are true, logical AND returns true. Otherwise, it returns false.
+
+Here's an example:
+[source, cpp]
+--
+#include <iostream>
+
+int main()
+{
+    std::cout << "Enter a number: ";
+    int value {};
+    std::cin >> value;
+
+    if (value > 10 && value < 20)
+        std::cout << "Your value is between 10 and 20\n";
+    else
+        std::cout << "Your value is not between 10 and 20\n";
+    return 0;
+}
+--
+
+=== Short circuit evaluation
+
+In order for logical AND to return true, both operands must evaluate to true. if the left operand evaluates to false, logical AND knows it must return false regardless of whether right operand evaluates to true of fasle. In this case, the logical AND operator will go ahead and return false immediately without evene valuating the right operand!
+
+This is known as short circuit evaluation, and it is done primarily for optomization purposes.
+
+=== Mixign ANDs and ORs
+
+You'll eventually mix the two, just make sure to be explicit and use parantheses to define precedence explicitly.
+
+For instace:
+
+value1 || value2 && value3
+
+evalutes as :
+
+(value1 || (value2 && value3))
+
+Meaning itll evaluate as value1 is true OR value 2 and value3 is true so return true. This could be what you want! Or it could not be, which is why you should define precedence via parantheses.
+
+=== De morgan's laws
+
+Many programmers also make the mistake the of thinking that !(x && y) is the same thing as !x && !y. This is NOT how that works
+
+De Morgan's laws tell us how to the logical NOT should be distributed in these cases:
+
+!(x && y) is equivalent !x || !y
+!(x || y) is equivalent to !x && y
+
+In other words, when you dsitribute the logical NOT, you also need to flip logical AND to logical OR and vice-versa! This is confusing as fuck but okay!
+
+=== Where's the logcail exclusing or (XOR) operator
+
+Logical XOR is a logical oeprator provided in some languages that is used to test whether an odd number of coniditons is true
+
+C++ dosen't provide an explicit a logical XOR operator. Unlike logical OR or logical AND, logical XOR cannot be short circuit evaluted. 
+
+However, operator!= produces the same result as logical XOR when given bool operands.
+
+For example:
+
+`if (a != b != c)... // a XOR b XOR, assuming a, b, and c are bool`
+
+=== Alternative operator representations
+
+You don't have to use symbols, you can use their keyword alternatives.
+
+* && = and
+* || = or
+* ! = not
+
+However, you should use the symbols since most people do.

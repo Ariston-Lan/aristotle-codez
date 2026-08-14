@@ -29,7 +29,7 @@ void num_analyzer()
     std::cout << "Sum: " << input1 + input2 << '\n';
     std::cout << "Difference: " << input1 - input2 << '\n';
     std::cout << "Product: " << input1*input2 << '\n';
-    std::cout << "Quotient " << input1/input2 << '\n';
+    std::cout << "Quotient: " << input1/input2 << '\n';
     std::cout << "Remainder: " << input1%input2 << '\n';
     if (is_even(input1)){
         std::cout << input1 << " is even\n";
