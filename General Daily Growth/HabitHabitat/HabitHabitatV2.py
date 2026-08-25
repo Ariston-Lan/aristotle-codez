@@ -55,10 +55,10 @@ class User:
     @username.setter
     def username(self, username):
         invalid_characters = ['-', '.', ',', ' ', '/', ';', ':', '"', "'"]
-        if len(self.username) < 3:
+        if len(username) < 3:
             raise ValueError ('Username must have more than 3 characters')
         for character in invalid_characters:
-            if character in self.username:
+            if character in username:
                 raise ValueError ('Username must have no special characters')
         self._username = username
     

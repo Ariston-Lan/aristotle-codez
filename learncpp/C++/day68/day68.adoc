@@ -1,0 +1,423 @@
+= Type Conversion, Type Aliases, and Type Deduciton
+
+== Floating-point and integral promotion
+
+=== What is a numeric promotion?
+
+A numeric promotion is a specific kind of implicit type conversion where certain smaller numeric types are converted to certain larger numeric types.
+
+**Numeric promotion PRESERVES THE VALUE**
+
+The destination type can represent the original value wihtout losing its information
+
+For example:
+[source,cpp]
+--
+float x{ 5.0f };
+
+void printDouble(double value)
+{
+    std::cout << value;
+}
+
+printDouble(x);
+--
+
+Here the void function print double requires a double value, so C++ implicitly promotes float 5.0 to double 5.0
+
+The value remains the same, only its type/representation changes
+
+Numeric promotions are useful partly because CPUs tend to eprform operations most naturally on certain fundamental types, and because promotions let smaller types work in contexts expecting those types without requiring separate implenetaitons for every small numeric type.
+
+==== Two types of numeric promotion
+
+There are two kinds of numeric promotion:
+
+* Floating point promotion
+* Integral promotion
+
+===== Floating point promotion
+
+Floating point promotion is simple:
+    A float can be promoted to a double while preserving its value.
+
+For example:
+[source,cpp]
+--
+float f{ 3.5f };
+double d{ f };
+--
+
+Conceptually, the d now stores the double version of 3.5 whereas the f stores the float version of 3.5. This is a promotion, not merely a generic conversion.
+
+===== Integral promotion
+
+Integral promotion applies to samller integral types such as char, short, and bool.
+
+They are generally promoted to int if int can represent all possible values of the original type.
+
+Examples include:
+char  → int
+short → int
+bool  → int
+
+For bool:
+false → 0
+true  → 1
+
+So this works:
+void printInt(int x)
+{
+    std::cout << x;
+}
+
+short s{ 5 };
+printInt(s);
+
+C++ promotes the short value to an int before passing it into the function.
+
+====== Why integral promotions exist
+
+Smaller integral types such as char and short aren't necessarily the types the CPU most naturally performs arithmetic with. 
+
+Promoting them to int allows C__ operations using a more natural type.
+
+It also means functions that accept int can accept values from several smaller integral types through promotion rather than requiring separate functions for ecah type.
+
+=== Not every convesion to a larger type is a promotion
+
+A promotion is a specific set of conversions defined by C++. it does not simply mean: "The destination type is bigger."
+
+For example:
+short → int       promotion
+float → double    promotion
+
+int → long        not a promotion
+char → short      not a promotion
+
+The latter conversions may sitll be legal implicit conversions, but they're classified as numeric conversions.
+
+=== overview
+
+
+Numeric promotion
+    = specific kind of implicit conversion
+    = value-preserving
+
+Two kinds:
+
+Floating-point promotion:
+    float → double
+
+Integral promotion:
+    small integral types → usually int
+
+"Promotion" does NOT simply mean
+"convert to a larger type."
+
+== Numeric conversions
+
+=== What is a numeric conversion
+
+If a conversion is already classified as a numeric promotion, we don't call it a numeric conversion.
+
+So:
+
+short → int | an integral promotion
+
+But:
+int → short
+int → long
+short → char
+
+Are numeric conversions
+
+The big difference from promtion is:
+
+Numeric promotions are always value preserving. Numeric conversions are not necessarily value-preserving.
+
+=== The five kinds of numeric conversions
+
+LearnCpp gives five basic categories
+
+Integral to another integral type:
+[source,cpp]
+--
+short s = 3;       // int → short
+long l = 3;        // int → long
+char c = s;        // short → char
+--
+Integral promotions dont count here.
+
+Floating point to another floating point type:
+[source,cpp]
+--
+float f = 3.0;          // double → float
+long double ld = 3.0;   // double → long double
+--
+Again, floating point promotions dont count here.
+
+Floating point to integral and vice versa:
+[source,cpp]
+--
+int x = 3.5; // double → int
+double x = 3; // int to double
+--
+
+and integral/floating point to bool:
+[source,cpp]
+--
+bool a = 3;
+bool b = 3.0;
+--
+
+=== Numeric conversions can be safe or unsafe
+
+There are three saftey categories we will divide numeric conversions into
+
+==== Value preserving conversions
+
+A value preserving conversion means that the destination type can represent the source value exactly
+
+For instance:
+[source,cpp]
+--
+int x{ 5 };
+long y = x;
+--
+
+You would get int 5 to long 5. Nothing meaningful changed except for the type.
+
+Another example:
+[source,cpp]
+--
+short s{ 5 };
+double d = s;
+--
+
+Here the short 5 becomes double 5.0. The value is still exactly as represented. These are considered safe conversions.
+
+==== Reinterpretive conversions
+
+This one is mostly about signed to unsigned conversions
+
+For example:
+[source,cpp]
+--
+int x{ 5 };
+unsigned int y{ x };
+--
+
+This is no problem, since signed 5 is the same as unsigned 5.
+
+However...
+[source,cpp]
+--
+int x{ -5 };
+unsigned int y{ x };
+--
+
+this is different because an unsigned integer cannot represent -5.
+
+The conversion then produces a large unsigned value instead
+
+This is called reinterpretive because the resulting value can change even though the underlying information isn't necessarily lost, youc an convert it back and recover the original value under the defined conversion behavior.
+
+==== Lossy conversions
+
+A lossy conversion is one where information can actually diappear.
+
+For example:
+[source,cpp]
+--
+double x{ 3.5 };
+int y = x;
+--
+
+This double, when converted to an integer, loses 0.5. If you later convert the double back to an integer, you would get 3.0, NOT 3.5. This means the part of the data has been lost.
+
+===== Floating poitn covnersions can lose precision
+
+When you are convertin a double to a float, you can lose some precision in the value.
+
+For example:
+[source,cpp]
+float x = 1.23456789;
+
+May become approximately
+
+1.234567
+
+Since the destination dosent have enough precision to retain everything from the original value.
+
+=== Range matters
+
+A huge general rule is that the destination type hsa to be capabale of representing the value youre giving it if you want the conversion to behave as expected.
+
+For example if I convert variable x  of type int with a value of 2 to type short, thats fine, since short can fit easily inside a short.
+
+But converting some enormous integer to a tiny type like char can produce an unexpected result because that value isnt representable by the destination type.
+
+=== Integral to floating point conversions
+
+These generally behave as youd expect when the floating point type can represent that value. For example 10 converted to a float would just be 10.0
+
+However, sufficiently large integers may not be represented by a floating point type because floating point types have limited percision.
+
+=== Floating point to integral conversions
+
+Converting a floating point to an integer may cause a loss of data. For instance converting float 3.9 to an integer would turn it into 3, not 4, losing .9 data. The fractional componenet is discarded, not rounded.
+
+== Narrowing conversions, list initialization, and constexpr initializers
+
+=== What is a narrowing conversion?
+
+A narrowing ocnversion is  apotentially unsafe numeric conversion where the destinationt type may not be capabale of repsentating all possible values of the soucrce type.
+
+For example:
+[source,cpp]
+--
+double d{ 3.5 };
+int x = d;
+--
+
+int cant represent fractional values, so double to int is narrowing.
+
+The important word is potentially unsafe. A particular value would make this work, such as converting double 5.0 to an integer wouldnt change the value.
+
+=== What conversions are considered narrowing.
+
+Generally there is a pattern:
+floating-point → integral
+    double → int
+
+larger/higher-ranked floating-point → smaller/lower-ranked floating-point
+    double → float
+
+integral → floating-point
+    int → float
+    (when exact representation isn't guaranteed)
+
+integral → integral type that can't represent all source values
+    int → short
+    signed → unsigned
+    etc.
+
+The general mental model is this:
+
+If changing types could cause the value to become unrepresentable or lose information, C++ may classify the conversion as narrowing.
+
+=== Avoid implicit narrowing conversions
+
+Because narrowing conversions can be dangerous, LearnCPP reccomends avodiing them when possible.
+
+If you actually intend to narrow something, make that intention explicit with a static_cast instead of relying on it implicity:
+
+[source,cpp]
+--
+void printInt(int x)
+{
+}
+
+double d{ 5.0 };
+
+printInt(static_cast<int>(d));
+--
+
+here we intentionally transform the double into an int via static cast instead of relying on it to be implicitly converted.
+
+=== Brace initialization protects you from narrowing
+
+Brace/list initialization is this:
+[source,cpp]
+--
+int x{3.5};
+--
+
+If you did this, it *would not compile*
+
+Why?
+
+double 3.5
+   ↓
+int
+   ↓
+narrowing conversion
+   ↓
+{} says NO
+
+C++ made list initialization reject narrowing conversions. This is one of the major reasons why you should use it always.
+
+=== constexpr can make some otherwise narrowing conversions safe
+
+Normally, if the value is only known at runtime, the compiler cannot know whether a conversion will preserve the value.
+
+For instance:
+
+[source,cpp]
+--
+int n{};
+std::cin >> n;
+
+unsigned int u{n};
+--
+
+This fails because n is determined at runtime. The compiler dosen't know whether itll contain some representable by unsigned int.
+
+But if the value is a constant expression, the compiler knows the value during compilation.
+
+For certain conversions that would ordinarily be considered narrowing, C++ makes an exception when:
+
+the source is a constant expression AND the actual value can be represented by the destination type.
+
+So the distinction is basically "Can the destination represent every possible value of this source type" vs "Can the destination represent this specific value that I already know?"
+
+=== list initialization with constexpr initializers
+
+The constexpr exceptions make list initialization practical because ltierals are constant expressions. This means the compiler knows their values and can allow conversions that would otherwise potentially be narrowing when the particular value satisfies the exception.
+
+For example, you can initialize an unsigned int with 5 without writing 5u, intiialize a float with 1.5 without writing 1.5f, or initialize a short with 5 without needing a static_cast. This also applies to copy and direct intitialization, not just brace initialization.
+
+However, floating-point conversions can still initialize a lower ranked floating point type as long as the value is within that type's range, even if precision is lost.
+
+Floating point rank goes:
+
+long double to double to float
+
+So something like a double literal initializing a float can be legal despite losing precision. 
+
+== Arithmetic conversions
+
+=== What are arithmetic conversions?
+
+When you use a binary arithmetic operator such as +, -, /, or %, C++ generally needs the operands to have compatible types before performing the operation
+
+If they have different types, C++ implicitly converts one or both operands to a common type. these are called usual arithmetic conversions.
+
+For example, with an int and a double, the int is converted to double, then the operation happens using two doubles. The result is therefore, also a double.
+
+=== The usual arithmetic conversion rules
+
+. If either operand is a floating type, C++ generally converts the lower ranked operand to the higher ranked floating point type:
+
+int + double to double + double
+float + double to double + double
+
+. If both operands are integral types, C++ first applies integral promotions to them.
+
+. If the promoted integral types still differ, C++ finds a common type based mainly on their ranked and signedness, then converts as necessary.
+
+=== Signed and unsigned integers
+
+Mixed signed and unsigned integers can cause suprising results
+
+If C++ chooses an unsigned type as the common type, a negative signed value may be covnerted to an unsigned value before the operation occurs.
+
+So expressions involving something like:
+[source,cpp]
+--
+int x{ -3 };
+unsigned int y{ 5 };
+
+x < y
+--
