@@ -1,0 +1,175 @@
+= Styling Forms
+
+== Best Practices for Styling Forms
+
+=== What Are Some Best Practices for Styling Text inputs?
+
+==== Basic Text Input Styling
+
+Text inputs can be styles like other HTML elements using properties such as:
+[source,css]
+--
+input {
+    width:100%;
+    padding:10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+--
+
+==== Make inputs large enough to use
+
+Inputs should have enough padding and size that users can easily read and interact with them. Avoid unnecessarily small or cramped inputs
+
+==== Focus states
+
+when a user selects an input, it enters the :focus state. You can style this with the :focus pseudo-class:
+
+This provides visual feedback showing which input is currently active.
+
+==== Important accessibility Rule
+
+Browsers normally provide a visible focus indicator, so avoid making the focus state to none unless you yourself provide a clear focus indicator as an alternative.
+
+==== Placeholder Styling
+
+Placeholder text can be styled using the ::placeholder pseudo-element. 
+
+Remember that the placeholder is not the same as the label, and a placeholder should not replace an actual form label.
+
+For instance:
+[source,html]
+--
+<label for="email">Email</label>
+<input id="email" type="email" placeholder="name@example.com">
+--
+
+The label identifies what information the field requires; placeholder text can provide an example or hint.
+
+==== Consistency
+
+Inputs with the same form should have consitent traits, such as sizing, spacing, borders, font style, typography, etc.
+
+=== appearance: none for search inputs and checkboxes
+
+==== What is appearance?
+
+Some form controls have default browser/operating-system styling.
+
+Examples include: search inputs, checkboxes, radio buttons, select menus, etc.
+
+Because the browser supplies some of their appearance, certain CSS styling can be difficult or inconsistent.
+
+The appearance property controls whether that native styling is used.
+
+[source,css]
+--
+input {
+    appearance: none;
+}
+--
+
+==== Why would you use it?
+
+Different browsers and operating systems may render form controls differently.
+
+If you want a custom, consistent design, you can remove the native appearance:
+
+[source,css]
+--
+input[type="checkbox"] {
+    appearance: none;
+}
+--
+
+Here we make input of type checkbox have the appearance of none, allowing us to provide our own checkbox styling.
+
+- Once oyu remove the native appearance, you're responsible for making the control still look and behave understandably. Don't remove useful visual cues without replacing them.
+
+==== Search Inputs
+
+Search inputs are created with:
+
+`<input type="search">`
+
+Browsers may give search inputs special native styling or controls. You can remove that appearance when it interferes with your intended custom design.
+
+==== Checkboxes
+
+Checkboxes also receive a recognizable default appearance from the browser/OS:
+
+`<input type="checkbox">`
+
+Using:
+[source,css]
+--
+input[type="checkbox"] {
+    appearance: none;
+}
+--
+removes that default checkbox appearance. You can then create your own visual design.
+
+==== When should you use appearance: none?
+
+Use it when the browser's native styling prevents you from achieving the custom styling you need.
+
+=== Common Issues When Styling Special Input Elements
+
+Some HTML inputs are harder to style consistently because their appearance can depend on browser and operating systems, not just your CSS.
+
+==== Special Input Elements inlude inputs such as:
+
+[source,html]
+--
+<input type="date">
+<input type="color">
+<input type="range">
+--
+
+These controls can contain browser-provided interface elements, such as date selectors, color pickers, or range controls.
+
+Because browsers may implement these differenty, the same CSS may not produce the same appearance everywhere.
+
+==== Browser inconsitency
+
+A major problem when styling special inputs is cross-browser inconsistency. For example, a date input might look different in chrome vs firefox vs safari vs different OS.
+
+Some parts of these controls may also have limited styling support. 
+
+==== Vendor-Prefixed CSS
+
+Browsers sometimes provide special vendor-prefixed psuedo-elements for styling browser specific pieces of controls.
+
+For example, WebKit-based browsers may expose selectors beginning with:
+
+`::-webkit-`
+
+These can give you additional styling control, but they're browser-specific, so they shouldnt be assumed to work universally.
+
+==== Vendor Prefixes
+
+Common prefixers you may encounter include:
+
+-webkit-   → WebKit/Chromium-related browser features
+
+-moz-      → Mozilla/Firefox-related features
+
+The important concept isn't memeorization of the prefixed selector, rahter than understanding that vector prefixes represent browser-specific CSS features or implentations.
+
+==== appearance
+
+As in the previous lesson, another option is:
+
+[source, css]
+--
+input {
+    appearance: none;
+}
+--
+
+This can remove native styling and give you greater control.
+
+==== Cross-Browser Testing
+
+Because special inputs vary between browsers, test your forms in multiple browsers when their appearance or functionality matters.
+

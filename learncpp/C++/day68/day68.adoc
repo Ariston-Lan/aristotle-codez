@@ -421,3 +421,285 @@ unsigned int y{ 5 };
 
 x < y
 --
+
+=== std::common_type and std::common_type_t
+
+std::common is a type trait that determines a commont ype that all specified types can be implicitly converted to.
+
+For instance, the common type between int and double is double, since an int can be converted to a double.
+
+So the snippet of code:
+`std::common_type<int, double>::type`
+
+the resulting type is accessed through the nested ::type.
+
+std::common_type_t is simply a convenience alias introduced so you dont have to write ::type.
+
+== Explicit Type Conversion
+
+=== Implicit vs explicit
+
+An implicit type conversion happens automatically when C++ converts a value from one type to antother, whereas an explicit type conversion, or cast, happens when you specifically tell Cpp to convert a value to another type.
+
+This is useful when the type of an expression affects how an operation behaves
+
+=== Type of casts
+
+C++ has find kinds of casts:
+- static_cast
+- dynamic_cast
+- const_cast
+- reinterpret_cast
+- C-style casts
+
+The first four are called named casts
+
+- For now, static_cast is the important one. dynamic_cast comes much later with inheritance, and then usually people avoid the other two unless they have a specific reason.
+
+==== C-style casts
+
+C-style syntax looks like:
+`(double)x`
+
+There is also function style syntax:
+
+`double(x)`
+
+For example:
+`std::cout << (double)x/y;`
+
+This worlks, but C-style casts generally should be avoided since the C-style cast can perform several different kinds of conversions, including potentially unsafe ones. Looking at the syntax dosen't clearly tell you what kind of conversion is happening.
+
+Named casts are more explicit, easier to identify/search for, and more restricted in what they're allowed to do.
+
+==== static_cast
+
+static_cast is the primary cast to use when you deliberatly want to convert a value to another type.
+
+Syntax:
+`static_cast<target_type>(expression)`
+
+Example:
+[source,cpp]
+--
+int x {10};
+
+static_cast<double>(x)
+--
+
+This produces a temporary double containing 10.0, and more importantly, it does not change x itself. x reamins an int; you're producing a converted value FROM x.
+
+===== Using static_cast for narrowing conversions
+
+a narrowing conversion converts to a type that may not eb able to represent the original value safely
+
+[source,cpp]
+--
+double d {99.9};
+int i =d;
+--
+
+Here an error would occur because we use list initialization which prevents narrowing conversions, but even then the compiler would still warn you regardless.
+
+If you deliberately want the conversion:
+
+`char ch {static_cast<char>(i) };` (where i is an integer and you are converting the integer to type char)
+
+the cast communicates:
+
+I intentionally want this conversion and accept the possibility of data loss. Which dosent magically make the conversion safe, just more explicit.
+
+===== static_cast vs creating a temporary
+
+You may sometimes see 
+`int{x}` 
+instead of:
+`static_cast<int>(x)`
+
+Both can produce temporary converted values, but they aren't completely interchangeable.
+
+A major dfference is that list initialization rejects narrowing conversions.
+
+== Typedefs and type aliases
+
+=== Type aliases
+
+A type alias creates an alternative name for an existing type. It does not create a new, distinct type. Rather, the alias and the original type are treated as the same type by C++.
+
+Modern syntax uses using:
+
+[source, cpp]
+--
+using Distance = double;
+
+Distance miles {5.5};
+--
+
+Here distance is simply another name for double, so this is the same as creating a variable named miles of type double and storing the value 5.5 within it.
+
+==== Why use type aliases?
+
+Type aliases can make code easier to understand by giving a type a meaningful name.
+
+Moreover, aliases can also make complicated types easier to write and read. For instance:
+
+`using VectPairSI = std::vector<std::pair<std::string, int>>;`
+
+Instead of repeatedly writing the entire underlying type, you can use VectPairSI.
+
+==== Type aliases do NOT provide a type saftey
+
+because an alias is only another name for an existing type:
+
+[source,cpp]
+--
+using StudentId = int;
+using EmployeeId = int;
+
+StudentId student { 5 };
+EmployeeId employee { student }; // valid
+--
+
+C++ ultimately sees both as int.
+
+So aliases can provide semantic meaning to the programmer, but they do not prevenet accidently mxiing logically different values that share the same underlying type.
+
+==== Typedef
+
+typedef is the older way of creating type alises.
+
+`typedef double Distance;`
+
+is equivalent to 
+
+`using Distance = double;`
+
+The syntax is different, but the concept is the same. Using is better though, but recognize typedef in older C++/C code.
+
+==== Naming type aliases
+
+Type aliases are typically named starting with a capital letter, like other progammer defined types.
+
+aliases ending with _t are also common.
+
+However, learncpp reccomends avoiding defining your own _t names in the global name space, beacuse _t suffizes are commonly used by std/system defined types and may cause naming conflicts.
+
+==== Type aliases and platform independent code
+
+Aliases are useful when the exact underlying type may need to change. For example:
+
+`using Int = int;`
+
+Code can then use int through the program. if the underlying representation later needs ot change, you can potentially change the alias rather than every individual declaration.
+
+However, aliases do not magically make code platform independent. The underlying type still has whatever properties and limitations the actual type has.
+
+==== Type aliases and documentation
+
+A type alias should have a clear purpsoe. If someone encounters 
+
+`using TestScore = int;`
+
+They can reasonably understand why the alias exists. Naming your alias Integer on the other hand, adds very little value that int didn't already communicate.
+
+== Type deductions for using the auto keyword
+
+=== Type deduction
+
+Normally, when defining a variable you explicity give its type. However, with type deduction, C++ determines the variable's type from its initializer. It does this using the "auto" keyword
+
+==== auto requires an initializer
+
+Since the initializer is what C++ uses to determine the type, all variables initialized with type auto need a value otherwise auto has nothing to deduce the type from.
+
+==== Type deduction uses the initializer's type
+
+C++ deduces the type from thet ype of the initializer expression, not from what value would seem appropriate. What does this mean? Observe:
+
+[source,cpp]
+--
+auto x { 5 };      // int
+auto y { 5.0 };    // double
+auto z { 5.0f };   // float
+--
+
+Basically you still need to understand C++
+s literal types even when using auto.
+
+
+==== auto and const
+
+Type deduction normall drops top-level const.
+
+This means that in the expressions
+
+[source,cpp]
+--
+const int x {5};
+
+auto y {x};
+--
+
+Here, y is just type int, not const int.
+
+This amkes sense because y is a new independent object from x. The x is still of type const int, whereas the auto y is not. If you wanted the deducaed variable itself to be const, you'd have to explicitly state const auto y.
+
+==== auto and string literals
+
+auto does NOT deduce std::string since a tring literal is not inherently a std::string, so auto will deduce based on the string literal's actual type/decay behavior.
+
+If you want a std::string, make that explicit.
+
+Or if the appropriate string suffix is avaliable, then use that, so auto can deduce std::string.
+
+==== why use auto?
+
+. Avoiding redundant type names
+
+Instead of calling a very obviously double, a double, you can write auto.
+
+. Complicated types
+
+Some C++ expressions produce types that are annoying or difficult to explicitly write.
+
+auto lets the compiler handle that:
+
+`auto result {someComplicatedExpreesion() };`
+
+. Makes certain code easier to maintain
+
+Let's say a function's return type changes. With an explicitly named variable:
+
+`int result { getValue() };`
+
+you may also need to update the variable.
+
+With:
+
+`auto result { getValue() };`
+
+the variable automatically follows the function's return type
+
+===== when auto can hurt readability
+
+auto removes explicit type information from the declation.
+
+for instance :
+
+`auto x { 5 };`
+
+this is clear since 5 is very much an int. But if I have, say
+
+`auto value {getSomething()};`
+
+This is not clear, especially if I am not the one who actually worte the code. This is when an explicit type is better than an auto.
+
+==== auto does not mean the variable can change types
+
+`auto x{5};`
+After compilation, this is essentially the same as
+`int x {5};`
+
+x is now an int.
+
+You cannot later make it a differnt type and assume auto will catch it. Instead, C++ would try to convert whatever type oyu assign x to in the future as an int.
