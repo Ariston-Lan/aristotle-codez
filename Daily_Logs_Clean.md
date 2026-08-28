@@ -1135,3 +1135,8 @@ The other number analyzer just makes use of conditionals to compare and analyze 
 
 The chapter was based on operators so that's why most of my programs focused on operator usage. 
 
+# Day 66-70
+
+I literally forgot to log these days, just know I took C++ notes and CSS notes. I was also moving into college so the days were sort of all melded together. learned about auto, type deduction, name collisions a whole lot of shit.
+
+CSS on the other hand didnt learn too much.

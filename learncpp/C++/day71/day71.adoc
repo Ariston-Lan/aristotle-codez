@@ -1,1 +1,76 @@
+= Type Conversion, Type Aliases, and Type Deduciton
+
+== Type deductions for functions
+
+=== Return type deduction with auto
+
+Starting in C++14, auto can be used as a function's return type. The compiler deduces the return type from the function's return statement, which means that the return statement has to be able to be evaluated at compile time rather than run time.
+
+For instance:
+[source,cpp]
+--
+auto add(int x, int y)
+{
+    return x + y;
+}
+--
+
+Here the function add has the return type of auto, and since x+y produces an int, add() is deduced to return int.
+
+If a function has multiple return statements, that must all deduce to the same type. C++ will not implicitly convert htem to a common type just to make auto work.
+
+For example, returning an int on one path and a double on another causes a compile error. You'd need to make the return expressions the saem type or explicitly specify the function's return type.
+
+=== Benefits of return type deduction
+
+auto prevents accidently declaring a return type that dosen't match what the function actually produces.
+
+It's expecially useful when the return type is complicated, not obious, or fragile.
+
+
+=== Downsides
+
+There are two main problems:
+
+. The function must be defined before it's used.
+
+A foward declaration like:
+
+`auto foo();`
+
+dosen't tell the compiler enough to know what foo() returns. It needs to see the actual function body first to perform the deduction.
+
+. It can hurt readability
+
+A declaration like:
+
+`auto getValue();`
+
+isn't specific enough to say what value you are getting.
+
+=== Trailing return type syntax
+
+C++ also lets you put the return type after the parameter list:
+
+[source,cpp]
+--
+auto add(int x , int y) -> int
+{
+    return x + y;
+}
+--
+
+Here, auto is not doing the type deduciton. The return type is explicitly int; it's just written at the end
+
+This is mainly useful when the return type is complicated or in certain advanced situations where the return type depends on the parameters.
+
+=== auto function parameters
+
+You may see:
+
+`void addAndPrint(auto x, auto y)`
+
+Before C++20, this wasn't allowed. However, now it is allowed! 
+
+But this isn't ordinary auto type deduction like with variables. It actually invokes function template functionality.
 
