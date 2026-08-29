@@ -1,0 +1,794 @@
+= Chapter 11 - Function Overloading and Function Templates
+
+== Introduction to function overloading
+
+=== The problem
+
+Suppose we have:
+
+[source,cpp]
+--
+int add(int x, int y)
+{
+    return x + y;
+}
+--
+
+Great for ints, but if we pass doubles, they'd have to convert to int, potentially losing the decimal portion.
+
+We could make differently named functions, like an add integer and an add double, but C++ gives a cleaner solution.
+
+=== Function overloading
+
+Function overloading is defining multiple functions with the same name, provided the compiler can differentiate between them.
+
+So for instance:
+
+[source,cpp]
+--
+int add (int x, int y)
+{
+    return x + y;
+}
+
+double add(double x, double y);
+{
+    return x + y;
+}
+--
+
+Here these are two separate functions that happen to share the same name, add. Their parameter types let the compiler distinguish them.
+
+=== Overload resolution
+
+When you call an overloaded function, C++ determines which version best matches the arguments. This process is called *overload resolution.*
+
+So:
+[source,cpp]
+--
+add(1, 2); // calls add(int, int)
+
+add(1.2, 3.4); //calls add(double, double)
+--
+
+==== Two requirements
+
+For overloading to compile:
+
+. The ovelroaded functions must be *different enough for the compiler to distinguish them*
+
+. A call must be able to *resolve an appropriate overload*
+
+If C++ can't distinguish the funcitons or can't determine which overload a call means, you'll get an error.
+
+== Function Overload Differentiation
+
+=== What can differentiate overloads?
+
+Two overloaded funcitons can be distinguished by:
+
+. Different number of parameters
+
+[source,cpp]
+--
+int add(int x, int y);
+int add(int x, int y, int z);
+--
+
+These are valid overloads as the compiler can distinguish based on the number of parameters you place in add.
+
+. Different parameter types
+
+[source,cpp]
+--
+int add (int x, int y);
+double add(double x, double y);
+--
+
+Also valid. In fact, even parameter order can differentiate them:
+
+[source,cpp]
+--
+void print(int x, double y);
+void print(double x, int y);
+--
+
+=== Type aliases DON'T differentiate overloads
+
+Remember how we had type aliases?
+`using Temperature = double;`
+
+Temperature is NOT a new type, it is simply another name for an already existing type, which in this case is double.
+
+Therefore:
+[source,cpp]
+--
+void print(double x);
+void print(Temperature x);
+--
+
+are literally the exact same function, and C++ sees both as effectively:
+
+`void print(double);`
+
+Which would cause a compiler error.
+
+=== const on pass-by-value parameters dosen't differentiate them
+
+These are not separate overloads
+
+[source,cpp]
+--
+void print(int x);
+void print(const int x);
+--
+
+For parameters passed by value, that const dosen't make the parameter type different for overload differntiation
+
+=== Return type DOES NOT count
+
+These are NOT differentiable by the compiler
+
+[source,cpp]
+--
+int getValue();
+double getValue();
+--
+
+You *cannot overload solely by changing the return type.*
+
+
+=== Function signature
+
+A function's signature is the part of its declaration that C++ uses to distinguish it from other functions.
+
+So for right now think:
+
+    function name
+    + number of parameters
+    + parameter types
+
+Return type is *not* apart of the signature used for overload differentiation. 
+
+=== Name mangling
+
+Theres also a cool behind the scenes shit
+
+You can write:
+
+[source,cpp]
+--
+void print(int);
+void print(double);
+--
+
+and call both of them print, but *the linker needs unique names*
+
+So the compiler performs *name mangling:* it encodes information such as parameter types into the compiled function name. So conceptually, the compiler has unique names derived from the different function signatures your functions have, and thats how its able to differentiate between these functions.
+
+== Function Overload Resolution and Ambiguous Matches
+
+Well we know multiple overloads can exist. The next question is: When I call the function, which overload wins?
+
+That selection process is called *overload resolution*. C++ dosen't just randomly choose a function that COULD work, it searches for the BEST MATCH in a specific order.
+
+=== Overload resolution order
+
+The important hierarchy is:
+1. Exact match
+       ↓
+2. Numeric promotion
+       ↓
+3. Numeric conversion
+       ↓
+4. User-defined conversion
+       ↓
+5. Ellipsis
+       ↓
+6. No match → compile error
+
+For where we are, the first 3 are the ones that matter most.
+
+==== 1. Exact match - BEST
+
+[source,cpp]
+--
+void print(int);
+void print(double);
+
+print(5);    // print(int)
+print(5.5);  // print(double)
+--
+
+Here 5 is already an int, and 5.5 is already a double, so the resolution for each function is their corresponding value type.
+
+Certain trivial conversions also count as exact matches, such as adding const or binding to certain references. (references come next chapter)
+
+==== 2. Numeric promotion
+
+If there's no exact match, C++ tries promotions.
+
+[source,cpp]
+--
+void print(int);
+void print(double);
+
+char x{'A'};
+print(x);
+--
+
+Here, it promotes char to an int, even though there is no print(char) function.
+
+Similarly, if we tried to print x{2.5f}, it would use print double via numeric promotion.
+
+==== 3. Numeric conversion
+
+Only if no promotion match exists does C++ start trying ordinary numeric conversions.
+
+For example:
+[source,cpp]
+--
+void print(double);
+
+char x{'A'};
+print(x);
+--
+
+There's no print(char) exact match and no print(int) promotion match.
+
+But char can be numerically converted to double, so:
+
+char turns into double
+
+and thus print(double) is selected.
+
+=== Ambiguous matches
+
+Lets look at this example:
+[source,cpp]
+--
+void foo(int);
+void foo(double);
+
+foo(5L);
+--
+
+Here 5L is a long. There is no foo(long), and long dosen't get numerically promoted to either candidate.
+
+But numeric convrersions COULD change the long into an int, OR the long to a double. Both mathces are found at the same ranking step.
+
+This is an ambiguous call, which results in a compile error.
+
+If multiple equally ranked matches are found at a given step, C++ can't choose between them.
+
+==== Resolving ambiguity
+
+You can make your intention explicit to resolve this.
+
+For instance:
+`foo(static_cast<int>(5L));`
+
+Now the argument is an int, giving foo(int) an exact match.
+
+For literals, the appropriate suffix can also provide the desired type directly.
+
+=== Multiple parameters
+
+With multiple arguments, C++ considers ALL of them.
+
+For one overload to win, it must be:
+
+At least as good as every alternative for every argument AND better for at least one argument.
+
+For example:
+[source,cpp]
+--
+void print(char, int);
+void print(char, double);
+void print (char, float);
+
+print('x', 'a');
+--
+
+For the first argument, x, it is an exact for all 3, since char matches the first parameter for all 3.
+
+However for the second, also a char, int takes priority since it is a numeric promotion, and the other two are numeric conversions. Since promotion beats conversion, print(char, int) wins.
+
+== Deleting Functions
+
+=== What is a deleted function?
+
+Sometimes a function could technically accept a certian type through implicit conversion, but you specifically do not want to allow that call.
+
+C++ lets you explicitly forbid a function using:
+
+`= delete;`
+
+Example:
+[source,cpp]
+--
+void print(int x)
+{
+    std::cout << x;
+}
+
+void print(char) = delete;
+--
+
+Now if we were to use print with an integer (or something similar that isnt a character) it will print that value.
+
+But if we were to try and print a character, a compiler error would occur.
+
+=== Why would you want this?
+
+Basically youre saying you want this function to work with these types but explicitly forbid this type/types.
+
+=== Deleted functions still participate in overload resolution
+
+`= delete` means that this function exists as a candidate, but you're forbidden from calling it.
+
+For example:
+[source,cpp]
+--
+void print(int);
+void print(char) = delete;
+
+print('a');
+--
+
+Here the overload resolutions still sees void print(char) as a valid function that exists within function overload, therefore, it sees the char print('a') is an exact match w/ print(char), and the = delete; that we added makes it to where this function does not run instead, despite it being an exact match.
+
+
+=== Deleting multiple types
+
+You can delete however many specific overloads you need:
+
+[source,cpp]
+--
+void print(int);
+void print(char) = delete;
+void print(bool) = delete;
+--
+
+
+Buf if you want to *reject everything except specifically supported types*, manually listing every possible unwanted type isn't very efficient.
+
+This is where function-template techniques come into play:
+
+[source,cpp]
+--
+template <typename T>
+void print(T) = delete;
+--
+
+== 11.5 Default Arguments
+
+=== What is a default argument?
+
+A default argument gives a parameter a value to use when the caller dosen't provide one.
+
+For instance:
+
+[source,cpp]
+--
+void print(int x, int y=4)
+{
+    std::cout << x << ' ' << y;
+}
+--
+
+Here both function calls would work:
+
+[source,cpp]
+--
+print(1, 2); // x=1, y=2
+print(3); // x=3, y=4
+--
+
+If you provide the argument, your value wins. If you omit it, the default is used.
+
+==== In depth
+
+The compiler inserts default arguments at the call site.
+
+So:
+`print(3);`
+
+is essentially compiled as:
+
+`print(3, 4);`
+
+The default isn't something the function decides while it's running, instead it is a predetermined value defined at compile time.
+
+=== Multiple default arguments
+
+You can have several:
+[source,cpp]
+--
+void print(int x = 10, int y = 20, int z = 30);
+--
+
+The same logic still applies, if you were to give parameters, those parameters would be used, but if not, the values would fallback to their default argument.
+
+- *Once one parameter has a default argument, every parameter to its right must also have one*
+
+This means you CANNOT do:
+`void foo(int x=10, int y);`
+
+This violates the rule we just mentioned. The reason this exists is because C++ dosen't let you skip arguments, explicit arguments always fill parameters from left to right.
+
+=== Where should defaults be declared
+
+If you're using foward declaration/header, put the default there:
+
+for instance imagine we are in foo.h:
+[source,cpp]
+--
+void print(int x, int y = 4);
+--
+Here in the header, we are declaring the default (recall that headers are #included in your functions)
+
+Then the definition for the actual function within foo.cpp would go something like:
+[source,cpp]
+--
+void print(int x, int y)
+{
+    // ...
+}
+--
+
+You do not need to right the default again after making the actual function.
+
+This matters because the default must be visible before the vall site, which is another consequence of the compiler inserting it there.
+
+=== Default arguments + function overloading
+
+You can combine default arguments and function overloading (recall function overloading is where functions have the same name and are thus distinguishable by certain function signatures):
+
+[source,cpp]
+--
+void print(std::string_view s);
+void print(char c = ' ');
+
+print("Hello"); // string_view overload
+print('A'); // char overload
+print(); // char overload using ' '
+--
+
+It is important to note that defaults can also cause ambiguity:
+
+[source,cpp]
+--
+void foo(int x = 0);
+void foo(double x = 0.0);
+--
+
+Here both functions of the same name have a default value, so if you were to call foo, the compiler can't choose since there is no way to differentiate between what you want given that there are no parameters to differentiate one function from another.
+
+Both can accept that call.
+
+. Default arguments are NOT part of the function signature, they are just defaults attached to parameters.
+
+=== When should you use defaults?
+
+When there is a usual default that you'll want from the function but you also want leeway for changing the parameter. For instance:
+
+`int rollDie(int sides = 6);`
+
+In any normal case, rollDie would roll a 6 sided die, but maybe in a specific case you would want to roll a die of more than 6 sides and thus, you would be able to just add the parameter. This increases the readability of your function as well.
+
+== 11.6 Function Templates
+
+Templates solve a problem that exists via function overloading
+
+=== The problem with overloading
+
+Suppose you want max() for integers:
+[source,cpp]
+--
+int max(int x, int y)
+{
+    return (x < y) ? y : x;
+}
+--
+
+Then you want it for double:
+
+[source,cpp]
+--
+double max(double x, double y)
+{
+    return (x < y) ? y : x;
+}
+--
+
+Then maybe for long, float, etc.
+
+The logic is identical here, only the type changes.
+
+Writing separate overloads works, but now you're duplicating the same implentation over and over, violating DRY (Don't Repeat Yourself).
+
+=== So then what is a template?
+
+A tempalte describes how the compiler describes how the compiler can create functions or classes for different types.
+
+Instead of hardcoding:
+`int max(int x, int y)`
+
+Every single time with different types, we essentially would want:
+
+TYPE max (TYPE x, TYPE y)
+
+where TYPE gets determined later (at run time for instance).
+
+That is exactly what a type template parameter gives us: a placeholder representing a type that isn't specified until the template is actually used.
+
+=== Creating a function template
+
+Syntax:
+[source,cpp]
+--
+template <typename T>
+T max(T x, T y)
+{
+    return (x<y) ? y : x;
+}
+--
+
+Here is the breakdown of every single line here:
+
+First the template <typename T> line. This means that we are defining a template, and T is the place holder for the type within said template.
+
+Then we have T max(T x, T y). This is using the placeholder that we just defined, so basically the return type of the function, and the value types of the parameters have yet to be defined for the function.
+
+Conceptually this means that the compiler can later use this template to generate things equivalent to:
+[source,cpp]
+--
+int max(int x, int y);
+
+double max(double x, double y);
+
+long max(long x, long y);
+--
+
+All of these are possible calls to the function since the type hasn't been defined yet.
+
+You maintain ONE template while the compiler generates the needed functions from said function template.
+
+==== typename T
+
+`template <typename T>`
+
+This is the template parameter declaration. 
+. template says we're defining a template
+. < > contains the template parameters
+. typename says this parameter represents a type
+. T is the name we are giving that placeholder type.
+
+T ONLY exists within the template that follows:
+[source,cpp]
+--
+template <typename T>
+T max(T x, T y)
+{
+    // T exists here, ONLY within the block scope of this template
+}
+--
+
+Each separate template needs its own template parameter declaration
+
+==== typename vs class
+Instead of seeing <typename T> You may see <class T>
+
+typename is much more clearer than class however, so usually you'll be using that. It is also much more clearer in saying that T can represent any appropriate type, not specifically a class.
+
+The tempate that we just wrote is the primary function template.
+
+The actual functions the compielr generates from it for specific types are called instantiated functions.
+
+=== Tenmplates aren't automatically compatible with litearlly every type
+
+T can represent many different types, but the operations inside the function still have to make sense for that type.
+
+For example if you are doing `x < y`, yet the values that you are comparing actually cannot be inherently compared using those operators, then the compiler will issue a warning.
+
+The important general rule is this:
+
+A template's implementation determines what its type must be capable of doing, the compiler eventually substitutes the actual type and tries to compile the resulting function.
+
+=== Naming template parameters
+
+For simple generic types, conventional names are:
+
+T, U, or V
+
+Usually starting with T.
+
+If the type has some specific/non-obvious role, use a descriptive name instead. Usually prefixed with a T.
+
+== 11.7 Function Template Instantiation
+
+
+=== Templates aren't actually functions
+
+It is important to note that templates are not actually functions.
+
+Creating a template is not equivalent to creating a function, rather it creates a template that the compiler draws from when needing to create a function.
+
+=== Function template instantiation
+
+You can explicitly specify what T should be:
+[source,cpp]
+--
+max<int>(1, 2)
+--
+
+Here T = int, since we declare that.
+
+The compiler sees that it needs max<int> and effectively generates the max function, substituting all Ts for int in the template that you had already created.
+
+This process is called function template instantiation.
+
+And the generated function is called a function instance.
+
+. The compiler only instantiates a particular version when it's needed, and later calls can reuse that alread-instantiated version.
+
+=== Template argument deduction
+
+You don't actually need to define the T before the function is created since there is template argument deduciton.
+
+For example if you wrote;
+`max (1,2);`
+
+The compiler looks at the values of the arguments passed inside of the function and sees that they are both integers. The compiler then goes "Oh since these are both integers, our T must be of type int."
+
+This is template argument deduction. 
+
+=== Templates vs normal functions
+
+Suppose both exist:
+
+[source,cpp]
+--
+template <typename T>
+T max(T x, T y)
+{
+    //generic implenetation
+}
+
+int max(int x, int y)
+{
+    // int-specific implentation
+}
+--
+
+If you were to then call
+`max(1, 2);`
+
+This would call the normal non-template function when it and the template generated function are equally good matches.
+
+BUT doing max<>(1,2) would instead favor the template version.
+
+=== Template can mix generic and fixed types
+
+Not every parameter has to use T:
+[source,cpp]
+--
+template <typename T>
+int someFunction(T x, double y)
+{
+    // ...
+}
+--
+
+here in this case, no matter what T is the return type of the function will ALWAYS be an int. However, there is still T being used for argument x.
+
+=== Instantitaion can FAIL
+
+If you have your T defined in a specific function that operates on it on a way that isn't applicable to a specific data type, for example adding the int 1 to a string, then what happens is the generated function fails to compile. The compiler cares wheteher the instantiated code is syntactically valid, not whether using that type makes logical sense for what you intended.
+
+=== Static locals have one copy per instantiation
+
+[source,cpp]
+--
+template <typename T>
+void foo(T x)
+{
+    static int count{};
+    ++count;    
+}
+--
+
+Recall that static makes it to where the specific variable lives through different calls of this function. So the static int count would live through each call of count. However, this applies to each differently instantiated VERSION of count.
+
+This means that calling int foo vs double foo show TWO COMPLETELY different versions of count since those are TWO DIFFERENT instantiated functions.
+
+== 11.8 Function Templates with Multiple Template Types
+
+=== The problem with one T
+
+We had:
+[source,cpp]
+--
+template <typename T>
+T max(T x, T y)
+{
+    return (x < y) ? y : x;
+}
+--
+This works when T is ONLY ONE type, meaning your arguments can only be of type T. So you can do:
+
+[source,cpp]
+--
+max(2, 3);
+max(3.5, 2.4);
+--
+
+But you CANNOT do:
+[source,cpp]
+--
+max(2, 3.6);
+--
+
+Since there is only ONE T, how would it be able to decide between the two types? T can be one, or the other, but not both.
+
+==== Important: deduction dosen't convert types
+
+The argument deduction used to figure out what data type T is is not the same as type conversion. It onyl DEDUCES what type T should be, it does not convert any other values to that T type. You could force that to happen, by explicitly defining T as a predetermined type.
+
+
+=== Multiple template types
+
+A better solution than explicitly defining the type of T is to instead let teh parameters have independent types:
+
+[source,cpp]
+--
+template <typename T, typename U>
+auto max(T x, U y)
+{
+    return (x < y) ? y : x;
+}
+--
+
+Now having max accept two arguments is actually possible, and it would instantiate a function corresponding to:
+
+`max<int, double>`(int, double)
+
+Both T and U are independent. They can be DIFFERENT or happen to be the same.
+
+==== why auto for the return type?
+
+Since we have two different function template variables, we cannot actually decide between the two pre-emptively for what the return value will be. The user could simply input two ints, which that case, the return value should be int. But if the return value is instead a double, then the return value should be a double. Previously, with only one typename template variable, we just assigned the function type to the typename varibale. but since there are TWO, it is now more efficient to use auto, which determines the type based on the result of the two variables.
+
+==== C++ abbreviated function templates
+
+Instead of writing the entire thing out:
+[source,cpp]
+--
+template <typename T, typename U>
+auto max(auto x, auto y)
+{
+    return (x<y) ? y : x;
+}
+--
+
+You can instead just write:
+[source,cpp]
+--
+auto max(auto x, auto y)
+{
+    return (x<y)?y:x;
+}
+--
+
+Each auto parameter in this case becomes its own independent template type parameter.
+
+Conceptually what happens is auto x turns into T, and auto y would turn into U.
+
+So the calling of variable
+`max(2, 3.5)` would turn into T = int and U = double.
+
+=== Function templates can also be overloaded
+
+You can have two function templates, that declare the same function name, but handle different scenarios (such as one only uses T and only uses T and U). If both match, C++ generally prefers the more speciailized/restritive tempalte.
+

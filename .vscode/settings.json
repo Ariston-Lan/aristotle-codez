@@ -1,4 +1,10 @@
 {
     "terminal.integrated.suggest.enabled": true,
-    "editor.codeActionWidget.includeNearbyQuickFixes": false
+    "editor.codeActionWidget.includeNearbyQuickFixes": false,
+    "terminal.integrated.suggest.quickSuggestions": {
+        "commands": "on",
+        "arguments": "on",
+        "unknown": "on"
+    },
+    "terminal.integrated.suggest.insertTrailingSpace": true
 }

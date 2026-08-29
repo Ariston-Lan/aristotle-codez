@@ -1140,3 +1140,9 @@ The chapter was based on operators so that's why most of my programs focused on 
 I literally forgot to log these days, just know I took C++ notes and CSS notes. I was also moving into college so the days were sort of all melded together. learned about auto, type deduction, name collisions a whole lot of shit.
 
 CSS on the other hand didnt learn too much.
+
+# Day 71
+
+Today was purely about C++, i did some tiny drills to sort of get the rust off of my coding skills. I also realize coding everyday while in college (with the scale that I am trying to do) is WAYYY harder than I thought, but I'll just have to do a lot more focused work.
+
+I made some drills (like I did some tiny C++ programs and called them drills), and yea just worked on actually using the code and concepts that I am learning.
