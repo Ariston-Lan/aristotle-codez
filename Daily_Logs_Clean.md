@@ -1146,3 +1146,13 @@ CSS on the other hand didnt learn too much.
 Today was purely about C++, i did some tiny drills to sort of get the rust off of my coding skills. I also realize coding everyday while in college (with the scale that I am trying to do) is WAYYY harder than I thought, but I'll just have to do a lot more focused work.
 
 I made some drills (like I did some tiny C++ programs and called them drills), and yea just worked on actually using the code and concepts that I am learning.
+
+# Day 72
+
+Today I actually did all 3 engines, I did my first engine with C++, my second with CSS, and my third with SaaS.
+
+Right now It was mainly notes across all 3, I did make a small web application form through HTML and CSS and then I made some C++ programs as well
+
+For the SaaS I briefly studied stripe, and by studied I just got accustomed to the terms and how to actually enter a market place WITH an SaaS. Hopefully by the end of this week In willl have a real project idea that I can actually start putting money into! But until then, its just notes and some building
+
+As for the C++ project, it was supposed to teach me about type conversions, type deductions through auto, and explicit vs implicit conversions, and integral promotion, and arithmetic conversions. Basically all about data types. And so I made a temperature analyzer that does some of that, and a side project just to see how narrowing conversions can change w/ constexpr, and some other specific things.
