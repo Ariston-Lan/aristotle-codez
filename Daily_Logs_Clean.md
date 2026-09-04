@@ -1156,3 +1156,7 @@ Right now It was mainly notes across all 3, I did make a small web application f
 For the SaaS I briefly studied stripe, and by studied I just got accustomed to the terms and how to actually enter a market place WITH an SaaS. Hopefully by the end of this week In willl have a real project idea that I can actually start putting money into! But until then, its just notes and some building
 
 As for the C++ project, it was supposed to teach me about type conversions, type deductions through auto, and explicit vs implicit conversions, and integral promotion, and arithmetic conversions. Basically all about data types. And so I made a temperature analyzer that does some of that, and a side project just to see how narrowing conversions can change w/ constexpr, and some other specific things.
+
+# Day 73
+
+For today I just did C++ notes. I finished chapter 11 on learncpp which was about function templates and I also believe function

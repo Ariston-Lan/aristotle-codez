@@ -1,1 +1,329 @@
+= Chapter 11 - Function Overloading and Function Templates
 
+== 11.9 - Non-type template parameters
+
+=== What is a non-type template parameter
+
+So far, template parameters have represented types:
+
+[source,cpp]
+--
+template <typename T>
+T max(T x, T y);
+--
+
+Here T is a placeholder for a type, such as int or double.
+
+A non-type template parameter instead represents a constexpr value of a specified type.
+
+. recall that constexpr is a const value, meaning it cannot be changed once defined, that is evaluatable at compile time.
+
+So for example:
+[source,cpp]
+--
+template <int N>
+void print()
+{
+    std::cout << N << '\n';
+}
+
+int main(){
+    print<5>();
+}
+--
+
+When you call print here, N now represents the constexpr value 5.
+
+Conceptually, the compiler instantiates a version where N has been replaced by that value.
+
+==== Naming convention
+
+N is conventioanlly used for an int non-type template parameter
+
+=== Type vs Non-Type Template Parameters
+Type template parameter → placeholder for a type
+
+Non-type template parameter → placeholder for a compile-time value
+
+==== Type template parameters
+
+[source,cpp]
+--
+template<typename T>
+--
+Here T represents a type, and to properly assign T a value, you would do:
+
+`foo<int>();` which replaces T with type int.
+
+==== Non-type template parameter
+
+[source,cpp]
+--
+template <int N>
+--
+
+Here N represents a constexpr value of type int. The value itself is not defined until the function is called:
+
+`foo<5>();`
+
+=== Example: std::bitset
+
+You've already seen a non-type template parameter:
+[source,cpp]
+--
+std::bitset<8> bits{};
+--
+
+The 8 is a non-type template argument
+
+It tells std::bitset at compile time that the bitset should contain 8 bits.
+
+This needs to be known at compile time, making a non-type template parameter appropriate.
+
+=== Why are non-type template parameters useful?
+
+Normal function parameters cannot be constexpr
+
+Think about this for a second. When you create a function and assign parameters, you may be able to make them const (meaning they cannot be changed once defined), and you COULD give them defaults, but you cannot make them constexpr (meaning they cannot be change once defined AND are defined at compile-time)
+
+For example:
+[source,cpp]
+--
+void foo(int x)
+{
+    // x is a normal runtime-capable parameter
+}
+--
+
+Even if you call foo(5);, the parameter itself isn't a constexpr parameter that can automatically be used whenever C++ requires a constant expression.
+
+A non-type template parameter sovles this when the value needs to be available at compile time:
+
+[source,cpp]
+--
+template <int N>
+void foo()
+
+{
+    static_asset(N >= 0);
+}
+--
+
+Now N is a constexpr value, so it can be used with things requiring constant expressions, such as static_asset.
+
+
+. So use non-type template parameters primarily when a function/class needs a constexpr value as part of its template.
+
+=== Non-Type template parameter types
+
+Non-type templates parameters can use several kinds of types, including:
+
+- integral types
+- Enumeration types
+- std::nullptr_t
+- Flaoting-point types
+- Certain pointers/references
+- Certain literal class types
+
+. For now intergral values are the most important case to recognize.
+
+=== Implicit Conversions
+
+Some constexpr values can be implicitly converted to match the declared non-type template parameter type.
+
+For example:
+[source,cpp]
+--
+template <int N>
+void print()
+{
+    std::cout << N;
+}
+--
+
+If you were to call print<'c'>();, the c would be converted to an int.
+
+However the conversions permitted for non-type template arguments are more sestricted than ordinary implicit conversions
+
+Its important to remember the core allowed categories:
+
+- Integral promotions/conversions
+- Certain user-defined conversions
+- Lvalue to rvalue conversions
+
+=== Overaloading Non-Type template parameters
+
+Be careful when overloading tempaltes that differ only in their non-type parameter type.
+
+For instance:
+
+[source,cpp]
+--
+template <int N>
+void print();
+
+template <char N>
+void print();
+--
+
+If you were to call
+`print<5>();`
+
+This would become ambiguous, because the template matching rules may allow the argument to match multiple versions
+
+Unlike ordinary function overload resolution, template amtching for these non-type arguemtns does not simply prioritize the version requiring the "better" conversion in these cases.
+
+=== Using auto for Non-Type Template Parameters
+
+So instead of specifying the parameters type, you would do auto instead, the compiler then deduces the type of N from the template argument. For instance:
+
+[source,cpp]
+--
+template <auto N>
+void print()
+{
+    std::cout << N;
+}
+--
+
+So now if you were to do print<5>();, N would be an int, whereas if you did print<'c'>();, N would be a char/
+
+This is essentially type deduction for a none-type template parameter.
+
+=== Main Mental Model
+
+A normal function parameter:
+
+[source,cpp]
+--
+void foo(int n);
+foo(5);
+--
+
+n is a function parameter and can represent a value supplied when the function is called.
+
+Non-type template parameter:
+[source,cpp]
+--
+template <int N>
+void foo();
+
+foo<5>();
+--
+
+This is a non-type template parameter. N is part of the template instantiation and represents the constexpr value of 5, since we define it as such via foo<5.
+
+Therefore different template arguments can produce different instantiations:
+
+foo<5> and foo<10> produce two different versions of foo
+
+== 11.10 Using function templates in multiple files
+
+=== The problem with separating template declarations and definitions
+
+With a normal function you can put:
+[source,cpp]
+--
+int add(int x, int y); // foward declaration
+--
+
+And then you can define it in another .cpp file:
+[source,cpp]
+--
+int add(int x, int y)
+{
+    return x + y;
+}
+--
+
+The compiler compiles each file separately, and the linker connects teh function to the call definition later.
+
+Function templates are different however:
+[source,cpp]
+--
+template <typename T>
+T addOne(T x); //declaration
+
+int main()
+{
+    addOne(1);
+}
+--
+
+Then in add.cpp
+[source,cpp]
+--
+template <typename T>
+T addOne(T x)
+{
+    return x + 1;
+}
+--
+
+This can cause a linker error.
+
+==== Why dosen't this work?
+
+Remember:
+
+A function tempalte is not itself a function. The compiler uses the template to insantiate actual functions when needed.
+
+When compiling main.cpp, the compiler sees
+
+addOne();
+
+so it knows it needs:
+
+addOne<int>
+
+But main.cpp can only see the template declaration, not its definition, so it has no idea what's actually inside of the template.
+
+Therefore it cannot instantiate addOne<int>
+
+Meanwhile, when add.cpp is compiled, the compiler sees the template definition, but no calls requring instantiation.
+
+The result:
+
+No actual addOne<int> gets instanitated, which causes a linker error.
+
+=== Solution: Put Template Definitions in Header Files
+
+Tempaltes that need to be used across multiple files should generally *have their full definitions in a header file*
+
+For example, in add.h we would add:
+[source,cpp]
+--
+#ifndef ADD_H
+#define ADD_H
+
+template <typename T>
+T addOne(T x)
+{
+    return x + 1;
+}
+
+#endif
+--
+
+Then in main.cpp
+[source,cpp]
+--
+#include "add.h"
+
+int main()
+{
+    addOne(1);
+}
+--
+
+Now when main.cpp includes add.h, the compiler can se ethe entire template definition, and can instnatiate freely.
+
+=== Why dosent this violate the ODR (one definition rule)?
+
+Normally defining the same function in multiple files could violate the ODR (One Definition Rule). But templates are specifically allowed to have identicanl definitions in multiple files.
+
+So both can have the same template definition without causing an ODR problem.
+
+Additionally, functions that are implicitly insantiated from function templates are implciitly inline, which allows identicial definitions to exist in multiple files as well.
+
+. Remember though the template itself isn't inline. Inline applies to functions/variables. The functions implciitly instantiated from the tempalte are implicitly inline.
