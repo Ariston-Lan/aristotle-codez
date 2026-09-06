@@ -1,1 +1,1099 @@
+= Chapter 12; Compund Types; References and Pointers
 
+== 12.5 - Pass by Lvalue Reference
+
+=== Pass by value
+
+Normally, function parameters are separate objects initialized from the arguments passed to them.
+
+For instance:
+[source,cpp]
+--
+void printValue(std::string y)
+{
+    std::cout << y << '\n';
+}
+
+std::string x{ "Hello" };
+printValue(x);
+--
+
+Here we have the parameter y, which will be initialized once we pass an argument when we call the function printValue. 
+
+However, *x and y are separate std::string objects*
+
+x is the argument
+
+y is the parameter
+
+The value of x is COPIED into y, changing y does NOT change x, but changing x DOES change y.
+
+Copying everything from fundamental types is generally cheap, however copying class types such as std::string, is much more expesnive. You are taking all the data from x, and copying it onto y. They are two separate objects.
+
+=== Pass by reference
+
+Instead, we can make the function parameter an lvalue reference:
+
+[source,cpp]
+--
+void printValue(std::string& y)
+{
+    std::cout << y << '\n';
+}
+--
+
+Now the parameter y is not its own lvalue, but an lvalue reference (So it is pointing to another lvalue)
+
+When called:
+[source,cpp]
+--
+std::string x{ "Hello" };
+printValue(x);
+--
+
+y binds to x
+
+There is no separate std::string copy for the parameter. y is an alias for the actual argument x.
+
+==== Pass by Value vs Pass by Reference
+
+PASS BY VALUE
+
+x ──value copied──> y
+
+x and y are separate objects
+
+PASS BY REFERENCE
+
+x <── y
+
+y is another name for x
+
+=== Modifying the argument
+
+Because a non-const reference gives access to the original object, changing the parameter changes the caller's argument.
+
+For instance:
+[source,cpp]
+--
+void addOne(int& y)
+{
+    ++y;
+}
+
+int main()
+{
+    int x{ 5 };
+
+    addOne(x);
+
+    std::cout << x; // 6
+}
+--
+
+Inside of addOne we increment y by one, but since why is an alias for x, x is also incremented by one. It is effectively modifying x because y REFERS TO x.
+
+This is one major use of pass by reference: *allowing a function to modify an argument*
+
+=== Binding restrictions
+
+A non-const lvalue reference parameter:
+
+[source,cpp]
+--
+void foo(int& x);
+--
+Requires a modifiable lvalue.
+
+So you can pass int x{5}; into this, but you cannot pass a const varible into this. Recall our rule?
+
+*non-const lvalue references CANNOT bind to non-modifiable lvalues*
+
+And right now, we are using a non-const lvalue reference, which means we cannot attatch to an lvalue that does not want to be modified.
+
+=== Pass by value vs pass by lvalue reference
+
+. Parameter T x: Makes a separarte T type object
+
+. Parameter T& x: referes to the caller's object
+
+So:
+[source,cpp]
+--
+void foo(int x); // pass by value
+void foo(int& x); // pass by lvalue reference
+--
+
+*_For T (normal argument parameter no reference):
+
+- The argument value is copied onto the parameter
+
+- The parameter is a separate object from the argument
+
+- Changing the parameter does not alter the argument
+
+- Good for cheap-to-copy types
+
+
+For T& (Using an lvalue reference)
+
+- Parmeter aliases argument (argument is the refererand to the lvalue ref used as a parameter)
+
+- No argument copy, no value is copied onto the parameter because the parameter is a alias for the argument itself
+
+- Can modify the original argument, any changes to the reference will alter the original argument
+
+- Requires a modifiable value (if you use a non-const lvalue ref)
+
+==== Important limitation
+
+Suppose we only want to *read* a large object:
+[source,cpp]
+--
+void printValue(std::string& str)
+{
+    std::cout << str;
+}
+--
+
+This avoids copying, which is nice. But now we can modify the string within printValue, we cannot accept const strings, and we cannot accept temporary/rvalue strings.
+
+This is why later we will use const reference instead.
+
+== 12.6 - Pass by Const lvalue reference
+
+=== Pass by const reference
+
+A function parameter can be a const lvalue reference:
+
+[source,cpp]
+--
+void printValue(const std::string& str)
+{
+    std::cout << str << '\n'
+}
+--
+
+Here str is a reference to an argument, which avoids making an expensive copy, and const prevents changing the argument passed by the caller through the reference.
+
+This is useful for passing expensive-to-copy types when the function only needs to read them.
+
+=== What const T& can bind to
+
+Unlike a non-const lvalue reference, a const lvalue reference can bind to:
+
+- modifiable lvalues
+- non-modifiable/const lvalues
+- rvalues
+
+[source,cpp]
+--
+void printValue(const int& x);
+
+int a{ 5 };
+const int b { 6 };
+
+
+printValue(a); // okay
+printValue(b); // okay
+printValue(7); // okay
+--
+
+All of these work, since const lvalue references can accept const lvalues and rvalues.
+
+=== Type conversions
+
+A const reference can also bind to a value of a different type given that C++ can implicitly convert it.
+
+[source,cpp]
+--
+void printValue(const double& x);
+
+int n{ 5 };
+printValue(n);
+--
+
+Here, when we call print value, the argument is an int with the value of 5. So when that is passed through our const lvalue reference parameter, C++ converts the 5 into 5.0, which is both a double and an rvalue (since it is a temporary value with no identity).
+
+That also means that x is no longer referencing n directly, but is instead referencing the rvalue from n.
+
+. The best practice though is to just match the argument and reference types so an unnecessary temporary isn't created.
+
+=== Pass by value vs const reference
+
+For cheap-to-copy types, pass by value is normally preferred:
+
+[source,cpp]
+--
+void foo(int x);
+void foo(double x);
+--
+
+For expesnive-to-copy types, pass by const reference is normally preferred when modification isn't needed:
+
+[source,cpp]
+--
+void foo(const int& x);
+--
+
+*References aren't automatically faster than copying. Small fundamental types such as int are already very cheap to copy*
+
+=== Pass by reference when modification is needed
+
+Use a non-const reference whenever you need to actually modify the argument passed by the caller:
+
+[source,cpp]
+--
+void addOne(int& x)
+{
+    ++x;
+}
+--
+Now x will increment, and the argument passed by the caller will increment by one, not just the parameter.
+
+==== std::string_view for read-only strings
+
+For read-only string parameters, std::string_view is often preferred:
+[source,cpp]
+--
+void print(std::string_view str);
+--
+
+std::string_view is cheap to copy and can efficiently view different kinds of strings, including std::string and string literals.
+
+Use const std::string& when the functional specifically needs to work with an actual std::string.
+
+== 12.7 Introduction to Pointers
+
+=== Memory addresses
+
+Every object stored in memory has a memory address identifying where it is located.
+
+The address-of-operator & returns the address of an object:
+
+[source,cpp]
+--
+int x{ 5 };
+
+std::cout << &x;
+--
+
+&x means *"the memory address OF x"*
+
+You might recognize this operator when making an lvalue reference. Note that it has different meanings depending on the context:
+[source,cpp]
+--
+int& ref{x}; // & = lvalue reference
+&x;          // & = address-of operator
+--
+
+=== Pointers
+
+A pointer is an object that stores the *MEMORY ADDRESS* of another object
+
+Pointer syntax:
+[source,cpp]
+--
+int x{5};
+int* ptr{ &x };
+--
+
+Here:
+- x is an int with the value of 5
+
+- &x is the address OF x
+
+- ptr is an int* (pointer to an int)
+
+- ptr stores the address of x
+
+So conceptually:
+
+ptr ──────> x
+            5
+
+=== Declaring Pointers
+
+The * in a declaration means *pointer to*:
+
+[source,cpp]
+--
+int* ptr;
+double* dPtr;
+char* cPtr;
+--
+
+So this is saying pointer to an int, pointer to a double, and pointer to a character.
+
+The best practice is to put the * next to the type, however each pointer variable needs its own * (if you are initializing multiple pointers at once):
+[source,cpp]
+--
+int* ptr1, * ptr2;
+--
+
+=== Pointer initialziation
+
+Pointers should be initialized, otherwise, what are they going to point to?
+
+[source,cpp]
+--
+int x{ 5 };
+int* ptr{ &x };
+--
+
+The pointer's type should match the type of object whose address it stores:
+
+[source,cpp]
+--
+int x{};
+int* ptr{ &x };
+
+double* ptr2{ &x }; //ERROR
+--
+
+An int* is designed to point to an int.
+
+=== Derefencing a pointer
+
+The dereference operator * accesses the object located at the address stored by a pointer.
+
+[source,cpp]
+--
+int x{ 5 };
+int* ptr{ &x };
+
+std::cout << *ptr; //5
+std::cout << ptr; // memory address of x (something like 19x0dfe)
+--
+
+Remember that what is actually stored inside the pointer is not the value of x, but instead the memory address where x is actually stored. And dereferencing the pointer would get you the actual value AT that address.
+
+Since *ptr accesses x, it can also modify x:
+
+[source,cpp]
+--
+*ptr = 10;
+
+std::cout << x; //10
+--
+
+So mentally:
+[source,cpp]
+--
+&x     // get x's address
+
+ptr    // stores x's address
+
+*ptr   // access x through that address
+--
+
+=== * has multiple meanings
+
+Just like &, the meaning depends on the context:
+[source,cpp]
+--
+int* ptr;  // * = pointer declaration
+*ptr;      // * = dereference operator
+--
+
+These use the same symbol but perform different jobs. one declares your pointer and the other dereferences it to get the value at the memory address it's pointing to.
+
+=== Pointers are objects
+
+Unlike references, pointers are actual objects. Within those objects, the memory address is stored.
+
+This means a pointer:
+
+- occupies memory
+- has its own address
+- stores a value (an address)
+- can have its stored address changed
+
+For instance:
+[source,cpp]
+--
+int x{ 5 };
+int y{ 10 };
+
+int* ptr{ &x };
+
+ptr = &y;
+--
+
+Initially the pointer stores the memory address of x, but then after we assign it the memory address of y.
+
+This is much different from references which cannot be changed after binding.
+
+=== Pointer size
+
+Because pointers store memory addresses, pointer size is based primarily on the system architecure rather than the type being pointed to
+
+For example:
+
+[source,cpp]
+--
+sizeof(int*);
+sizeof(double*);
+sizeof(char*);
+--
+
+These will typically produce the same size on a given system
+
+The pointed-to-type still matters because C++ needs to know what kind of object exists at that address.
+
+=== Pointer vs reference
+
+Both pointers and references can provide indirect access to a variable. But they're different:
+
+Reference:
+ref      → alias for x
+ref      → accesses x directly
+
+Pointer:
+ptr      → stores address of x
+*ptr     → accesses x
+
+And more importantly:
+
+Reference → not an object; can't be reseated
+Pointer   → object storing an address; can be changed to point elsewhere
+
+== 12.8 - Null Pointers
+
+=== What is a null pointer?
+
+Normlaly, a pointer stores the address of an object:
+[source,cpp]
+--
+int x{ 5 };
+int* ptr{ &x };
+--
+
+But sometimes we want a pointer to not point to ANY object.
+
+A pointer that dosen't point to an object is called a null pointer.
+
+[source,cpp]
+--
+int* ptr{};
+--
+
+Value initialization initializes the pointer to a null value.
+
+=== nullptr
+
+C++ provides the keyword nullptr specifically to represent a null pointer:
+[source,cpp]
+--
+int* ptr { nullptr };
+--
+
+You can also make an existing pointer null:
+[source,cpp]
+--
+int x{ 5 };
+int* ptr{ &x };
+
+ptr = nullptr;
+--
+
+Here we are just making a normal int pointer pointing to x, and then later assinging it the value of nullptr.
+
+Now ptr no longer points to x.
+
+=== Why nullptrs exist
+
+Because pointers can change what they point to, there are situations where a pointer currently has *nothing valid to point at*
+
+So:
+[source,cpp]
+--
+int* ptr { nullptr };
+--
+
+can essentially communicate "ptr currently points to nothing"
+
+. This is a MAJOR difference from references. Since references are expected to always bind to an object, while pointers can represent "no object."
+
+=== Checking for null
+
+A pointer can be used as a condition:
+[source,cpp]
+--
+if (ptr)
+{
+    // ptr is non-null
+}
+--
+
+A null pointer converts to false, while a non-null pointer converts to true.
+
+You can also explicitly compare:
+[source,cpp]
+--
+if (ptr == nullptr)
+{
+    // ptr is null
+}
+--
+
+Both are valid and do the same thing.
+
+=== Dereferencing a null pointer
+
+You should *NEVER DEREFERENCE A NULL POINTER*
+
+A null pointer isn't pointing to an object, so there is no valid object to access upon dereferencing it.
+
+This would therefore cause undefined behavior. When a ptr COULD be nullptr, check it BEFORE dereferencing.
+
+=== Dangling vs null pointers
+
+These are importantly different.
+
+[source,cpp]
+--
+int* ptr{nullptr};
+--
+
+ptr is null, we intenitonally know it isn't pointing to an object.
+
+A dangling pointer contains an address that is NO LONGER VALID for the object we expect.
+
+Conceptually:
+
+null pointer
+→ intentionally points to nothing
+
+dangling pointer
+→ contains an invalid/stale address
+
+=== 0 and NULL
+
+Older C++ code may use:
+[source,cpp]
+--
+int* ptr{ 0 };
+
+// or
+
+int* ptr{NULL};
+--
+To represent null pointers. Modern C++ provides nullptr instead, which is preferred because nullptr is specifically designed to represent a null ptr and avoids ambiguities involving integer 0.
+
+== 12.9 - Pointers and Const
+
+=== Pointer to const value
+
+Normally, a pointer can modify the object it points to by dereferencing itself:
+[source,cpp]
+--
+int x{ 5 };
+int* ptr{ &x };
+
+*ptr = 10; // modifies x
+--
+
+IF we don't want modification through the pointer, use a pointer to const:
+[source,cpp]
+--
+int x{ 5 };
+const int* ptr{ &x };
+--
+
+This makes it to where ptr points to x, but trying to modify x through the ptr leads to an error.
+
+The object itself however, does NOT have to be const.
+
+so const int* means:
+    Pointer to a const int/ treat the poitned-to-value as read only through the pointer.
+
+=== Pointing to an actually const object
+
+A pointer to const can also point to a const object:
+
+[source,cpp]
+--
+const int x{ 5 };
+const int* ptr{ &x };
+--
+
+A normal int*n cannot:
+[source,cpp]
+--
+const int x{ 5 };
+int* ptr{ &x }; // error
+--
+
+Otherwise the ptr could be used to modify an object that was declared a const.
+
+=== Pointer to const can be reseated
+
+The pointed-to-vale is const through the pointer, but the pointer itself is not.
+
+That means your const ptr can point to multiple things, but whatever it is pointing to it cannot modify:
+
+[source,cpp]
+--
+int x{ 5 };
+int y{ 10 };
+
+const int* ptr{ &x };
+
+ptr = &y; // okay
+--
+
+So you can modify ptr, but you CANT modify *ptr
+
+=== Const pointer
+
+But what if we don't want ptr to stop pointing to a specific address, however we want to alter the value at that address?
+
+We can do that by making the pointer itself const:
+[source,cpp]
+--
+int x{ 5 };
+int* const ptr{ &x };
+--
+Here the ptr is const, instead of the type it is pointing to.
+
+=== Const pointer to const value
+
+Both the value it is pointing to and the pointer itself can be const:
+[source,cpp]
+--
+const int x{ 5 };
+const int* const ptr{ &x };
+--
+
+Now the ptr cannot change and it also cannot alter the value it is pointing at.
+
+=== Reading ptr const syntax:
+
+There are three important ones:
+[source,cpp]
+--
+const int* ptr;        // pointer to const int
+int* const ptr;        // const pointer to int
+const int* const ptr;  // const pointer to const int
+--
+
+== 12.10 - Pass by Address
+
+=== Pass by Address
+
+Instead of passing an object directly, we can pass its address to a function using a pointer parameter:
+
+[source,cpp]
+--
+void printValue(const int* ptr)
+{
+    std::cout << *ptr << '\n';
+}
+
+int x{ 5 };
+printValue(&x);
+--
+
+Okay so here we are making a function with the parameter being a ptr pointing to a const int. Which means that the value at the address of the argument cannot be changed through the ptr.
+
+So the function accesses the original argument indirectly through its address but cannot change it.
+
+=== Pointer parameters are passed by value
+
+Important: the pointer itself is copied into the parameter
+
+For instance:
+[source,cpp]
+--
+void foo(int* ptr);
+
+int x{ 5 };
+int* p{ &x };
+
+foo(p);
+--
+
+ptr here would get a COPY of the address stored inside of p. It is its own object in which the memory address is stored. So both p and the ptr store the memory address where x is.
+
+p ─────┐
+       ├──→ x
+ptr ───┘
+
+=== Modifying the pointed-to-object
+
+Because the pointer leads to the original object:
+[source,cpp]
+--
+void addOne(int* ptr)
+{
+    ++(*ptr);
+}
+
+int x{ 5 };
+addOne(&x);
+--
+
+You can modify the callers argument through ptrs. This is similar to pass by non-const reference: in which you can also modify the callers argument through the reference.
+
+=== Passing by address with const
+
+If the function only needs to *read* the object, use a pointer to const:
+
+[source,cpp]
+--
+void printValue(const int* ptr)
+{
+    std::cout << *ptr;
+}
+--
+
+This makes it to where the ptr can change where it's pointing to, but when dereferencing it, it won't let you alter the value stored in the address.
+
+=== Null pointers
+
+Unlike references, pointer parameters can receive nullptr:
+[source,cpp]
+--
+void printValue(const int* ptr)
+{
+    if (ptr)
+        std::cout << *ptr;
+}
+
+printValue(nullptr); // valid
+--
+
+This means pass by address can naturally represent an object or the lack of one.
+
+Because of this, if a pointer parameter could be null, always check before dereferencing it.
+
+=== Changing the pointer parameter
+
+Remember, the pointer parameter itself is passed by value:
+
+[source,cpp]
+--
+void changePointer(int* ptr)
+{
+    ptr = nullptr;
+}
+
+int x{ 5 };
+int* ptr{ &x };
+
+changePointer(ptr);
+--
+
+Here, the ptr (the one being passed into the function) would still point to x. Why? Because the pointer that is a PARAMETER and the pointer that is an ARGUMENT are TWO SEPARATE OBJECTS. Unlike reference parameters, which directly serve as an alias for the argument passed within the function, ptrs take a COPY of the value passed as the argument and COPY it onto the parameter pointer for use within the function's scope.
+
+But both can still access x an permantely alter it, since both copies lead to the same object.
+
+=== Pass by reference vs pass by address
+
+These can accomplish similar things:
+[source,cpp]
+--
+void foo(int& x);   // pass by reference
+void foo(int* x);   // pass by address
+--
+
+One if a pass by reference, and another is a pass by address.
+
+The call would look different (as for one of them the call would be the memory address of the object and the other would just be the object itself):
+
+[source,cpp]
+--
+foo(value);   // reference
+
+foo(&value);  // address
+--
+
+A major SEMANTIC difference is that a reference parameter is expected to refer to an object
+
+Whereas a pointer parameter can represent an object OR a nullptr (lack of an object)
+
+Therefore, when an argument *must exist*, references are generally cleaner
+
+When "no object" *is a meaningful possibility*, a pointer can express that using nullptr.
+
+== 12.11 - Pass by Address (part 2)
+
+=== Pass by address can change the pointed-to object
+
+Recall that a pointer parameter itself is passed by value:
+
+[source,cpp]
+--
+void foo(int* ptr);
+--
+
+The function gets a *copy of the address*
+
+Therefore:
+
+`ptr = nullptr;`
+
+This only changes the function's local ptr;
+
+But:
+
+`*ptr = 10` Changes the ACTUAL object that both pointers point to.
+
+=== Changing what the caller's pointer points to
+
+What if we actually want the function to change the caller's pointer itself?
+
+To modify the caller's ptr, we can *pass the pointer by reference*:
+
+For instace:
+[source,cpp]
+--
+void nullify(int*& ptr)
+{
+    ptr = nullptr;
+}
+--
+Here for nullify, we are passing a pointer that is a reference to ANOTHER pointer.
+
+==== Refernce to a pointer
+
+This syntax:
+[source,cpp]
+--
+int*& ptr;
+--
+means:
+
+    *lvalue reference to a pointer to an int*
+
+To break it down:
+
+int     → int
+int*    → pointer to int
+int*&   → reference to pointer to int
+
+So the function parameter aliases the *pointer object itself*
+
+That lets the function change the address stored inside the caller's pointer.
+
+=== Pointer vs pointed-to object
+
+This distinction is important:
+[source,cpp]
+--
+void foo(int* ptr)
+{
+    *ptr = 10;
+}
+--
+
+This modifies the OBJECT that the pointer points to
+
+Whereas:
+[source,cpp]
+--
+void foo(int*& ptr)
+{
+    ptr = nullptr;
+}
+--
+
+Modifies the actual address the ptr is pointing to. This modifies the POINTER itself.
+
+=== Returning multiple values using output parameters
+
+Because reference/poitner parameters can modify caller-owned objects, they can be used as output parameters:
+
+[source,cpp]
+--
+void getValues(int& x, int& y)
+{
+    x = 5;
+    y = 10;
+}
+
+int a{};
+int b{};
+
+getValues(a, b);
+--
+
+Now the function can effectively provide multiple results by modifying a and b.
+
+However, output parameters can make code less obvious because getValues dosen't really say what a and b should be.
+
+When practical, returning a value is generally cleaner.
+
+=== Pass by address vs pass by reference
+
+Both provide indirect access to caller-owned objcets, but they communicate different expectations:
+
+[source,cpp]
+--
+void foo(int& x);        // object expected to exist
+void foo(int* ptr);      // pointer can potentially be null
+--
+
+For reference, the obect is expected to exist, whereas with an address, there is the potential for the ptr to be pointing to nothing (nullptr)
+
+== 12.12 - Return by Reference and Return by Address
+
+=== Return by reference
+
+Normally, retuning by value retunrs a value back to the caller:
+[source,cpp]
+--
+int getValue(){
+    int x{5};
+    return x;
+}
+--
+
+A function can instead return a *reference to an existing object*:
+[source,cpp]
+--
+const std::string& getName(const std::string& name)
+{
+    return name;
+}
+--
+
+So here the functions return type IS a const std::string reference, and so when we return name, we are returning the reference passed as the argument call (which is the parameter name)
+
+==== Returned references aliases the original object
+
+[source,cpp]
+--
+const std::string& getName(const std::string& name)
+{
+    return name;
+}
+
+std::string user{ "Ariston" };
+
+const std::string& result{ getName(user) };
+--
+
+result ultimately refers to the same object as user. No new std::string needs to be copied just to return it.
+
+===== NEVER RETURN A REFERENCE TO A LOCAL VARIABLE
+
+[source,cpp]
+--
+const std::string& getName()
+{
+    std::string name{ "Ariston" };
+
+    return name; // BAD
+}
+--
+
+name is a local variable, so it is destroyed when the function ends. 
+
+The returned reference would then refer to an object that no longer exists, which results in a dangling reference.
+
+=== Safe objects to return by reference:
+
+Returning by reference is safe when the referenced object will still exist after the function returns.
+
+For example, returning one of the function's reference arguments:
+[source,cpp]
+--
+const std::string& first(
+    const std::string& x,
+    const std::string& y)
+{
+    return x;
+}
+--
+
+Here the function didn't create x. It merely references an object owned by the caller.
+
+The caller's object can therefore continue existing after the function ends.
+
+=== Return by reference can modify an object
+
+If the function returns a non-const reference:
+
+[source,cpp]
+--
+int& getValue(int& x)
+{
+    return x;
+}
+--
+
+Then the returned expression is an lvalue and can be modified.
+
+Remember the result OF the function is the reference and so when we alter it, it alters the original value/argument as well.
+
+So 
+`getValue(x) = 10;`
+Would literally MAKE the value x, 10.
+
+=== Return by address
+A function can also return a pointer:
+[source,cpp]
+--
+int* getPointer(int* ptr)
+{
+    return ptr;
+}
+--
+
+Here we are saying the return type for the function will be a ptr, and so whatever ptr you pass as the argument, it will return the memory address of that ptr. Which is just what the ptr contains so.
+
+The returned pointer contains the address of an object.
+
+Just like returning by reference, the pointed-to object must remain valid after the function returns.
+
+
+
+==== DONT RETURN THE ADDRESS OF A LOCAL VARIABLE
+
+[source,cpp]
+--
+int* getPointer()
+{
+    int x{ 5 };
+
+    return &x; // BAD
+}
+--
+
+When the function ends, x is destroyed.
+
+And here, we are returning the memory address OF x, however x no longer exists when the function stops retuning.
+
+So therefore, the returned pointer now contains an address that NO LONGER referes to a valid x, which leads to a dangling pointer.
+
+=== Reference return vs pointer return
+
+The familiar distinction still applies:
+[source,cpp]
+--
+
+T& foo();   // returns reference to an object
+T* foo();   // returns pointer/address
+
+--
+
+A pointer return can return nullptr, which can represent no object, whereas the reference cannot.
+
+A reference return is normally used when the function is expected to return a real object.
+
+==== Return by value vs reference vs address
+
+T
+→ return by value
+→ caller gets a value/object
+
+T&
+→ return by reference
+→ caller gets an alias to an existing object
+
+T*
+→ return by address
+→ caller gets an address to an existing object
+→ nullptr can represent "no object"
