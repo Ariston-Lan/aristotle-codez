@@ -1,1 +1,650 @@
+= Chapter 12; Compund Types; References and Pointers
 
+== 12.1 Introduction to compound data types
+
+=== Fundamental vs. Compound Types
+
+C++ data types fall into two categories:
+
+- Fundamental types: Basic types provided directly by the language (int, double, char, bool, etc).
+
+- Compound types (composite types): types defined in terms of other existing types which provide additonal properties/behaviors.
+
+. Every C++ data type is either fundamental OR compound.
+
+=== Why Compound Types Exist
+
+Fundamental types become akward when data gets more complex.
+
+Example: representing a fraction with:
+
+[source,cpp]
+--
+int numerator{};
+int denominator{};
+--
+
+works, but the variables are only loosely associated. Nothing about their types actually says "these two values form one fraction."
+
+Likewise, creating:
+[source,cpp]
+--
+int id1{};
+int id2{};
+int id3{};
+// ...
+--
+
+Dosen't scale when you need to manage many related values.
+
+Compound types give us a better way to represent relationships and collections of data.
+
+=== C++ Compound Types
+
+C++ includes:
+- Functions
+
+- C-style arrays
+
+- Pointers (pointer to object or pointer to function)
+
+- Pointers to members (Pointer to a data member or to a member functioin)
+
+- References (lvalue references, rvalue references)
+
+- Enumerated types (unscoped and scoped enumerators)
+
+- Class types (structs, classes, unions)
+
+=== Functions Are Compound Types
+
+Functions, which you've already been using, are compound types. When you do:
+
+[source,cpp]
+--
+void doSomething(int x, double y)
+{
+
+}
+--
+
+The function's type isn't just "void", it is actually
+`void(int, double)`
+
+It is constructed using the other types (void, int, double) and has function sepcific behavior, which most importantly, allows it to be called.
+
+=== Class Type
+
+A class type means any type that is a:
+- struct
+- class
+- union
+
+For example, std::string is not a fundamental type. It is a class type, meaning it is therefore also a compound type.
+
+== 12.2 Value Categories: lvalues and rvalues
+
+=== Expressions have Two Properties
+
+Every C++ expression has two things: *A type* and *A value category*
+
+You already know what expression types are:
+
+[source,cpp]
+--
+5 // type: int
+--
+
+The value category tells us what kind of value an expression produces and how that expression can be used.
+
+For now the only two important value categories are:
+
+- lvalue
+- rvalue
+
+==== lvalue
+
+An lvalue is an expression that evaluates to an identifiable object/function. Think the lvalue is something with an identitiy.
+
+For instance:
+[source,cpp]
+--
+int x{5};
+
+x=10;
+--
+
+The expression x is an lvalue because it refers to the actual object x. The object persists beyond the expression.
+
+Other exampels include:
+
+x
+
+std::cout
+
+Both identify existing objects.
+
+===== Modifiable vs Non-modifiable lvalues
+
+Some lvalues can be modified:
+
+[source,cpp]
+--
+int x{};
+x = 5;
+--
+
+x is a modifiable lvalue because it is an expression that evaluates to an identifiable object AND it is modifiable, we can change x, add x, do all kinds of things to x.
+
+But an lvalue can also be non-modifiable:
+
+[source,cpp]
+--
+const int x{5};
+--
+
+x is still an lvalue because it identifies an object, its expression does evaluate to an identifiable object, but it cannot be changed passed its instanation. 
+
+==== rvalue
+
+An rvalue is an expression that is not an lvalue
+
+Rvalues commonly represent values that exist only for use within an expression rather than persistent identifiable objects.
+
+Some examples:
+[source,cpp]
+--
+5
+x+1
+returnByValue()
+--
+
+In:
+[source,cpp]
+--
+int x{5 + 3};
+--
+
+5,3 and the result of 5+3 are all rvalues.
+
+The result 8 dosen't represent some persistent object that you can identify afterward. This is why literals are usually rvalues.
+
+=== The key difference
+
+[source,cpp]
+--
+int x{5};
+
+x + 1;
+--
+
+Let's look at these two statements. int x{5}; is an lvalue, it creates an identifiable object that persists beyond that statement and can be used and references later. But x+1; does not. After you add one to x, the value is not stored in any object, it is simply thrown away. Therefore it is an rvalue.
+
+=== Lvalue-to-Rvalue Conversion
+
+Suppose:
+[source,cpp]
+--
+int x{5};
+int y{x};
+--
+
+The expresion x is an lvalue, but intializing y needs the value stored in x.
+
+C++ therefore performs an lvalue to rvalue conversion: it retrives the value from the object identified by the lvalue.
+
+So mentally it goes like this:
+
+x
+↓
+lvalue identifying object x
+↓
+retrieve x's stored value
+↓
+5
+
+=== Value Categories of Operators
+
+Operators expect operands with particular value categories and produce expressions with paticular value caegories.
+
+For instance:
+[source,cpp]
+--
+x = 5;
+--
+
+The assignment operator requires its left operand to be a modifiable lvalue.
+
+You wouldn't be able to assign an rvalue an lvalue for instance:
+[source,cpp]
+--
+5=x;
+--
+
+5 is an rvalue and dosen't identify an object that can receive a new value.
+
+Meanwhile:
+[source,cpp]
+--
+x+y
+--
+
+This statement uses the values contained within lvalues x and y, so their lvalues undergo lvalue to rvalue conversion. The result of the arithmetic expression is now an rvalue.
+
+=== Functions can Produce Either.
+
+A functions return behavior affecs the value category of a call expression.
+
+A normal return-by-value function:
+
+[source,cpp]
+--
+int getValue()
+{
+    return 5;
+}
+
+getValue(); // rvalue
+--
+
+This produces an rvalue, since it is literally returning a value that has no identity. You would be able to store this rvalue INTO an lvalue though.
+
+== 12.3 Lvalue references
+
+=== What is a reference?
+
+A reference is an alias for an existing object.
+
+[source,cpp]
+--
+int x{5};
+int& ref{x};
+--
+
+Here:
+- ref  has type int& which means a *lvalue reference to an int*
+
+- ref is *bound* to x
+
+- ref and x can now be used synonymously
+
+So if you were to do:
+[source,cpp]
+--
+std::cout << x; //5
+std::cout << ref; // 5
+--
+
+These would both print the same thing to the console.
+
+=== Lvalue Reference Syntax
+
+A single & in the type declares an lvalue reference type:
+[source,cpp]
+--
+int& ref{x};
+double& ref2{d};
+--
+
+The best practice is to put & next to the type:
+
+[source,cpp]
+--
+int& ref; //preferred
+int &ref; //also valid
+--
+
+The terminology is as follows:
+- int&: *reference type*
+
+-  int *referenced type*
+
+- x *referent (object being refernced)*
+
+- ref is *bound to x*
+
+=== Modify through a reference
+
+Because ref aliases x, modifying either modifies the *same object*
+
+[source,cpp]
+--
+int x {5};
+int& ref{x};
+
+ref = 7;
+
+std::cout << x; //7
+--
+
+A reference dosen't "create" a new int value, it makes it to where there are two ways of accessing an int value.
+
+=== References MUST be initialized
+
+Unlike a normal variable where you can initialize it with nothing, you cannot do the same thing with references. Because otherwise what would the reference even point to?
+
+=== Non-const lvalue references can only bind to modifiable lvalues
+
+You cannot bind a non-const lvalue reference to a non-modifiable lvalue, because otherwise, you could change the const lvalue through the non-const reference.
+
+For isntance:
+[source,cpp]
+--
+int x{5};
+int& ref{ x };
+--
+
+This is fine, you are making a reference to the refereant x, with reference type int.
+
+x is a modifiable value, so we're good.
+
+However:
+[source,cpp]
+--
+const int x{5};
+int& ref{x};
+--
+
+This would not work, because the lvalue you are trying to reference is non modifiable, where as the lvalue reference is non-const.
+
+x is an lvalue, but it is non-modifiable, because it is a const, so this will lead to an error.
+
+And: 
+[source,cpp]
+--
+int& ref{5};
+--
+
+This will also lead to an error. This is an lvalue reference towards a non-modifiable rvalue. Or you can just say a literal, which cannot be changed. You cannot make 5=6, and so you cannot have a non-const reference to the rvalue 5.
+
+=== Types Generally Need To Match
+
+Usually, the referenced type must match the object's type:
+
+[source,cpp]
+--
+int x{ 5 };
+int& ref{ x }; // good
+--
+
+However:
+
+[source,cpp]
+--
+double x{5.0};
+int& ref{x};
+--
+
+This would lead to an error because the types dont match.
+
+Under the hood, there would be a conversion of the value in x to an int value, but doing that would cause the value of x to turn into an rvalue, which cannot be referenced.
+
+=== References Cannot Be Reseated
+
+Once a reference is bound to an object *you cannot make it refernece a different object*
+
+For instance:
+[source,cpp]
+--
+int x{5};
+int y{10};
+
+int& ref {x};
+
+ref = y;
+--
+The last line is NOT assigning ref to y, instead, it is functioning the same as saying x=y, and so instead of assigning ref a new reference value you are instead just initializing x with the value of y.
+
+ref is still bound to x afterwards too. We merely assigned y's value into x.
+
+=== Reference and Lifetimes
+
+Refrences follow normal scope/duration rules:
+[source,cpp]
+--
+int x{5};
+
+{
+    int& ref{x};
+} // ref dies
+
+// x still exists
+--
+
+So if you make a reference for a ceratain scope, then it'll still follow typical scope rules.
+
+Destroying a reference does not destroy the object it referenced either.
+
+The lifetimes of the reference and referent are generally independent.
+
+=== Danling References
+
+The reverse situation is dangerous however:
+
+if the referenced object is destroyed *BEFORE* the reference, the reference becomes a *dangling reference*
+
+Using a dangling reference causes undefined behavior.
+
+=== References Aren't Objects
+
+C++ references are NOT objects.
+
+A reference isn't necessarily required to occupy its own storage; compilers can often optimize it away entirely.
+
+This is also why you don't actually get a normal reference to a reference:
+[source,cpp]
+--
+int x{};
+int& ref1{x};
+int& ref2 {ref1};
+--
+
+ref2 isnt reference ref1, since ref1 resolves to x, both references are bound to x.
+
+== 12.4 Lvalue references to const
+
+=== Nomral lvalue references have restrictions
+
+A normal lvalue reference:
+[source,cpp]
+--
+int& ref{x};
+--
+
+Can only bind to a modifiable lvalue of a matching type.
+
+Therefore:
+
+[source,cpp]
+--
+int x{ 5 };
+int& a{ x };       // ✅
+
+const int y{ 5 };
+int& b{ y };       // ❌ non-modifiable lvalue
+
+int& c{ 5 };       // ❌ rvalue
+--
+
+This is where lvalure references to const come in.
+
+=== Lvalue references to Const
+
+Use const with the refenced type:
+[source,cpp]
+--
+const int& ref{ x };
+--
+
+This is called:
+- lvalue reference to const
+- const reference (common shorthand)
+
+The reference provides read-only access to its referent. Meaning whatever it is an alias for, you cannot modify that value through the reference, since it is a const reference.
+
+[source,cpp]
+--
+int x{ 5 };
+const int& ref{ x };
+
+std::cout << ref; // ✅ read
+ref = 10;         // ❌ cannot modify through ref
+--
+
+Here we are initializing an int, and then we are using an lvalue reference to const, or a const reference, with the referand of x, which has the value of 5.
+
+We can read x, print it, use it for expressions, but through the alias we cannot change x itself.
+
+==== Important Distinction
+
+The referent itself does NOT have to be const to be assigned a const reference.
+
+You can assign a modifiable lvalue with a const lvalue reference, which means the lvalue can be modified (the referand) but not through the lvalue reference since it is non-modifiable (a const).
+
+=== Binding to Const Objects
+
+This solves the problem before where you could not bind non-const lvalue references to non-modifiable lvalues.
+
+The reason you couldn't do this is because if you were to bind a non-const lvalue ref to a non-modifiable lvalue, then you would be able to modify the non-modifiable lvalue through the reference, which obviously shouldn't be allowed.
+
+However, using a const lvalue allows you to access these non-modifiable lvalues without the risk of them being modified through the reference.
+
+For instance:
+[source,cpp]
+--
+const int x{5};
+
+int& ref1{ x };
+const int& ref2 { x };
+--
+
+Here we have our non-modifiable lvalue x, and we are making two references to it. The first reference will fail, as it is a non-const reference which means that it cannot be bound to a non-modifiable lvalue.
+
+However, the second reference, which is a const lvalue reference to a non-modifiable lvalue is allowed, since there is no risk of modifying a unmodifiable lvalue through a const reference.
+
+=== Const References Can Bind To Rvalues
+
+Another major difference is that const references can bind to lvalues.
+
+For instance:
+[source,cpp]
+--
+const int& ref{ 5 };
+--
+
+If this were a non-const lvalue ref, this would NOT be allowed, but since it is a const lvalue reference, it can bind to rvalues.
+
+A non-const lvalue reference CANNOT bind to an rvalue.
+
+But an lvalue reference to const can.
+
+That's exactly what was predicted earlier: *Since you can't modify the value through the const reference, C++ permits this binding*
+
+=== Temporary Lifetime Extention
+
+When a const reference binds to a temporary object, C++ *EXTENDS THE LIFETIME OF THE TEMP OBJECT TO MATCH THE LIFETIME OF THE REFERENCE*
+
+What does that mean? Well normmally temporary objects are destroyed quickly. For instance:
+
+[source,cpp]
+--
+3+5;
+--
+
+3, 5, and 8 are all destroyed relatively quickly. They aren't storied in an identifiable object for later.
+
+But C++ can't have:
+[source,cpp]
+--
+const int& ref{3 + 5};
+--
+
+Turn into a dangling reference. So the temporary int object containing 3+5 stays alive as long as ref needs it.
+
+=== Const References Can Bind to Different Types
+
+Lets go through an example of this so you can really understand why.
+
+[source,cpp]
+--
+double x{ 5.5 };
+const int& ref{ x };
+--
+
+Here is the process of the reference:
+
+. x is a double lvalue
+
+. Get its value
+
+. convert it from a double to an int
+
+. temporary int object containing 5 is the result
+
+. const int& binds to temporary object, which is an rvalue.
+
+If this was a normal reference, this would not work, since after the conversion from double to int, the non-const reference would reject binding to an rvalue.
+
+so:
+[source,cpp]
+--
+std::cout << ref; // 5
+--
+
+==== CRITICAL consequence
+
+ref does NOT reference x, it instead references the temporary int value converted from the double value that was stored IN x.
+
+Therefore they are now SEPARATE objects.
+
+=== Prefer matching reference types
+
+You generally shouldn't inentionally mismatch reference and referent types without a reason.
+
+=== Const references as function parameters
+
+Suppose we have:
+
+[source,cpp]
+--
+void printValue(const int& x)
+{
+    std::cout << x;
+}
+--
+
+Because const int& can bind to both lvalues and rvalues:
+
+[source,cpp]
+--
+int x{ 5 };
+
+printValue(x);     // ✅ lvalue
+printValue(5);     // ✅ rvalue
+printValue(x + 2); // ✅ rvalue
+--
+
+This makes const references extremely flexible.
+
+=== passing by const reference
+
+Compare:
+
+[source,cpp]
+--
+void print(std::string str); // pass by value
+--
+
+This can require copying the std::string. vs:
+
+[source,cpp]
+--
+void print(const std::string& str); // pass by const reference
+--
+Now the function can access the original string without copying it and without being allowed to modify it through str.
+
+You'll see the pattern:
+
+const T&
+
+everywhere in C++.
