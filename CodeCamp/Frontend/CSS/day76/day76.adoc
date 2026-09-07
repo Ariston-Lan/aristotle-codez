@@ -109,3 +109,339 @@ width = CONTENT
 
 border-box:
 width = CONTENT + PADDING + BORDER
+
+== What is Margin Collapsing and How Does It Work?
+
+=== Margin Collapsing
+
+Margin collapsing is a CSS behavior where vertical margins of certain block elements combine instead of simply adding together
+
+This mainly concerns top and bottom margins. Horizontal left/right margins do not collapse in the same way.
+
+=== What "collapsing" means
+
+Suppose two block elements are stacked vertically:
+[source,html]
+--
+<div class="first">First</div>
+<div class="second">Second</div>
+--
+
+[source,css]
+--
+.first {
+    margin-bottom: 30px;
+}
+
+.second {
+    margin-top: 20px;
+}
+--
+
+You might expect the space between them to be 30px + 20px = 50 px.
+
+But because those vertical margins can collapse, the browser isntead just uses the larger margin: 30px
+
+So the space between the elements is 30px, not 50px. The margins effectively overlap rather than occupying separate vertical spaces.
+
+=== Why CSS does this
+
+This behavior is useful for document style layouts
+
+Imagine paragraphs:
+[source,css]
+--
+p {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+--
+
+Without margin collapsing, two neighboring paragraphs would produce a 40px gap.
+
+With collapsing, the paragraphs only produce a 20px gap.
+
+So repeated block elemenets maintain consistent spacing rather than accidently doubling it.
+
+=== Parent and Child Margins can collapse too
+
+Margin collapsing isn't limited to sibling elements Under certain conditions, a child's vertical marginc an collapse with its parent's margin.
+
+For example:
+[source,html]
+--
+<div class="parent">
+    <p class="child">Hello</p>
+</div>
+--
+
+[source,css]
+--
+.child {
+    margin-top: 30px;
+}
+--
+
+You might expect the child's margin to create a 30px of empty space *inside the parent*
+
+But if nothing separates the parent's top edvge from the child, such as padding or a border, the child's top margin can collapse through the parent.
+
+This basically makes the parent move down with the child instead of the child distancing from the parent.
+
+Adding something that separates those boundaries such as padding or a top border can prevent that particular collapse
+
+=== Multiple Margins can collapse
+
+It's also possible for more than two vertical margins to participate in a collapse
+
+
+=== Margin vs Padding
+
+This is another reason margin and padding are fundamentally different, even though they both visually create space. 
+
+Margin creates space outside an element's border and may particiapte in margin collapsing
+
+While padding creates space inside the elements border and does not collapse with another elements padding.
+
+=== The Main Behvaior to understand
+
+For ordinary vertically adjacent block elements, don't automatically think their margins are addding up.
+
+== What is the difference between content-box and border-box?
+
+=== Why box-sizing exists
+When you give an element a width:
+[source,css]
+--
+.box {
+    width: 300px;
+}
+--
+
+CSS needs a rule for what exactly those 300 pixels describe.
+
+Does 300px mean: only the content area? or the entire visible box, including padding and border?
+
+This is *what box-sizing controls*
+
+=== content-box
+
+content-box is the default CSS behavior:
+[source,css]
+--
+.box {
+    box-sizing: content-box;
+    width: 300px;
+    padding: 20px;
+    border: 5px solid black;
+}
+--
+
+here, width: 300px means:
+
+Make the content area itself 300px wide.
+
+Padding and borders are then added *outside that specified content width*
+
+This is why an element can end up physically larger than the width you wrote in CSS
+
+The same principle applies vertically with height.
+
+=== border-box
+
+With:
+[source,css]
+--
+.box {
+    box-sizing: border-box;
+    width: 300px;
+    padding: 20px;
+    border: 5px solid black;
+}
+--
+
+300px now describes the element through its border
+
+or in other words
+
+border + padding + content + padding + border
+                 =
+               300px
+
+The browser has to make the content area smaller to leave room for the padding and border.
+
+=== What about Margin?
+
+Margin is not included by either box-sizing model.
+
+For example:
+[source,css]
+--
+.box {
+    box-sizing: border-box;
+    width: 300px;
+    margin: 20px;
+}
+--
+
+The box itself is still 300px wide, since margin exists outside the border, affecting the space between the box and surrounding content but not the content itself.
+
+=== Why border-box is often easier
+
+With border box you can be more exact with your width, whereas with content-box you would have to manually account for the box width in addition to things such as padding and the border.
+
+== What is a CSS Reset, and What are some common examples?
+
+=== CSS Resets
+
+Browsers come with their own default stylesheets, often called the user-agent sylesheet. This means HTML elements already have styling even if you have't written any CSS yourself.
+
+For example, browsers typically give headings different font sizes, paragraph margins, list indentation, and so on.
+
+So if you write some html without any CSS, the page isn't actually "unstyled", the browser is applying its own defaults.
+
+A CSS reset is CSS you apply near the beginning of your stylesheet to remove or standardize some of those browser defaulst, giving you a more predictable starting point
+
+=== A simple Reset
+
+A reset can be very small:
+[source,css]
+--
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+--
+
+But they can also be more comprehensive
+
+A real reset stylesheet may address many browser defaults beyond margin and padding.
+
+=== Reset vs Your Actual Styling
+
+The reset establishes the baseline
+
+Your normal CSS then builds the actual design on top of it.
+
+=== CSS Reset vs Normalize
+
+There's also a related appraoch called normalization
+
+A traditionalr eset tends to say:
+
+"remove browser defaults so I can establish my own"
+
+Whereas normalization is more conservative. It keeps useful browser defaults, butn makes some behavior more consistent where browsers differ.
+
+== What is the CSS Filter property, and what are common examples
+
+=== CSS filter Property
+
+The CSS filter property lets you apply visual effects to an element after it has been rendered. Instead of editing the underlying image or changing its actual colors, CSS changes *how the browser displayes the element*
+
+Its commonly used with images, but filters can affect other rendered elements too.
+
+The image itself hasn't changed, the browser is just displaying a blurred version of it.
+
+=== Filter functions
+
+The value of filer is usually one or more filter functions:
+[source,css]
+--
+.element {
+    filter: function(value);
+}
+--
+
+Different functions manipulate different aspects of the rendered appearance.
+
+==== blur()
+
+blur() applies a blur effect. The argument determines the blur radius, larger values create stronger blur.
+
+==== brightness()
+
+brightness() controls how bright or dark the element appaers:
+[source,css]
+--
+img {
+    filter: brightness(150%);
+}
+--
+
+100% is the original appearance, whereas 0% is completely dark and 150% is brighter.
+
+==== contrast()
+
+contrast() changes the difference between light and dark areas.
+[source,css]
+--
+img {
+    filter: contrast(150%);
+}
+--
+
+Functions the same way as brightness in terms of argument usage.
+
+==== grayscale()
+
+grayscale() removes color:
+[source,css]
+--
+img {
+    filter: grayscale(100%);
+}
+--
+
+0% is the original colors, and 100% is completely grayscale.
+
+==== sepia()
+
+[source,css]
+--
+img {
+    filter: sepia(100%);
+}
+--
+
+sepia() applies a sepia-toned appearance, where 0% is no effect and 100% is the full effect
+
+==== saturate()
+
+saturate() Controls the intensity of the colors, 0% is no saturation, 100% is the original, and 200% is MUCH more saturated.
+[source,css]
+--
+img {
+    filter: saturate(200%);
+}
+--
+
+==== invert()
+invert() inverts the colors:
+[source,css]
+--
+img {
+    filter: invert(100%);
+}
+--
+
+==== opacity()
+opacity() controls transparency:
+[source,css]
+--
+img {
+    filter: opacity(50%);
+}
+--
+
+=== Combining filters
+
+You can combine multiple filters at once by just adding a space ot whatever filter you want to add in the filter statement.
+
+=== Removing filters
+
+The default is:
+`filter: none;`
+
+So you can also use filters for interactions, in which after hovering your mouse over something the filter is suddenly none.
