@@ -1160,3 +1160,27 @@ As for the C++ project, it was supposed to teach me about type conversions, type
 # Day 73
 
 For today I just did C++ notes. I finished chapter 11 on learncpp which was about function templates and I also believe function
+
+# Day 74
+
+Today it was once again C++ notes. I learned the introduction to lvaleus vs rvalues, and how lvalues are things with an identity whereas rvalues are things that aren't lvalues, which I unnoficially dub as things that do not have a persistent identity/temporary values that you cannot recall through a variable for later.
+
+I also learned the surface on lvalue references, and const vs non-const lvalue references. Where const lvalue references is where you cant change the referand value through the lvalue reference and non-const lvalue reference is where you can
+
+# Day 75
+
+Okay so today I learned all about ptrs, references (moreso than I already knew) and how to return with ptrs and references, and how to incorporate references and ptrs in function parameters to reduce the cost of copying information from the argument object to the parameter object (since those are apparently separate)
+
+I will keep it short: ptrs point to a memory address. If you change the value AT that memory address, the pointer dosen't care, because it has the address to get to whatever value is there anyways.
+
+Each ptr points to a specific memory address, you can CHANGE the address you're pointing to AND you can change the VALUE at that address by dereferencing the ptr using the * symbol.
+
+There are const ptrs and ptrs to const values.
+
+Const ptrs are ptrs that are const, meaning after you assign what they are pointing to, you CANT change it. ptrs to const values are ptrs that point to values that CANNOT be altered through the pointer (assuming the value itself is non-const/modifiable.)
+
+And then you can use these in function parameters, usually its better to use a reference if you expect to be working with a real object but you can also use ptrs if the object may or may not exist (which is accounted for via nullptr)
+
+Moreover, you can RETURN ptrs and references. To keep it short, usually reference is returned if there is a guaranteed (for the most part) real object being worked on whereas ptr accounts for  a lack of on object (once again, via nullptr)
+
+And thats it for today regarding C++! I am gonn do my C block now.

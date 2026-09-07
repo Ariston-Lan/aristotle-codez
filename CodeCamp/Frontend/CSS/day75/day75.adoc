@@ -1,0 +1,168 @@
+= Working with CSS Transforms, Overflow, and Filters
+
+== What is Overflow in CSS?
+
+Overflow happens when content is too large to fit inside the dimensions of its container
+
+For instance:
+[source,css]
+--
+.box {
+    width: 200px;
+    height: 100px;
+}
+--
+
+If the content needs more than 100px of height, CSS needs to decide what ahppens to the extra content
+
+=== Overflow
+
+The overflow property controls how content that exceeds an element's boundaries is handled.
+
+[source,css]
+--
+.box {
+    overflow: visible;
+}
+--
+
+The main overflow values are:
+[source,css]
+--
+overflow: visible;
+overflow: hidden;
+overflow: scroll;
+overflow: auto;
+--
+
+- Visible: The default behavior. Overflowing content remains visible outside the container
+
+- hidden: content extending beyond the container is clipped/hidden. No scrollbar is provided to access the hidden portion
+
+- scroll: overflowing content can be accessed by scrolling. Scrollbrars are provided even when they may not actually be needed
+
+- auto: browser determines whether scrolling is necessary. Typically adds scrollbars only when the content actually overflows. Usually preferable to scroll when you want scrolling when necessary.
+
+==== Controlling each direction
+
+Overflow can also be controlled separately for the horizontal and vertical axes:
+
+overflow-x: auto;
+overflow-y: hidden;
+
+=== Core Idea
+
+Content fits container
+        ↓
+No overflow problem
+
+Content exceeds container
+        ↓
+overflow determines what happens
+
+And remember:
+
+visible /* let it spill out */
+hidden  /* clip it */
+scroll  /* make it scrollable */
+auto    /* scroll when necessary */
+
+== What is the CSS transform Property?
+
+The transform property lets you visually transform an element without changing the normla document layout around it
+
+Example:
+[source,css]
+--
+.box {
+    transform: rotate(45deg);
+}
+--
+
+=== Common transform functions
+
+==== translate() - moves an element
+
+[source,css]
+--
+.box {
+    transform: translate(50px, 20px);
+}
+--
+
+The first value movies it horizontally, the second moves it vertically.
+
+You can also control them individually:
+[source,css]
+--
+.box {
+    transform: translateX(50px);
+    transform: translateY(20px);
+}
+--
+
+==== scale() - changes apparent size
+
+[source,css]
+--
+.box {
+    transform: scale(1.5);
+}
+--
+
+This scales the current size by 1.5 bigger
+
+You can also scale each axis:
+[source,css]
+--
+.box {
+    transform: scaleX(2);
+    transform: scaleY(0.5);
+}
+--
+
+==== rotate() - rotates an element
+
+[source,css]
+--
+.box {
+    transform: rotate(45deg);
+}
+--
+
+Rotation is commonly specified using degrees (deg)
+
+Positive values rotate clockwise, negative values rotate counterclockwise.
+
+==== skew() - slants an element
+
+[source,css]
+--
+.box {
+    transform: skew(20deg);
+}
+--
+
+You can also slant each axis independently
+
+=== Combining transformations
+
+Multiple transformations can be applied in one transform declaration:
+[source,css]
+--
+.box {
+    transform: translateX(50px) rotate(45deg) scale(1.2);
+}
+--
+
+Order matters. Transform functions are applied in sequence, so changing their order can change the final result.
+
+=== transform-origin
+By default, transformations such as rotation occur around the element's center. Transform-origin changes the origin point:
+[source,css]
+--
+.box {
+    transform-origin: top left;
+    transform: rotate(45deg);
+}
+--

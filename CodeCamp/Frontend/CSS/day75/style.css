@@ -1,0 +1,36 @@
+body {
+    background-color: rgb(32, 32, 32);
+    color: rgb(179, 209, 209);
+}
+
+.example-title {
+    text-align: center;
+}
+
+#page-title {
+    color:rgb(161, 253, 253);
+    font-weight: bold;
+    text-align: center;
+}
+
+#box1 {
+    border: solid 2px white;
+    display: inline-block;
+    margin-left: 50%;
+    margin-right: 50%;
+    padding: 30px;
+    transform: translateX(50px) rotate(45deg) skew(20deg) scale(1.3);
+    overflow: auto;
+    max-width: 100px;
+    max-height: 100px;
+}
+
+#text-in-box1 {
+    color: red;
+    font-size: 70px;
+}
+
+.line {
+    border: 3px dashed azure;
+    margin: 100px;
+}
