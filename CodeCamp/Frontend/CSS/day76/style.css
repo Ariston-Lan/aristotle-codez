@@ -26,3 +26,27 @@ body {
     transform: rotate(45deg);
     translate: 50px;
 }
+
+#box2 {
+    box-sizing: border-box;
+    text-align: center;
+    border: 3px solid black;
+    width: 100px;
+}
+
+#box3 {
+    width: 50px;
+    box-sizing: border-box;
+    text-align: center;
+    border: 3px solid blue;
+}
+
+section {
+    border: 2px solid teal;
+    padding: 20px;
+    margin: 10px;
+}
+
+.container {
+    display: flex;
+}
