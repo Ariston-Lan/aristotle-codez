@@ -4,13 +4,6 @@
 #include <string>
 #include <optional>
 
-std::string checkingName {"Checking"};
-std::string savingsName {"Savings"};
-
-double checkingBalance {500.0};
-double savingsBalance {1000.0};
-
-double* activeBalance{nullptr};
 
 double& getBalance(int choice, double& checking, double& savings);
 

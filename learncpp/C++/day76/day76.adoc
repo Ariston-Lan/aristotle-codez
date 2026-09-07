@@ -1,0 +1,742 @@
+= Chapter 12; Compund Types; References and Pointers
+
+== 12.13 In and Out Parameters
+
+=== In parameters
+
+Most parameters exist simply to recieve information from the caller. These are called *in parameters*
+
+For example:
+[source,cpp]
+--
+void print(int x)
+{
+    std::cout << x;
+}
+
+void print(const std::string& str)
+{
+    std::cout << str;
+}
+--
+
+In parameters are typically passed either by value for cheap to copy types or by const reference for expensive to copy types.
+
+THe function receives the information through the parameter but isn't using that parameter to send information back to the caller.
+
+=== Out parameters
+
+A non-const reference or pointer-to-non-const allows a function to modify an object belonging to the caller
+
+This can be used to send ifnormation *out of the function* through a parameter. Such a parameter is called an *out parameter*
+
+[source,cpp]
+--
+void getValues(int& xOut, int& yOut)
+{
+    xOut = 5;
+    yOut = 10;
+}
+
+int x{};
+int y{};
+
+getValues(x, y);
+--
+
+This function alters the actual caller arguments, by assigning values to them through non-const references.
+
+because xOut and yOut are references to x and y, the assignments through those references modify the caller's actual objects
+
+So the function effectively produced *two outputs* without using its return value.
+
+Conceptually:
+
+IN:
+caller → parameter → function
+
+OUT:
+function → reference/pointer parameter → caller's object
+
+Out parameters are conventionally placed toward the *right side of the parameter list*, and names such as xOut can make their purpose clearer.
+
+=== Why parameters can be akward
+
+Lets look at an oridnary return-by-value:
+
+[source,cpp]
+--
+int getValue()
+{
+    return 5;
+}
+
+int x{ getValue() };
+--
+
+This simply gets the value 5, and so we use that to assign x the value of 5.
+
+With an out parameter:
+[source,cpp]
+--
+void getValue(int& xOut)
+{
+    xOut = 5;
+}
+
+int x{};
+getValue(x);
+--
+
+Here with the out parameter, we require the caller to first create the modifiable object, THEN pass that object to the function, and let the function overwrite it, and then finally we can use it.
+
+A normal return value is usually more natural because it can immediately be used:
+[source,cpp]
+--
+std::cout << getValue();
+--
+
+An out parameter can't be used that way because the result is being written into a caller-provided object.
+
+=== Reference out parameters aren't obvious at the call site
+
+For instance:
+[source,cpp]
+--
+void getValues(int input, int& xOut, int& yOut);
+
+getValues(value, x, y)
+--
+Just from the line getValues(value, x, y) it isn't obvious that value is the only input, while x and y are going to be modified.
+
+That's one downside of non-const reference parameters: the call syntax dosen't visually indicate modification.
+
+=== Pointer out parameters can make modification more visible
+
+You could instead use:
+[source,cpp]
+--
+void foo(int* ptr);
+
+foo(&x);
+--
+
+This stores the memory address if x inside of the ptr parameter in the function. Seeing &x can signal that the function is being given access to x through its address and can modify it.
+
+However, you should generally just avoid out parameters, you shouldn't switch to a pointer just to make modification more visible. Avoid them unless there isn't a better option. For a non-optional out parameter, prefer a reference over a pointer.
+
+=== In-out parameters
+
+An in-out parameter is both:
+
+1. read by the function as input
+2. modified so the updated value is available to the caller
+
+For instance:
+[source,cpp]
+--
+void addOne(int& value)
+{
+    ++value;
+}
+--
+
+Here value isn't merely being overwritten with some unrelated result.
+
+Its existing value matters, as we are adding one to the already existing value so we NEED to know the value passed as an argument. So this is an in parameter by that logic. However, we are also MODIFYING the argument passed by the caller, effectively making this both an in and an out parameter.
+
+So conceptually:
+existing value → function reads it → function modifies it → new value
+
+=== When should you use non-const references?
+
+If you're only using a reference to avoid copying:
+[source,cpp]
+--
+void foo(const std::string& str);
+--
+You should generally use a const reference.
+
+There are two primary situations for non-const references which we are going to go over.
+
+==== 1. The parameter is genuienly in-out
+For instance:
+[source,cpp]
+--
+void modifyFoo(Foo& foo)
+{
+    //use existing foo
+    // modify foo
+}
+--
+You're intentionally modifying an object that caller already owns. A descriptive function name can help communicate this (such as modifyFoo).
+
+==== 2. Producing the object by value would be extremely expensive
+
+Sometimes a function may need to produce or fill a very expensive-to-copy object.
+
+instead of:
+[source,cpp]
+--
+Foo generateFoo()
+{
+    Foo foo{};
+    //fill foo
+    return foo;
+}
+--
+
+It may take an existing object:
+[source,cpp]
+--
+void generateFoo(Foo& out)
+{
+    //fill out
+}
+--
+
+Learncpp notes that a common advanced case involves filling large arrays containing expensive to copy elements, but also emphasizes that objects are RARELY EXPENSIVE ENOUGH to justify unconventional ouptut techniques purely for this reaason.
+
+== 12.14 Type deduction with pointers, references, and const
+
+=== Recall: basic auto
+
+auto deduces a variable's type from its initializer:
+[source,cpp]
+--
+int x{ 5 };
+auto y{ x }; // y is int
+--
+
+By default, type deducation drops top-level const:
+[source,cpp]
+--
+const double x{ 7.8 };
+auto y{ x }; // double, NOT const double
+--
+
+If you wanted the deduced object to be const, you'd have to explicitly reapply it:
+[source,cpp]
+--
+const auto y{ x }; // const double
+--
+
+
+=== Type deduction DROPS REFERENCES
+
+Suppose a function returns a reference:
+[source,cpp]
+--
+std::string& getRef();
+auto x{ getRef() };
+--
+
+Even though get ref returns a string reference, auto drops the reference, and so x would be initialized with the value getRef is referencing and not the reference itself.
+
+X becomes its own std::string object, rather than another reference.
+
+If you want to preserve/reference the original object, you'd have to do:
+
+[source,cpp]
+--
+auto& x{ getRef() };
+// x is std::string&
+--
+
+=== Top-level vs low-level const
+
+==== Top-level const
+
+Top-level const applies to the object itself
+
+[source,cpp]
+--
+const int x;
+--
+
+x itself is cont
+
+For a pointer:
+[source,cpp]
+--
+int* const ptr;
+--
+
+The pointer itself is const
+
+==== Low-level const
+
+Low-level const applies to an object being accessed indirectly through a reference or pointer.
+[source,cpp]
+--
+const int& ref;
+const int* ptr;
+--
+
+Both of these are saying "I point to the object, but you cannot change the object THROUGH me"
+
+Here, the int being referenced/pointed to is treated as a const even if the actual int being referenced/pointed to is NOT a const.
+
+For pointers, you can have both:
+[source,cpp]
+--
+const int* const ptr;
+--
+
+This is a const ptr pointing to a const int
+
+So conceptually:
+
+TOP-LEVEL CONST
+→ this object itself is const
+
+LOW-LEVEL CONST
+→ object accessed through reference/pointer is const
+
+=== The important deduction rules (for auto)
+
+When using auto:
+
+1. References are DROPPED unless you explicitly use auto&
+
+2. Top-level const is dropped unless you explicitly reapply it
+
+3. Low-level const is NOT dropped
+
+4. constexpr is never deduced and must be explicitly specified
+
+5. Pointers are NOT DROPPED
+
+=== Type deduction with const references
+
+Suppose you have:
+[source,cpp]
+--
+const std::string& getConstRef();
+
+// Then you do:
+
+auto x{ getConstRef() };
+--
+
+Here we are creating a const reference that is which is referencing a std::string object. Us making it a const reference means that the referand cannot be modified through the reference.
+
+So the auto would first start from const std::string&, and then the reference would be dropped. Once the reference disappears, that const is now top-level. 
+
+Top-level const is also dropped.
+
+Therefore if you were to do auto, your const reference would just turn into a normal object, in this case, x would be initialized to hold the value of a normal string.
+
+Remember: *Dropping a reference can turn low-level const into top-level const, which can then be dropped*
+
+=== Reapplying reference and const
+
+Lets say you are given:
+[source,cpp]
+--
+const std::string& getConstRef();
+--
+
+This is a const reference to a std::string object.
+
+Let's compare some uses of auto:
+[source,cpp]
+--
+auto a{ getConstRef() };
+// std::string
+
+const auto b{ getConstRef() };
+// const std::string
+
+auto& c{ getConstRef() };
+// const std::string&
+
+const auto& d{ getConstRef() };
+// const std::string&
+--
+
+Notice how for c, reapplying the reference keeps the const as low-level const, so it isn't dropped.
+
+Even though both c and d end up as const std::string& (a const string reference), learnCpp reccomends writing the const to make it explicit. 
+
+=== Type deduction with pointers
+
+Pointers are NOT dropped by auto:
+[source,cpp]
+--
+std::string* getPtr();
+
+auto ptr{ getPtr() };
+
+// ptr becomes std::string* 
+--
+
+Because the pointer is preserved.
+
+This is because a reference expression behaves as the object it referes to, whereas evaluating a pointer gives you the pointer/address itself, since a pointer is an object.
+
+=== auto vs auto*
+
+Both can deduce a pointer:
+[source,cpp]
+--
+std::string* getPtr();
+
+auto ptr1{ getPtr() };  // std::string*
+auto* ptr2{ getPtr() }; // std::string*
+--
+
+They arrive slightly differently however:
+auto
+→ deduces std::string*
+
+auto*
+→ auto deduces std::string
+→ * is explicitly reapplied
+→ std::string*
+
+Both prdouce a std::string* here, however, using auto* *forces the initializer to actually BE a pointer*
+
+Think about it, you can't explicitly reapply a * to something that is NOT a pointer.
+
+Example:
+[source,cpp]
+--
+auto x{ *getPtr() };   // okay: std::string
+
+auto* y{ *getPtr() };  // ERROR
+--
+
+Here *getPtr() dereferences the pointer and produces the std::string object, which isn't a pointer anymore.
+
+=== auto + const pointers
+
+Lets say you have:
+[source,cpp]
+--
+std::string* getPtr();
+--
+
+And you want a const ptr FROM getPtr, so you do:
+[source,cpp]
+--
+const auto ptr{ getPtr() };
+--
+
+This becomes `std::string* const` ( a const ptr).
+
+Since auto ptr already evaluates to std::string*, slapping on a const there makes the pointer itself const, it does NOT however make the ptr point to a const object.
+
+==== Pointer to const
+
+With auto*, you can put the const before it:
+
+[source,cpp]
+--
+const auto* ptr{ getPtr() };
+--
+
+which becomes `const std::string*`
+
+a pointer to a const strng.
+
+==== Const pointer
+
+whereas if you wanted the const pointer, you'd do:
+[source,cpp]
+--
+auto* const ptr{ getPtr() };
+--
+
+this would become std::string* const
+
+a const pointer to a string object.
+
+==== If the initializer is already a const pointer to const
+
+Suppose:
+[source,cpp]
+--
+const std::string* const ptr{ &str };
+--
+
+This is a const ptr pointing at a const object (which in this case is the memory address of a string).
+
+So this pointer cannot change what it is pointing to nor can it change the value at the address it is pointing to.
+
+Then we do:
+[source,cpp]
+--
+auto x{ ptr };
+--
+
+This DROPS the top-level const but preserves the low level const. In terms of the ptr, the top-level const is the const applied to the ptr itself, so the ptr is no longer const, but it is still POINTING towards a const object.
+
+So you would get:
+`const std::string*`
+
+So the pointer copy can be reseated, but it still can't modify the string through the pointer.
+
+Remember: *auto drops top-level const, not low-level const*
+
+== 12.15 - std::optional
+
+=== The problem: sometimes a function has no value to return
+
+Normally, a functiomn returning a value is expected to produce one:
+
+But sometimes a function might not be able to produce a valid result.
+
+For example, imagine searching for something, and you can't find it. We need some way to represent I have a value OR I dont have a value. That's what std::optional does.
+
+=== std::optional
+
+std::optional<T> represents an object that may or may not contain a value of type T.
+
+It is available from:
+[source,cpp]
+--
+#include <optional>
+--
+
+For example:
+[source,cpp]
+--
+std::optional<int> getValue()
+{
+    return 5;
+}
+--
+
+Here std::optional is saying that this function may or may not return an int value.
+
+Technically, the function dosen't return an int. It returns an std::optional<int> which may or may not contain int.
+
+=== Returning no value with std::nullopt
+
+If the function has no value to return, we can return:
+`std::nullopt`
+
+Example:
+[source,cpp]
+--
+std::optional<int> divide(int x, int y)
+{
+    if (y==0)
+        return std::nullopt;
+    
+    return x/y;
+}
+--
+
+Now if someone tries to divide by 0, we return an empty optional<int> object
+
+THis gives us an explicit way to represent failure/no result without inventing some fake value.
+
+=== Why not use a special return value
+
+Technically speaking, you could so something like this:
+[source,cpp]
+--
+{
+    //...
+
+    return -1; // this means failure
+}
+--
+
+This is called using a sentinel value.
+
+The problem is that sometimes every possible value is valid.
+
+Suppose:
+`int getTemperature();`
+
+If you use -1, it could mean failure, but it could also be a perfectly valid temperature.
+
+std::optional separates those concepts. So now instead of using a sentinel value, there will always be an explicit value that means the lack of a value found.
+
+=== Checking whether an optional contains a value
+
+a std::optional can be used in a conditional.
+[source,cpp]
+--
+std::optional<int> result{ divide(10, 2) };
+
+if (result)
+{
+    // result contains a value
+}
+else
+{
+    // result is empty
+}
+--
+
+An optional converts to a Boolean condition based on whether it contains a value:
+
+if optional has a value, it is true. If it is empty, it equates to false.
+
+This checks whether the optional *contains a value*, NOT whether the value itself is truthy. This is important, because it means that you can have a falsy value within your std::optional, and it would still return true. Because it is checking if it contains a value, and not the validity of the value itself.
+
+=== Accessing the contained value
+
+Once you've established that the optional contains something, you can access the value with *.
+
+[source,cpp]
+--
+std::optional<int> result{ divide(10, 2) };
+
+if (result)
+{
+    std::cout << *result;
+}
+--
+
+Here we are accessing the value inside result by using the asterisk. It has similay syntax to dereferencing a pointer, but remember, this is NOt a pointer. It simply provides the similar syntax so that the accessing of the value feels familiar.
+
+=== value()
+
+You can also retrive the contained value using:
+[source,cpp]
+--
+result.value()
+--
+
+For example:
+[source,cpp]
+--
+if (result)
+{
+    std::cout << result.value();
+}
+--
+
+There is an important difference between the two when result is empty however.
+
+Accessing an empty optional with .value() throws an expection.
+
+Dereferencing an empty optional results in undefined behavior.
+
+So either way, just check if the value exists before doing anything.
+
+=== has_value()
+Instead of:
+[source,cpp]
+--
+if(result)
+--
+
+You can do
+[source,cpp]
+--
+if(result.has_value())
+--
+
+Both determine whether the optional contains a value.
+
+The first is shorter but the second can make the intention more explicit
+
+=== A complete example
+[source,cpp]
+--
+#include <iostream>
+#include <optional>
+
+std::optional<int> divide(int x, int y)
+{
+    if (y == 0)
+        return std::nullopt;
+
+    return x / y;
+}
+
+int main()
+{
+    std::optional<int> result{ divide(10, 2) };
+
+    if (result)
+        std::cout << "Result: " << *result << '\n';
+    else
+        std::cout << "Could not divide\n";
+
+    return 0;
+}
+--
+
+=== Returning std::optional
+
+One particularly useful place for std::optional is when a function may legitmately fail to produce a result
+
+=== std::optional as a function parameter
+
+An optional can also be used as a parameter when an argument itself is optional:
+
+[source,cpp]
+--
+void printID(std::optional<int> id)
+{
+    if (id)
+        std::cout << "ID: " << *id;
+    else
+        std::cout << "No ID";
+}
+--
+
+Now the function accounts for both having an ID and not having an ID.
+
+=== std::optional vs pointers
+
+A pointer can already represent nullptr, so WHY have a std::optional?
+
+Becuase they represent different ideas.
+
+A pointer generally represents:
+*Where is some existing object?*
+
+It may point to an existing object, or it may be nullptr.
+
+An optional generally represents:
+*Does my value even exist? Do I HAVE a value?*
+
+Pointers also point to a memory address, whereas for std::optional, the value is stored within the optional itself.
+
+=== std::optional vs out parameters
+
+Suppose we wanted a function that might fail.
+
+Without optional you might see something like:
+[source,cpp]
+--
+bool getValue(int& value)
+{
+    if (/* failure */)
+        return false;
+
+    value = 5;
+    return true;
+}
+--
+
+here we are returning a vool, where if we get the value, it returns true, but if it fails, it returns false.
+
+Now the function communicates through two different things:
+
+return value → did it succeed?
+
+out parameter → actual result
+
+With std::optional:
+[source,cpp]
+--
+std::optional<int> getValue()
+{
+    if (/* failure */)
+        return std::nullopt;
+
+    return 5;
+}
+--
+
+Now one return object represents BOTH possibilites, the aspect of success alongside the result or nothing at all.
+
