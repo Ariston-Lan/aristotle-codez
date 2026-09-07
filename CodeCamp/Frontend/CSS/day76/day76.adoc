@@ -1,0 +1,111 @@
+= Working with CSS Transforms, Overflow, and Filters
+
+== What is the CSS Box Model, and How Does It Work?
+
+=== CSS Box Model
+
+Every HTML element is treated as a rectangular box made of four layers:
+
+┌────────────── MARGIN ──────────────┐
+│  ┌─────────── BORDER ────────────┐ │
+│  │  ┌──────── PADDING ─────────┐ │ │
+│  │  │                          │ │ │
+│  │  │         CONTENT          │ │ │
+│  │  │                          │ │ │
+│  │  └──────────────────────────┘ │ │
+│  └────────────────────────────────┘ │
+└─────────────────────────────────────┘
+
+==== 1. Content
+
+The actual content of the element: text, images, etc.
+
+By default, width and height control the size of the content box.
+
+[source,css]
+--
+div {
+    width: 200px;
+    height: 100px;
+}
+--
+
+==== 2. Padding
+
+This is the space between the content and the border
+
+[source,css]
+--
+div {
+    padding: 20px;
+}
+--
+
+Padding is inside the border and increases the element's visible size under the default box model.
+
+==== 3. Border
+
+Surrounds the content + padding
+[source,css]
+--
+div {
+    border: 5px solid black;
+}
+--
+
+==== 4. Margin
+
+Space outside the border, separating the element from other elements
+
+[source,css]
+--
+div {
+    margin: 20px;
+}
+--
+
+
+=== Actual size
+
+With the default:
+[source,css]
+--
+box-sizing: content-box;
+--
+
+If you write
+[source,css]
+--
+div {
+    width: 200px;
+    padding: 20px;
+    border: 5px solid;
+}
+--
+
+Then the total width is 200 for the content, 40 for the padding (both left and right) and 10 for the border (both left and right).
+
+Margin affects the space the element occupies relative to surrounding elements but isn't part of the box itself.
+
+==== box-sizing: border-box
+
+This changes what width and height mean:
+[source,css]
+--
+div {
+    box-sizing: border-box;
+    width: 200px;
+    padding: 20px;
+    border: 5px solid;
+}
+--
+
+Now the entire content + padding + border fits inside the 200px width.
+
+Think like this:
+
+content-box:
+width = CONTENT
+
+border-box:
+width = CONTENT + PADDING + BORDER

@@ -1,0 +1,28 @@
+body {
+    background-color: darkslategray;
+    color: violet;
+}
+
+#page-title {
+    text-align: center;
+    color: darkviolet;
+    font-weight: bolder;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-style: italic;
+}
+
+#box1 {
+    box-sizing: content-box;
+    text-align: center;
+    margin: 20px;
+    padding: 20px;
+    border: 3px solid white;
+    width: 20px;
+    filter: sepia(50%) saturate(200%)
+}
+
+#box1:hover {
+    filter: brightness(20000%);
+    transform: rotate(45deg);
+    translate: 50px;
+}
