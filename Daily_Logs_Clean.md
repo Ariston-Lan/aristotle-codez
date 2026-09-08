@@ -1183,4 +1183,33 @@ And then you can use these in function parameters, usually its better to use a r
 
 Moreover, you can RETURN ptrs and references. To keep it short, usually reference is returned if there is a guaranteed (for the most part) real object being worked on whereas ptr accounts for  a lack of on object (once again, via nullptr)
 
-And thats it for today regarding C++! I am gonn do my C block now.
+And thats it for today regarding C++! I am gonn do my CSS block now.
+
+For CSS I just learned about overflow, which is when the content extends the barrier of your container, and the different ways to deal with overflow.
+
+
+# Day 76
+
+Today I finished off chapter 12. It ended off with letting me know how to use references and ptrs with auto, and that auto drops references but not ptrs, and just general the syntax of referencing a ptr and using ptrs and references in parameters. The biggest thing was that you can reference a ptr so that you can actually change what its pointing to instead of just using the ptr to change the value at the address the ptr is pointing to.
+
+Sounds like a lot of mumbo jumbo but its useful to know.
+
+Oh I also learned about std::optional which is apparently used everywhere. It is a type for a function in which it states that the value for whichever value type you decide may or may not exist. The type itself is a container, and so when you check if the container is empty or not it dosent matter what value is inside, even the falsy value zero, if something is in it itll return true and if not, itll return false. And then you dereference the std::optional to get ur value inside
+
+Then I did CSS, and learned about filters (which change how an image is displayed, or any content is displayed, but the content itself stays the same, just changed how the browsers displays said content) and then I also learned about the box model and flexbox, and how to use that very briefly to manipulate things such as the box model and the formatting of content on a page
+
+So yea very good day 76
+
+# Day 77
+
+Day 77, JUST did C++ But I did 5 units of chapter 13 and built TWO programs
+
+The general gist of these units were talking about enums, how to use enums, and how to also use output/input streams WITH enums
+
+See enums are a type of progammer-defined data. I dont know if thats the official name but I do know that only the programmer that INPUTS that data KNOWS what it means, C++ dosent know and the compiler dosen't either.
+
+So when we make enums, its very useful when we are using them to be explicit in the data we want to use, but when we eventually maybe want to input something to an enum using std::cin or output something thats an enum using std::cout, it gets more complicated. That's why we can overload the input and ouput functions, which is telling the compiler HOW to deal with our enum data types when they are inputted or outputted. And yea thats basically it.
+
+I would love to explain the programs, but I don't really feel like it right now since its so late at night. I will just say they BOTH use enums, the first one interprets a users choice as an int and then uses that input in a switch to choose a matching enum, or returns a fail enum value if there is no matching case
+
+The second program is a simple enum system that literally PRINTS a value as a string from an enum, and inputs a value thats a string and translates that into an enum. That is it. Okay bye!!!!
