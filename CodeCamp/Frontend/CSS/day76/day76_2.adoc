@@ -2,4 +2,110 @@
 
 == What is CSS Flexbox, and When Should You Use It?
 
-===
+=== CSS Flexbox
+
+Flexbox (Flexible Box Layout) is a CSS layout system designed to arragne elements in one dimension at atime - either horizontally or vertically.
+
+Before tools like flexbox, devs often had to use things like floats, positioning, and akward margin calculations to create layouts. Flexbox gives the browser explicit rules for how a group of elements should be *arranged, aligned, spaced, and resized* inside a container.
+
+=== Creating a Flex Container
+
+Flexbox begins with a parent child relationship:
+[source,html]
+--
+<div class="container">
+    <div>One</div>
+    <div>Two</div>
+    <div>Three</div>
+</div>
+--
+
+By default, these <civ> elements are block elements, so normally, they would stack vertically.
+
+But:
+[source,css]
+--
+.container {
+    display: flex;
+}
+--
+
+This turns the container into a flex container, so now its direct children become flex items.
+
+container → flex container
+
+├── One   → flex item
+├── Two   → flex item
+└── Three → flex item
+
+This distinction matters because most Flexbox properties either control the container, or control individual items.
+
+=== What display: felx Changes
+
+The default direction of a flex container is a row. So now the divs aren't stacked horiziontally, but instead are showcased as:
+"OneTwoThree".
+
+Flexbox has changed how the parent's children participate in layout
+
+It dosen't mean the entire webpage suddenly uses flexbox. The layout relationship applies to the *direct children of that flex containter*
+
+That means if you have a child within a child, then THAT child won't be a flex item, only the DIRECT DESCENDANT of the parent would be. So grandchildren don't count.
+
+=== Main Axis and Cross Axis
+
+One of the most important flexbox ideas is that layout is described using axes
+
+There is a main axis and a cross axis.
+
+The main axis is the direction in which flex items are primarily laid out.
+
+With the default being:
+[source,css]
+--
+flex-direction: row;
+--
+
+The main axis runs horizontally. So horizontal arrangement happens along the main axis, while vertical alignment happens along the cross axis.
+
+But these axes are *not permanently horizontal and vertical*
+
+If you later use:
+`flex-direction: column;`
+
+The main axis changes, now it is vertical and the cross axis is horizontal.
+
+That's a huge flexbox mental model: main/cross are relative to flex-direction.
+
+=== Why Flexbox is "flexible"
+
+Flexbox isn't just a way of putting things next ot each other. The browser can also distribute avaliable space among the items.
+
+If you have a box with unused space inside the parent, flexbox gives you tools for deciding:
+
+. where the items should sit
+. how the extra space should be distributed
+. how items should align
+. whether items should grow
+. whether they should shrink when space becomes limited
+. whether they should remain on one line or wrap onto another
+
+That's why its a layout system, rather than simply a property for making things horizontal.
+
+=== Flex Container vs Flex items
+
+Some properties belong on the *container* because they describe how the group should be laid out. For instance:
+[source,css]
+--
+.container {
+    display: flex;
+    flex-direction: row;
+}
+--
+
+While other properties can be placed on individual flex items because they describe how that particular item behaves inside the flex layout.
+
+=== Flexbox is One Dimensional
+
+Flexbox is described as a one-dimensional layout system because its primary layout logic operates along one axis at a time.
+
+You can choose a main direction, either row or column, and flexbox roganizes the items around that main axis while giving you control over alignment on the perpendicular cross axis.

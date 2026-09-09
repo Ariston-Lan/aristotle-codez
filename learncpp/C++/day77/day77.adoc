@@ -1,1 +1,1036 @@
+= Compound Types: Enums and Strucs
 
+== 13.1 Introduction to program-defined (user-defined) types
+
+=== Built in types vs types we define
+
+So far, C++ already knew what the types we used meant:
+[source,cpp]
+--
+int x;
+double d;
+
+int* ptr;
+int& ref { x };
+--
+
+Here int is of type int, double is of type double, ptr is an int ptr, and reference is an int reference.
+
+Fundamental types such as int and double, along with compound types like pointers and references, are already understood by the language. But sometimes the type we actually want to model *dosen't exist in C++.*
+
+For example: a fraction logicailly consists of two related values, a numerator and a denominator.
+
+Instead of permanetely treating these as two unrelated ints, C++ lets us *create a new type representing the concept of itself.*
+
+=== Program defined types
+
+A program-defined type is a customt ype defined by us (or a third party library) rather than by the core language, standard library, or implentation.
+
+C++ provides two categories of compound types for creating them:
+
+. Enumerated types: scoped and unscoped enums
+. Class types: structs, classes, and unions
+
+=== Type definition
+
+Before using a program-defined type, the compiler needs to know what that type is
+
+[source,cpp]
+--
+struct Fraction
+{
+    int numerator {};
+    int denominator {};
+};
+--
+
+This is a type definition.
+
+Important distinction:
+[source,cpp]
+--
+struct Fraction { ... };  // defines a TYPE
+
+Fraction f { 3, 4 };      // creates an OBJECT of that type
+--
+
+
+Defining fraction does not create a fraction object or allocate memory for one. it teaches the compiler what objects of type fraction will look like.
+
+Then actually doing Fraction f {3, 4}; makes the object f of type fraction.
+
+==== Important syntax rule
+
+Progarm-defined type definitions end with a semicolon.
+
+
+=== Naming convention
+
+program-defined type names conventionally begin with a capital letter and have no suffix:
+[source,cpp]
+--
+Fraction     // preferred
+fraction     // no
+fraction_t   // no
+Fraction_t   // no
+--
+
+=== Program-defined types in multiple files
+
+*EVERY .cpp file that uses a program defined type generally needs to see its full definition BEFORE using it*
+
+So if Fraction is needed by multiple files, put its definition in a header:
+[source,cpp]
+--
+// Fraction.h
+
+#ifndef FRACTION_H
+#define FRACTION_H
+
+struct Fraction
+{
+    int numerator {};
+    int denominator {};
+};
+
+#endif
+--
+
+Then:
+
+[source,cpp]
+--
+#include "Fraction.h"
+
+int main()
+{
+    Fraction f { 3, 4 };
+}
+--
+
+=== Program-defined types and the ODR
+
+Remember the One Definition Rule?
+
+Normally we cant define the same function/global variable multiple times throughout a program
+
+Types get a partial exemption because their definitions need to appaer in every translation unit that uses them.
+
+However:
+. A type can only have *one definition perm code file*
+
+. If the type is defined across multiple code files, *every definition must be identical*
+
+=== Terminology: user-defined vs program-defiend
+
+==== User defined type
+
+In the C++ standard, this broadly means a class or enumeraated type, including ones defined by either you, the standard library or the implentation.
+
+So std::string is technically a user-defined type in standard terminology, despite the fact you didnt define std::string.
+
+==== Program-defined type
+
+This more specifically means class/enumerated types that aren't defined by the standard library, implentation, or core language.
+
+So things that you made yourself or got through some third party source.
+
+== 13.2 Unscoped Enumerations
+
+=== Why enums exist
+
+Say we need to represent a color. We could do this:
+[source,cpp]
+--
+constexpr int red{ 0 };
+constexpr int green{ 1 };
+constexpr int blue{ 2 };
+
+int appleColor{ red };
+--
+
+Better than magic numbers, but appleColor is still just an int. Nothing prevents us from storing a number that isnt a color inside of appleColor. A type alias dosen't really fix that issue either.
+
+An enumeration (enum) solves this by creating a distinct program-defined type with a set of named values.
+=
+=== Unscoped enumerations
+
+An unscoped enumeration is defined using enum:
+[source,cpp]
+--
+enum Color
+{
+    red,
+    green,
+    blue,
+};
+--
+
+Here:
+. Color = the enumeratred type/enumeration
+. red, green, blue = enumerators
+. Each enumerator represents one named value of Color.
+
+So if we did:
+[source,cpp]
+--
+Color apple{ red };
+Color shirt{ green };
+--
+
+Each variable would have the type color, not int. And you wouldn't be able to store a random int inside of an object of type color, since type color is not the same as type int.
+
+So the type itself now communicates and restricts what kind of value the object represents.
+
+=== Syntax
+[source,cpp]
+--
+enum TypeName
+{
+    value1,
+    value2,
+    value3,
+};
+--
+
+Important:
+1. Enumerators are separated by commas, not semicolons.
+
+2. Trailing comma is optional but reccomended
+
+3. The entire enum def ends with a semicolon
+
+4. Enumerators are implicitly constexpr
+
+=== Enums are distinct types
+
+If we did an alias:
+[source,cpp]
+--
+using Color = int;
+--
+
+This does NOT create a new type, rather, it creates an alias for an already exisitng type.
+
+However when we do:
+[source,cpp]
+--
+enum Color
+{
+    red,
+    blue,
+    green,
+};
+
+enum Pet
+{
+    cat,
+    dog,
+};
+--
+
+This creates two geniuenly distinct types: Color and Pet. You would not be able to mix their enumerators.
+
+=== Why enums are useful
+
+Use an enum when something can hold one value from a small, fixed set of related choices.
+
+For example:
+[source,cpp]
+--
+enum Direction
+{
+    north,
+    east,
+    south,
+    west,
+};
+
+enum FileReadResult
+{
+    success,
+    fileOpenError,
+    fileReadError,
+    fileParseError,
+};
+
+--
+
+This makes a conditional such as:
+`if(result==success)` far more meaningful than checking if it matched some arbitary value that was defined as success.
+
+Enums are also small and inexpesnsive to copy, so passing and returning them by value is fine.
+
+=== Using enums with swtich
+
+Enums fit REALLY naturally with switch because you're selecting between a known set of states:
+[source,cpp]
+--
+enum SortOrder
+{
+    alphabetical,
+    reverseAlphabetical,
+    numerical,
+};
+
+void sortData(SortOrder order)
+{
+    switch (order)
+    {
+    case alphabetical:
+        // ...
+        break;
+
+    case reverseAlphabetical:
+        // ...
+        break;
+
+    case numerical:
+        // ...
+        break;
+    }
+}
+--
+
+=== Why they're called unscoped
+
+Let's say we define two enums that have the same name for one of their values:
+[source,cpp]
+--
+enum Color
+{
+    red,
+    blue,
+};
+
+enum Feeling
+{
+    happy,
+    blue, // ERROR
+};
+--
+
+Both enums try to put the name blue into the same scope, which causes a naming collision.
+
+=== Preventing naming collisions
+
+One solution is prefixes to each value:
+[source,cpp]
+--
+enum Color
+{
+    color_red,
+    color_green,
+    color_blue,
+};
+--
+
+But a better solution is putting the enum inside a namespace:
+[source,cpp]
+--
+namespace Color
+{
+    enum Color
+    {
+        red,
+        green,
+        blue,
+    };
+}
+--
+
+Now you'd do:
+`Color::Color shirt{ Color::blue }`
+
+blue lives inside the Color namespace rather than polluting global scope.
+
+== 13.3 Unscoped Enumerator Integral Conversions
+
+=== Enumerators have integral values
+
+Given:
+[source,cpp]
+--
+enum Color
+{
+    black,
+    red,
+    blue,
+    green,
+};
+--
+
+
+C++ automatically associates each numerator with an integral value:
+
+black → 0
+red   → 1
+blue  → 2
+green → 3
+
+so by default the first enumerator is 0, and each following enumerator is the previous value + 1.
+
+So if you were to do:
+`Color shirt{blue};`
+
+shirt is still type Color, but its udnerlying representation corresponds to integral value 2.
+
+=== Explicit enumerator values
+
+You can choose values yourself:
+[source,cpp]
+--
+enum Animal
+{
+    cat = -3,
+    dog,          // -2
+    pig,          // -1
+    horse = 5,
+    giraffe = 5,
+    chicken,      // 6
+};
+--
+
+Some rules are:
+. Values can be positive or negative
+
+. If you don't specify one, it becomes previous + 1
+
+. Multiple enumerators can have the same value
+
+. Enumerator values must be integral constant experssions: you can't give them floating-point or runtime values.
+
+However, you shouldn't explicitly assign enumrator values unless you have a specific reason.
+
+
+=== Value initialzing an enum
+
+When you zeor initialize an enum:
+`Gamestate::Gamestate gamestate_choice{};`
+
+What actually happens? Because if you recall, 0 is a real value in your enum, it represents the first enumerator.
+
+So if you did:
+[source,cpp]
+--
+enum State
+{
+    playing = 1,
+    paused = 2,
+    gameOver = 3,
+};
+
+State state{};
+--
+
+State would STILL get the value of 0, even though there is NO enumerator corresponding to 0.
+
+So now you have a State object whos value dosen't represent any named state in your enum.
+
+So the best practice is to typically make 0 some type of sensible default within the enum. Or if there isn't a sensible default, make 0 an explicit unkown or undecided value.
+
+
+=== Unscoped enum to integer: implicit conversion
+
+A major property of unscoped enums is this:
+    An unscoped enum can implictly convert to an integral value.
+
+[source,cpp]
+--
+enum Color
+{
+    black, // 0
+    red,   // 1
+    blue,  // 2
+};
+
+Color shirt{ blue };
+
+std::cout << shirt;
+--
+
+This would print 2, even though the actual value is blue. Why? Well the operator << first asks can I print a Color directly? And the answer is no. Because what IS a Color? what IS blue? the compiler dosen't know, only we do. So it instead implicitly covnerts it to its integral type.
+
+Then because Color is an unscoped enum, C++ can implicitly convert it to its integral representation, which std::cout can print.
+
+However, rememeber that an enum itself is NOT an integral type. it is a compound program-defined type.
+
+It just has an underlying integral representation, and an unscoped enum allows implicit conversion to an integral value.
+
+=== Underlying type
+
+okay so if enums are represented using integers...which integer type?
+
+That's called the enum's underlying type (or *base*)
+
+For an unscoped enum:
+[source,cpp]
+--
+enum Color
+{
+    red,
+    green,
+    blue,
+};
+--
+
+the exact underlying integral type is generally implementation defined. Most compilers will typically use int when it works, but you should *not assume that every compiler/platform will do so*
+
+You can explicitly specify the underlying type:
+[source,cpp]
+--
+enum Color : std::int8_t
+{
+    red,
+    green,
+    blue,
+};
+--
+
+Where the syntax is:
+`enum EnumName : UnderlyingType`
+
+But don't do this just because you can.
+
+Best practice: specifiy an enum's base type only when necessary.
+
+=== Integer to enum: NOT implicitly allowed
+
+C++ allows you to go from an unscoped enum to an integer, but you CANNOT go from an integer to an unscoped enum.
+
+=== Explicit integer to enum conversion
+
+If you DO want to convert an integer to an enum, you would have to use a static_cast, and use the type of your enum to convert it.
+
+So you would do
+`Gamestate::Gamestate state{static_cast<Gamestate::Gamestate>(3)}`
+
+Which for the project I just did, would translate to three, and three is the que for "Game Over!".
+
+However, the compiler dosen't know what numbers are in your enum range. Trying to convert an integer that is not within your enum can result in undefined behavior.
+
+=== Special C++17 rule
+
+If an unscoped enum explicitly specifies its base type:
+[source,cpp]
+--
+enum Pet : int
+{
+    cat,
+    dog,
+    pig,
+};
+--
+
+Then you can do:
+
+`Pet pet{2};`
+
+But this ONLY works with list initialization.
+
+== 13.4 Converting an enumeration to and from a string
+
+=== The problem: enums don't have names at runtime
+
+Suppose we have:
+[source,cpp]
+--
+enum Color
+{
+    black,
+    red,
+    blue,
+};
+
+Color shirt{ blue };
+
+std::cout << shirt;
+--
+
+You might want blue, but instead you get 2.
+
+Why? std;:cout dosen't know the progammer facing identifier blue should correspond to the TEXT "blue". Since this is an unscoped enum, it instead implictly converts the value to its underlying integral representation.
+
+=== Enum to string
+
+The typical solution is a conversion function:
+[source,cpp]
+--
+constexpr std::String_view getColorName(Color color)
+{
+    switch(color){
+        case black: return "black";
+        case red: return "red";
+        case blue: return "blue";
+        default: return "none";
+    }
+}
+--
+
+Now you can print the result of the function if you wanted to print the specific enum value.
+
+==== why std::String_view?
+
+The return values are string literals, which have static storage duration (they exist for the lifetime of the program)
+
+Therefore, retuning a std::string_view viewing one of those literals is safe.
+
+And because the function is constexpr, it can also be evaluted at compile time when given constant-expression input.
+
+=== Integer input to enum
+
+You can't store input inside of an enum because std::cin dosen't know how to extract input directly into your program-defined Pet ttype.
+
+There is one solution:
+[source,cpp]
+--
+int input{};
+std::cin >> input;
+
+if(input >= 0 && input <= 3){
+    Pet pet{ static_cast<Pet>(input) };
+}
+--
+
+So now whenever the use inputs an int, assuming that int passes both conditions, itll be converted into the corresponding enum.
+
+=== String to enum
+
+Now we go the OTHER direction. Suppose we want the user to type pig, and receive Pet::pig.
+
+We can't use a switch here. Switch only works with integral or enumeration values, not strings.
+
+So instead, we compare strings:
+[source,cpp]
+--
+if (sv == "cat")
+    return cat;
+
+if (sv == "dog")
+    return dog;
+
+if (sv == "pig")
+    return pig;
+--
+
+What if there is an invalid string? One apporach is having an invalid value to the enum, another is using std::optional. This is saying "Maybe I have a Pet, maybe I don't"
+
+So:
+[source,cpp]
+--
+constexpr std::optional<Pet> getPetFromString(std::string_view sv)
+{
+    if (sv == "cat") return cat;
+    if (sv == "dog") return dog;
+    if (sv == "pig") return pig;
+
+    return {};
+}
+--
+
+return {}; means the optional contains *no value*
+
+Then we can do:
+[source,cpp]
+--
+std::optional<Pet> pet{ getPetFromString(input) };
+
+if (!pet)
+{
+    // invalid
+}
+else
+{
+    // *pet gives us the contained Pet
+}
+--
+
+== 13.5 Introduction to Overloading the I/O Operators
+
+=== The problem with our enum-to-string function
+
+In the previous lesson, we made functions like:
+[source,cpp]
+--
+constexpr std::string_view getColorName(Color color)
+{
+    switch (color)
+    {
+    case black: return "black";
+    case red:   return "red";
+    case blue:  return "blue";
+    default:    return "???";
+    }
+}
+--
+
+This allows us to do:
+[source,cpp]
+--
+Color shirt{ blue };
+
+std::cout << getColorName(shirt);
+--
+
+This works, but there are two problems:
+
+1. We have to remember the name getColorName() whenever we want to print a Color.
+
+2. Calling a separate conversion function makes our output statement more cluttered
+
+Ideally, we would want to be able to simply do:
+`std::cout << shirt;`
+
+and C++ would KNOW what a Color should be printed using its name. We can do this using operator overloading.
+
+=== Introduction to operator overloading
+
+We've already learned about function overloading, where multiple functions can have the same anme as long as they have different parameter lists.
+
+Operator overloading applies a similar idea to C++ operators.
+
+*Operator overloading lets us define how an exisitng C++ operator should behave when used with our program-defined types.*
+
+For example, suppose we have:
+ 
+x + y
+
+If one of these operands has a program-defined type, C++ can look for an overloaded function named:
+`operator+`
+
+that knows how to perform + using those operand types.
+
+Conceptually x + y can result in a call to an overload like:
+
+`operator+(x+y)`
+
+The compiler uses normal function overload resolution to determine whether an appropriate operator overload exists.
+
+=== Basic operator-overload structure
+
+To overload an operator:
+1. Define a function *whos name is operator* followed by the operator being overloaded
+
+2. Give the function a paremeter *for each operand* in *left-to-right order*
+
+3. At least one operand *must have a user-defined type* such as a class or enumeration
+
+4. Give the function *whatever return type makes sense for that operation*
+
+For example, an overload of + could look conceptually like:
+[source,cpp]
+--
+ReturnType operator+(Type1 x, Type2 y)
+{
+    // determine x + y
+
+    return result;
+}
+--
+
+You cannot redefine operators purely for built in types.
+
+For example, you can't create your own overload that changes what it means to add int + int.
+
+At least one operand must have a user-defined type.
+
+=== Understanding operator<< before we overload it.
+
+When we write:
+[source,cpp]
+--
+std::cout << 5;
+--
+
+oit may look like << is some special built-in ability of std::cout, but operator<< already has overloads provided by the standard library.
+
+Here:
+
+std::cout   <<   5
+    ↑             ↑
+left operand   right operand
+
+std::cout has type std::ostream while 5 has type int. The compiler therefore looks for an operator<< overload capable of working with those types.
+
+Conceptually, the expression:
+[source,cpp]
+--
+std::cout << 5;
+--
+
+uses an overload that accepts an output stream and integer.
+
+This is why std::cout already knows how to print things like:
+[source,cpp]
+--
+int
+double
+char
+std::string
+--
+
+The standard library has already provided the necessary functionality. But it dosen't automatically know what *our own* program-defined types should look like when printed.
+
+=== Overloading operator<< for an enum
+
+Suppose we have:
+[source,cpp]
+--
+enum Color
+{
+    black,
+    red,
+    blue
+};
+--
+
+and our previous conversion function:
+[source,cpp]
+--
+constexpr std::string_view getColorName(Color color)
+{
+    switch (color)
+    {
+    case black: return "black";
+    case red:   return "red";
+    case blue:  return "blue";
+    default:    return "???";
+    }
+}
+--
+
+We can then teach operator<< how to output a Color:
+[source,cpp]
+--
+std::ostream& operator<<(std::ostream& out, Color color)
+{
+    out << getColorName(color);
+    return out;
+}
+--
+
+Instead of us explicitly calling getColorName(), the compiler sees that we're using operator<< with a Color and finds the overload we created.
+
+==== Breaking down the operator<< overload
+
+This declaration:
+[source,cpp]
+--
+std::ostream& operator<<(std::ostream& out, Color color)
+--
+
+Has several important pieces.
+
+Lets start with the function name.
+
+===== Function name
+
+The function name here is operator<<. This tells C++m that we're defining an overload for the << operator.
+
+===== Left operand
+
+std::ostream& out
+
+This corresponds to the left side:
+
+std::cout << shirt
+^^^^^^^^^
+
+since std::cout is a std::ostream, our first parameter needs to accept a std::ostream
+
+===== Right operand
+
+Color color
+
+this corresponds to:
+
+std::cout << shirt
+             ^^^^^
+
+So the expression:
+
+std::cout << shirt;
+
+effectively gives our function both the out and the color.
+
+===== Function body
+
+Afterwards the function then performs:
+
+out << getColorName(color);
+
+getColorName(color) returns a std::string_view, and the standard library already knows how to output a std::string_view.
+
+So we're essentially building our new Color output behavior using an output operation that already exists.
+
+==== Why std::ostream& is a reference
+
+Notice we make std::ostream a reference. This is for two reasons.
+
+First, we don't want to make a copy of the stream object.
+
+Second, output operations modify the stream, so we need to access the actual stream object that was passed to us. That is also why the reference is non-const.
+
+We need to be able to modify the stream by performing output through it.
+
+==== Why we use out instead of std::cout
+
+Inside our overload, we write:
+
+`out << getColorName(color);`
+
+instead of:
+
+`std::cout<<getColorName(color)`
+
+This is because our function might be called using a different output stream than std::cout. So out referes to whatever output stream appeared on the left side of <<.
+
+==== Why operator<< returns std::ostream&
+
+Our function ends with:
+`return out;`
+
+And therefore has the return type:
+`std::ostream&`
+
+Why return the stream after we've already printed something?
+
+Because returning the left operand is what allows output operations to be *chained*
+
+=== Overloading operator>> for input
+
+We can do the same basic thing with input
+
+Suppose we want this to work:
+[source,cpp]
+--
+Pet pet{};
+std::cin >> pet;
+--
+
+Noramly, std::cin dosen't know how to extract input directly into our program-defined Pet type.
+
+but we can overload operator>> and teach it how.
+
+==== Basic input overload
+
+LearnCpp uses an overload with this form:
+[source,cpp]
+--
+std::istream& operator>>(std::istream& in, Pet& pet)
+{
+    // read input
+    // convert it to Pet
+
+    return in;
+}
+--
+
+Notice how we use std::istream instead of std::ostream here.
+
+==== Why Pet& pet must be a reference
+
+For ouptut, our Color could be passed by value:
+
+because we only needed to isnpect its value. Input is different however, when we write 
+`std::cin >> pet;`
+
+the entire purpose of the operation is to *change pet based on what the user entered*
+
+Therefore our overload needs:
+
+`Pet& pet`
+
+==== Implementing the input conversion
+
+Suppose we already have a string to enum function:
+
+[source,cpp]
+--
+constexpr std::optional<Pet> getPetFromString(std::string_view sv)
+{
+    if (sv == "cat") return cat;
+    if (sv == "dog") return dog;
+    if (sv == "pig") return pig;
+
+    return {};
+}
+--
+
+Our input operator can first read something that std::cin already understands, such as a string:
+[source,cpp]
+--
+std::string s{};
+in >> s;
+--
+
+Then we attempt to convert that to a string:
+[source,cpp]
+--
+std::optional<Pet> match{getPetFromString(s)};
+--
+
+If the optional contains a value:
+[source,cpp]
+--
+if (match)
+{
+    pet = *match;
+    return in;
+}
+--
+
+*match retrives the Pet contained inside the std::optional.
+
+because pet is a reference to the caller's object, assigning:
+[source,cpp]
+--
+pet = *match
+--
+
+Actually changes the object that appeared with 
+`std::cin>>pet;`
+
+==== Handling invalid input
+
+If you look back you'll see that if there are no matches for match, the std::optional is empty. but what should you actually do when it is empty?
+
+Our overloaded extraction operator should then behave like a failed input operation.
+
+LearnCpp does this using:
+[source,cpp]
+--
+in.setstate(std::ios_base::failbit);
+--
+
+This puts the input stream into a *failure state*
+
+That's important because the caller can now use the normal stream-checking behaviour:
+[source,cpp]
+--
+std::cin >> pet;
+
+if (std::cin)
+{
+    // extraction succeeded
+}
+else
+{
+    // extraction failed
+}
+--
+
+So our custom operator>> behaves more like the standard extraction operations do.
+
+==== Returning the input stream
+
+operator>> conventionally returns its left operand:
+`return in;`
+
+Therefore its return type is:
+[source,cpp]
+--
+std::istream&
+--
+
+This allows input operations to chain.
