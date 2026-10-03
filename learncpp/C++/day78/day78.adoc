@@ -1,0 +1,59 @@
+= Compound Types: Enums and Structs
+
+== 13.6 Scoped enumerations (enum classes)
+
+
+===  Why scoped enumerations exist
+
+Unscoped enums have have two important weaknesses:
+
+1. Their enumerators can leak into the surrounding scope, potentially causing naming conflicts
+
+2. They implcitly convert to integers, which can allow comparisons that make no semantic sense.
+
+For example, two different unscoped enum types can end up being compared after both  implcitly convert to integers. Scoped enumerations PREVENT this.
+
+=== Scoped enumeration syntax
+
+A scoped enumeration is declared using enum class:
+[source,cpp]
+--
+enum class Color
+{
+    red,
+    green,
+    blue
+};
+--
+
+Despite the keyword class, an enum class is not actually a class type! enum class is JUST C++ syntax for defining a scoped enumeration
+
+enum struct also works identically, but it is non-idiomatic and should generally be avoided.
+
+=== Scoped enums create their own scope
+
+With an unscoped enum:
+[source,cpp]
+--
+enum Color
+{
+    red,
+    blue
+};
+
+Color color{ red };
+--
+
+Here red is placed into the same surrounding scope as Color.
+
+With a scoped enum:
+[source,cpp]
+--
+enum class Color
+{
+    red,
+    blue
+};
+
+Color color{ Color::red };
+--
